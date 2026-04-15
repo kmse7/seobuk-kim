@@ -1,0 +1,12 @@
+{
+  "name": "workflow",
+  "description": "Multi-agent orchestration — ultrawork pipeline, workspace setup, and infrastructure agents",
+  "version": "1.0.0",
+  "commands": [
+    "commands/ultrawork.md",
+    "commands/setup-workspace.md"
+  ],
+  "agents": [
+    "agents/db-infra.md"
+  ]
+}

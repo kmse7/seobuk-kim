@@ -1,0 +1,35 @@
+# Example CLAUDE.md (Global)
+
+## Destructive Operations
+Irreversible operations (TRUNCATE, DROP, bulk DELETE, schema changes) require approval before execution.
+Format: "I'm about to do X. Impact: Y. Alternative: W. Proceed?"
+
+## Multi-Agent Routing
+Pick the first matching condition:
+
+| Condition | Method |
+|-----------|--------|
+| Single research/exploration/file read | **Subagent** (Explore, background) |
+| 2-5 independent file edits | **Subagent + worktree isolation** |
+| Cross-cutting work (front+back+test) | **Agent Teams** (TeamCreate) |
+| Competing hypotheses, multi-angle review | **Agent Teams** (3-5 agents) |
+| Complex single task, autonomous | **/ultrawork** |
+| Manual multi-session (user intervention) | **cmux** |
+
+**Rules:**
+- Specify clear completion criteria when delegating
+- No parallel edits on shared files — sequential only
+- Agent Teams: file ownership separation (no concurrent edits on same file)
+
+## Context Management
+- `/clear` on task switch
+- Delegate bulk file reads to subagents (protect main context)
+- `/compact` when performance degrades in long sessions
+
+## Code Quality
+- Workflow: explore → plan → code → test
+- Read 2-3 existing files before writing new code — follow patterns
+- One session = one feature
+
+## Git Convention
+Conventional Commits (feat:, fix:, refactor:, docs:, chore:). Review changes before commit.

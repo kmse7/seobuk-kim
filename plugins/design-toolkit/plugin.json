@@ -1,0 +1,9 @@
+{
+  "name": "design-toolkit",
+  "description": "AI-powered design planning and review. Supports Gemini+Codex (multi-AI) or Claude-only mode.",
+  "version": "1.0.0",
+  "skills": [
+    "skills/design-plan",
+    "skills/design-review"
+  ]
+}

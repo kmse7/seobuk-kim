@@ -1,0 +1,8 @@
+{
+  "name": "multi-ai-review",
+  "description": "External AI code review using OpenAI Codex. Falls back to Claude subagent if Codex is unavailable.",
+  "version": "1.0.0",
+  "skills": [
+    "skills/review-ai"
+  ]
+}

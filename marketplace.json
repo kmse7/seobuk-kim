@@ -1,0 +1,28 @@
+{
+  "name": "seobuk-kim",
+  "description": "Full-stack development framework — planning, design, code review, CI/CD, and multi-agent orchestration",
+  "version": "1.0.0",
+  "author": "kmse7",
+  "plugins": [
+    {
+      "name": "design-toolkit",
+      "description": "AI-powered design planning and review with multi-AI (Gemini + Codex) or Claude-only mode",
+      "path": "plugins/design-toolkit"
+    },
+    {
+      "name": "multi-ai-review",
+      "description": "External AI code review using OpenAI Codex (or Claude fallback)",
+      "path": "plugins/multi-ai-review"
+    },
+    {
+      "name": "devops",
+      "description": "CI/CD setup with GitHub Actions self-hosted runner + pm2 production deployment",
+      "path": "plugins/devops"
+    },
+    {
+      "name": "workflow",
+      "description": "Multi-agent orchestration commands (ultrawork, workspace setup) and infrastructure agents",
+      "path": "plugins/workflow"
+    }
+  ]
+}

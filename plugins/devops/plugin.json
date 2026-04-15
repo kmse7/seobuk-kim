@@ -1,0 +1,8 @@
+{
+  "name": "devops",
+  "description": "CI/CD pipeline setup — GitHub Actions self-hosted runner + pm2 production deployment",
+  "version": "1.0.0",
+  "skills": [
+    "skills/cicd-setup"
+  ]
+}
