@@ -45,7 +45,14 @@ tocHtml += '</ul>';
 let chaptersHtml = '';
 chapters.forEach((ch, i) => {
   const md = fs.readFileSync(path.join(DOCS_DIR, ch.file), 'utf-8');
-  const html = marked.parse(md);
+  let html = marked.parse(md);
+  // Fix internal links: .md file references → anchor links
+  const fileToAnchor = {};
+  chapters.forEach((c, j) => { fileToAnchor[c.file] = `#ch${j}`; });
+  html = html.replace(/href="([^"]*\.md)"/g, (match, file) => {
+    const anchor = fileToAnchor[file];
+    return anchor ? `href="${anchor}"` : match;
+  });
   const sectionLabel = sectionNames[ch.section];
   chaptersHtml += `
     <div class="chapter" id="ch${i}">
@@ -76,8 +83,8 @@ const fullHtml = `<!DOCTYPE html>
     --navy-light: #1e293b;
     --accent: #3b82f6;
     --accent-light: #60a5fa;
-    --bg: #ffffff;
-    --bg-alt: #f8fafc;
+    --bg: #FAF9F7;
+    --bg-alt: #F5F3F0;
     --text: #1e293b;
     --text-muted: #64748b;
     --border: #e2e8f0;
@@ -89,7 +96,8 @@ const fullHtml = `<!DOCTYPE html>
     font-family: 'Inter', -apple-system, sans-serif;
     color: var(--text);
     line-height: 1.7;
-    font-size: 11pt;
+    font-size: 16px;
+    background: var(--bg);
   }
 
   /* Cover */
@@ -146,11 +154,12 @@ const fullHtml = `<!DOCTYPE html>
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  .chapter-number { color: var(--text-muted); font-size: 9pt; font-weight: 500; }
-  .chapter-content h1 { font-size: 22pt; font-weight: 700; color: var(--navy); margin: 0 0 20px; }
-  .chapter-content h2 { font-size: 16pt; font-weight: 600; color: var(--navy); margin: 28px 0 12px; padding-top: 16px; border-top: 1px solid var(--border); }
-  .chapter-content h3 { font-size: 13pt; font-weight: 600; color: var(--navy-light); margin: 20px 0 8px; }
-  .chapter-content h4 { font-size: 11pt; font-weight: 600; color: var(--text); margin: 16px 0 6px; }
+  .chapter-number { color: var(--text-muted); font-size: 12px; font-weight: 500; }
+  .chapter-content { max-width: 800px; }
+  .chapter-content h1 { font-size: 28px; font-weight: 700; color: var(--navy); margin: 0 0 20px; }
+  .chapter-content h2 { font-size: 22px; font-weight: 600; color: var(--navy); margin: 32px 0 12px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .chapter-content h3 { font-size: 18px; font-weight: 600; color: var(--navy-light); margin: 24px 0 8px; }
+  .chapter-content h4 { font-size: 16px; font-weight: 600; color: var(--text); margin: 16px 0 6px; }
   .chapter-content p { margin: 8px 0; }
   .chapter-content ul, .chapter-content ol { margin: 8px 0 8px 24px; }
   .chapter-content li { margin: 4px 0; }
@@ -163,29 +172,36 @@ const fullHtml = `<!DOCTYPE html>
     padding: 16px 20px;
     border-radius: 8px;
     overflow-x: auto;
+    max-width: 100%;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 9.5pt;
+    font-size: 14px;
     line-height: 1.5;
-    margin: 12px 0;
+    margin: 16px 0;
+    border-left: 3px solid var(--accent);
   }
   .chapter-content code {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 9.5pt;
+    font-size: 13px;
   }
   .chapter-content p code, .chapter-content li code {
     background: #f1f5f9;
-    padding: 1px 6px;
+    padding: 2px 6px;
     border-radius: 4px;
     color: #be185d;
-    font-size: 9pt;
+    font-size: 13px;
   }
 
   /* Tables */
+  .chapter-content .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 12px 0;
+  }
   .chapter-content table {
     width: 100%;
     border-collapse: collapse;
-    margin: 12px 0;
-    font-size: 10pt;
+    font-size: 14px;
+    min-width: 400px;
   }
   .chapter-content th {
     background: var(--navy);
@@ -213,9 +229,85 @@ const fullHtml = `<!DOCTYPE html>
     color: var(--navy-light);
   }
 
+  /* Mobile Nav */
+  .mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    background: var(--navy);
+    color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+  }
+  .mobile-nav:hover { transform: scale(1.1); }
+  .mobile-nav-panel {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    right: 24px;
+    z-index: 999;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    padding: 16px;
+    max-height: 60vh;
+    overflow-y: auto;
+    width: 280px;
+  }
+  .mobile-nav-panel.open { display: block; }
+  .mobile-nav-panel a {
+    display: block;
+    padding: 10px 12px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 6px;
+    min-height: 44px;
+    line-height: 24px;
+  }
+  .mobile-nav-panel a:hover { background: var(--bg-alt); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .mobile-nav { display: flex; align-items: center; justify-content: center; }
+    .cover h1 { font-size: 28px; }
+    .cover .subtitle { font-size: 14px; }
+    .cover .badge { font-size: 12px; }
+    .toc { padding: 24px 20px; }
+    .toc h2 { font-size: 20px; }
+    .chapter { padding: 24px 20px; }
+    .chapter-header { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .chapter-content h1 { font-size: 22px; }
+    .chapter-content h2 { font-size: 18px; }
+    .chapter-content h3 { font-size: 16px; }
+    .chapter-content pre {
+      font-size: 12px;
+      padding: 12px 14px;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+    .chapter-content table { font-size: 12px; }
+    .chapter-content th, .chapter-content td { padding: 6px 8px; }
+    .chapter-content blockquote { padding: 8px 12px; margin: 8px 0; }
+  }
+
+  @media (min-width: 769px) {
+    .chapter { padding: 40px 60px; display: flex; flex-direction: column; align-items: center; }
+    .chapter-header { max-width: 800px; width: 100%; }
+  }
+
   /* Print */
   @media print {
-    body { font-size: 10pt; }
+    body { font-size: 10pt; background: white; }
+    .mobile-nav, .mobile-nav-panel { display: none !important; }
     .chapter { padding: 30px 50px; }
     .chapter-content pre { font-size: 8.5pt; }
     a { color: var(--text) !important; }
@@ -253,7 +345,20 @@ const fullHtml = `<!DOCTYPE html>
 <!-- Chapters -->
 ${chaptersHtml}
 
-<script>hljs.highlightAll();<\/script>
+<button class="mobile-nav" onclick="document.querySelector('.mobile-nav-panel').classList.toggle('open')" aria-label="목차">☰</button>
+<div class="mobile-nav-panel">
+${chapters.map((ch, i) => `<a href="#ch${i}" onclick="document.querySelector('.mobile-nav-panel').classList.remove('open')">${ch.title}</a>`).join('\n')}
+</div>
+<script>
+hljs.highlightAll();
+// Wrap tables for mobile scroll
+document.querySelectorAll('.chapter-content table').forEach(t => {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'table-wrapper';
+  t.parentNode.insertBefore(wrapper, t);
+  wrapper.appendChild(t);
+});
+<\/script>
 </body>
 </html>`;
 

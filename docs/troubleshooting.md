@@ -14,7 +14,7 @@
 
 > "/clear" (모든 대화 삭제. 기억력 100% 복구)
 
-`/compact`와 `/clear` 상세 설명은 [00장](00-quickstart.md)을 참고하세요.
+`/compact`와 `/clear` 상세 설명은 [처음 시작하기](00-quickstart.md)을 참고하세요.
 
 ⚠️ `/clear` 전에 커밋해두세요. 대화 기록이 전부 사라집니다.
 
@@ -85,7 +85,7 @@ default 모드(매번 승인 요청)로 설정됨.
 💬 AI한테 이렇게 말하세요:
 > "모드를 bypassPermissions로 바꿔줘"
 
-모드 설명은 [03장](03-settings.md)을 참고하세요.
+모드 설명은 [환경 설정](03-settings.md)을 참고하세요.
 
 ---
 
@@ -104,7 +104,7 @@ AI가 설정을 진단하고 자동으로 고칩니다.
 그래도 안 되면:
 > "Playwright 다시 설치해줘"
 
-자세한 내용은 [06장](06-playwright.md)을 참고하세요.
+자세한 내용은 [브라우저 자동화](06-playwright.md)을 참고하세요.
 
 ---
 
@@ -118,7 +118,7 @@ MCP(외부 도구 연결) 설정이 안 됨.
 개발팀에 말하세요:
 > "GitHub MCP 설정을 활성화해줄 수 있나요?"
 
-MCP 설명은 [07장](07-mcp-servers.md)을 참고하세요.
+MCP 설명은 [외부 도구 연결](07-mcp-servers.md)을 참고하세요.
 
 💡 MCP 연결은 개발팀만 할 수 있습니다. 자연어로 요청만 하세요.
 
@@ -145,7 +145,7 @@ mosh를 설정하면 와이파이가 바뀌어도 자동 재연결됩니다.
 💬 AI한테 이렇게 말하세요:
 > "mosh 설치하고 원격 접속 설정해줘"
 
-[02장](02-keyboard-shortcuts.md)을 참고하세요.
+[단축키와 편의 설정](02-keyboard-shortcuts.md)을 참고하세요.
 
 ---
 
@@ -178,7 +178,7 @@ AI가 당신의 규칙을 모름. 매 세션마다 기억이 초기화되기 때
 > "업무 규칙 추가해줘: API 응답은 항상 {code, message, data} 형식으로. console.log는 프로덕션에 남기지 말 것"
 
 AI가 CLAUDE.md에 규칙을 추가합니다. 이후 모든 세션에서 자동으로 따릅니다.
-자세한 내용은 [10장](10-context-engineering.md)을 참고하세요.
+자세한 내용은 [기억력 관리](10-context-engineering.md)을 참고하세요.
 
 ---
 
@@ -237,7 +237,7 @@ Claude Code는 사용한 만큼 비용이 발생합니다.
 | 한 번에 한 가지만 시키기 | 기억력 절약 → 비용 절감 |
 | `/compact`로 기억력 정리 | 불필요한 토큰 사용 방지 |
 | 구체적으로 지시하기 | 재시도 횟수 감소 |
-| 대용량 조사는 조수에게 위임 | 메인 세션 비용 절감 ([08장 참고](08-multi-agent.md)) |
+| 대용량 조사는 조수에게 위임 | 메인 세션 비용 절감 ([멀티에이전트](08-multi-agent.md)) |
 | 새 주제면 `/clear` | 불필요한 기억 제거 |
 
 ---
@@ -289,12 +289,12 @@ Claude Code는 사용한 만큼 비용이 발생합니다.
 
 | 상황 | 해결법 | 참고 |
 |------|--------|------|
-| AI가 느려 | `/compact` 또는 `/clear` | [00장](00-quickstart.md) |
-| AI가 까먹어 | `/status` 확인, CLAUDE.md 업데이트 | [10장](10-context-engineering.md) |
+| AI가 느려 | `/compact` 또는 `/clear` | [처음 시작하기](00-quickstart.md) |
+| AI가 까먹어 | `/status` 확인, CLAUDE.md 업데이트 | [기억력 관리](10-context-engineering.md) |
 | 파일 못 찾아 | 프로젝트 폴더에서 `claude` 재시작 | - |
-| 권한 계속 물어봐 | "모드를 bypassPermissions로 바꿔줘" | [03장](03-settings.md) |
-| 연결 끊김 | `claude --resume latest` | [02장](02-keyboard-shortcuts.md) |
-| 파일 되돌리기 | "방금 한 변경 되돌려줘" | [05장](05-git-workflow.md) |
-| 외부 도구 안 됨 | 개발팀에 MCP 설정 요청 | [07장](07-mcp-servers.md) |
-| 브라우저 안 됨 | "환경 설정 확인해줘" | [06장](06-playwright.md) |
-| 같은 실수 반복 | CLAUDE.md에 규칙 추가 | [10장](10-context-engineering.md) |
+| 권한 계속 물어봐 | "모드를 bypassPermissions로 바꿔줘" | [환경 설정](03-settings.md) |
+| 연결 끊김 | `claude --resume latest` | [단축키와 편의 설정](02-keyboard-shortcuts.md) |
+| 파일 되돌리기 | "방금 한 변경 되돌려줘" | [Git 기초](05-git-workflow.md) |
+| 외부 도구 안 됨 | 개발팀에 MCP 설정 요청 | [외부 도구 연결](07-mcp-servers.md) |
+| 브라우저 안 됨 | "환경 설정 확인해줘" | [브라우저 자동화](06-playwright.md) |
+| 같은 실수 반복 | CLAUDE.md에 규칙 추가 | [기억력 관리](10-context-engineering.md) |
