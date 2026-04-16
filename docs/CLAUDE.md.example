@@ -27,7 +27,9 @@ Pick the first matching condition:
 - `/compact` when performance degrades in long sessions
 
 ## Code Quality
-- Workflow: explore → plan → code → test
+- Workflow: explore → plan → **plan-review (CRITICAL/HIGH 0까지 반복)** → code → **code-review** → test
+- Plan review: `code-reviewer` agent로 CRITICAL/HIGH/MEDIUM/LOW 분류. CRITICAL/HIGH 없을 때까지 수정+재리뷰 (최대 3회)
+- Code review: 구현 완료 후 `/review-ai` 또는 `code-reviewer` agent로 검증
 - Read 2-3 existing files before writing new code — follow patterns
 - One session = one feature
 

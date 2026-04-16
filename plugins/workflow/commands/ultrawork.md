@@ -5,8 +5,15 @@ You are now in ULTRAWORK mode. Execute the following task with maximum precision
 2. Launch `Explore` agent in background — scan codebase for relevant patterns and existing code
 3. Wait for both, then synthesize findings
 4. Enter Plan mode — create detailed implementation plan with clear phases and acceptance criteria
-5. Launch `critic` agent — validate the plan for gaps, over-engineering, and missing edge cases
-6. Revise plan based on critic feedback
+
+## Phase 1.5: Plan Review Loop (CRITICAL/HIGH 제거까지 반복)
+1. Launch `code-reviewer` agent — 플랜을 CRITICAL/HIGH/MEDIUM/LOW로 리뷰
+2. CRITICAL 또는 HIGH 이슈가 있으면:
+   - 이슈 반영하여 플랜 수정
+   - 다시 `code-reviewer`로 재리뷰
+   - CRITICAL/HIGH 0개가 될 때까지 반복 (최대 3회)
+3. MEDIUM 이슈는 플랜에 반영 후 진행
+4. LOW 이슈는 기록만 하고 진행
 
 ## Phase 2: Execution
 1. Break plan into independent tasks
