@@ -1,0 +1,31 @@
+{
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "80",
+    "ENABLE_TOOL_SEARCH": "auto"
+  },
+  "permissions": {
+    "defaultMode": "bypassPermissions"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  },
+  "hooks": {
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"systemMessage\":\"IMPORTANT: When compacting, always preserve: 1) Full list of modified files with paths 2) Current task/goal description 3) Test commands that were used 4) Any error messages being debugged 5) Key decisions made during this session\"}'"
+          }
+        ]
+      }
+    ]
+  },
+  "worktree": {
+    "symlinkDirectories": ["node_modules", ".venv", ".next", ".cache"]
+  },
+  "showClearContextOnPlanAccept": true,
+  "cleanupPeriodDays": 14,
+  "skipDangerousModePermissionPrompt": true
+}

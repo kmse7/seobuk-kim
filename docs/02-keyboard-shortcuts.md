@@ -1,284 +1,383 @@
-# Claude Code 키보드 단축키 & Shell 설정
+# 더 빠르게 쓰는 법 — 단축키와 편의 설정
 
-Claude Code를 더 빠르게 사용하기 위한 필수 단축키와 권장 설정을 정리합니다.
+Claude Code를 더 빨리 쓰려면 손가락이 움직이지 않아야 합니다. 이 장에서 그 방법을 배웁니다.
 
-## 필수 키보드 단축키
+---
 
-Claude Code는 표준 터미널 단축키를 따릅니다.
+## 꼭 알아야 할 단축키 5개
 
-| 단축키 | 동작 | 사용 시기 |
+이 단축키들은 거의 모든 컴퓨터의 **터미널**(글자로 명령하는 검은 화면)에서 같습니다.
+
+| 단축키 | 뜻 | 언제 쓰나 |
 |--------|------|----------|
-| `Escape` | 현재 입력 취소 | 길게 작성한 메시지 버림 |
-| `Ctrl+C` | 현재 AI 응답 중단 | 길어지는 답변을 멈추고 싶을 때 |
-| `Ctrl+D` | Claude Code 종료 | 세션 빠져나가기 (또는 `/exit`) |
-| `Tab` | 자동완성 (파일명, 명령어) | 파일 경로 자동 완성 |
-| `Up Arrow` | 이전 메시지 재호출 | 같은 질문 다시 입력 |
-| `Down Arrow` | 다음 메시지 (히스토리 탐색) | 이전 메시지들 되돌리기 |
-| `Ctrl+A` | 라인 시작으로 커서 이동 | 긴 메시지 처음부터 수정 |
-| `Ctrl+E` | 라인 끝으로 커서 이동 | 마지막 부분 수정 |
-| `Ctrl+U` | 현재 라인 전체 삭제 | 처음부터 다시 작성 |
-| `Ctrl+L` | 화면 정리 | 스크롤 올리기 힘들 때 |
+| **Escape** | 지금 입력한 것 취소 | 길게 작성한 질문이 마음에 안 들 때 |
+| **Ctrl + C** | AI의 답변 중단 | 답변이 너무 길어질 때, 뭔가 잘못됐을 때 |
+| **Ctrl + D** | Claude Code 종료 | 일을 다 끝낼 때 (`/exit`와 같음) |
+| **Tab** | 자동 완성 | 파일 경로를 자동으로 채우고 싶을 때 |
+| **↑ 화살표** | 이전에 쓴 질문 다시 불러오기 | 같은 질문을 또 하고 싶을 때 |
 
-## Shell Alias 설정
+### 단축키 사용 예시
 
-자주 사용하는 명령어를 단축하는 별칭(alias)을 등록합니다.
+**답변이 길어질 때 멈추기:**
 
-### .zshrc에 추가
-
-```bash
-# ~/.zshrc 또는 ~/.bashrc에 추가
-
-# 기본 단축키
-alias cc="claude"
-alias ccp="claude -p"              # non-interactive 모드
-alias ccr="claude --resume latest" # 마지막 세션 재개
-alias ccs="claude --status"        # 현재 상태 확인
-
-# 특정 모드로 실행
-alias ccd="claude --mode default"      # 승인 요청 (기본값)
-alias cca="claude --mode acceptEdits"  # 자동 적용
-alias ccp="claude --mode plan"         # 계획 모드 (읽기만)
-
-# 프로젝트별 단축키
-alias cc-web="cd ~/projects/web && claude"
-alias cc-api="cd ~/projects/api && claude"
-
-# 유용한 조합
-alias ccx="claude --clear-context"  # 컨텍스트 초기화 후 시작
+```
+Ctrl + C
 ```
 
-적용:
+→ AI가 말하던 것을 멈춤
+
+**파일 경로 자동완성:**
+
+터미널에:
+
+```
+read src/com
+```
+
+입력한 후 → `Tab` 누르기 → 자동으로 `src/components/`로 완성
+
+**이전 질문 다시 하기:**
+
+`↑` 화살표 눌러서 이전 질문 찾기 → 엔터
+
+---
+
+## 자주 쓰는 명령어 줄이기
+
+### 문제: 매번 긴 명령어 치기 귀찮음
+
+매번 이렇게 입력하는 게 싫다면?
+
+```bash
+claude --mode plan
+```
+
+### 해결법: 단축 명령 만들기 (alias)
+
+**alias**(별칭)란? 자주 쓰는 명령어를 짧게 줄인 것입니다.
+
+예를 들어, `claude`를 `cc`로 줄일 수 있습니다.
+
+### Mac에서 설정하기
+
+1. 터미널 열기
+2. 이 명령어 입력:
+
+```bash
+nano ~/.zshrc
+```
+
+3. 맨 아래에 이 코드 추가:
+
+```bash
+# ========== Claude Code 단축키 ==========
+alias cc="claude"
+alias ccp="claude --mode plan"
+alias cca="claude --mode acceptEdits"
+```
+
+4. `Ctrl + X` → `Y` → `Enter` 눌러서 저장
+
+5. 터미널 재시작 또는:
 
 ```bash
 source ~/.zshrc
-# 또는 터미널 재시작
 ```
 
-### 자주 쓰는 패턴
+### 이제 이렇게 쓸 수 있음
+
+짧은 명령어로 실행:
 
 ```bash
-# 빠른 검색
-cc "Find all database queries in src/"
-
-# 파일 읽기 후 질문
-cc "Read src/app.js and explain the main flow"
-
-# 테스트 실행
-cc "Run npm test and fix any failures"
-
-# 특정 폴더에서 세션 시작
-cd ~/projects/mobile && cc
+cc                  # claude와 같음
+ccp                 # claude --mode plan과 같음
+cca                 # claude --mode acceptEdits와 같음
 ```
 
-## tmux와 함께 사용하기
+### Windows에서 설정하기
 
-Claude Code는 터미널에서 동작하므로 tmux와 완벽하게 호환됩니다.
+Windows는 다른 방식입니다.
 
-### tmux 기본 사용
+1. **Windows 검색** → "환경 변수" 입력
+2. "환경 변수 편집" 클릭
+3. "새로 만들기" → 변수 이름: `CC_ALIAS` → 변수 값: `claude`
+4. 명령 프롬프트 재시작
 
-Claude Code 세션과 다른 터미널 작업을 동시에 진행합니다.
+하지만 Windows에서는 조금 더 복잡해서, **이 방법보다는 파워셸 프로필 수정**을 권장합니다. (고급 사용자용)
+
+---
+
+## 여러 작업을 동시에 하기
+
+### 문제: Claude Code를 쓰면서 다른 터미널 명령도 실행하고 싶음
+
+예를 들어:
+
+- 왼쪽 창: Claude Code가 코드 수정 중
+- 오른쪽 창: 나는 `npm test` 실행 중
+
+### 해결법: **tmux** 사용하기
+
+**tmux**를 쉽게 설명하면 "**브라우저 탭처럼 터미널 창을 여러 개 띄우는 것**"입니다.
+
+#### tmux 설치
+
+Mac:
 
 ```bash
-# tmux 세션 시작
+brew install tmux
+```
+
+Windows (WSL 필요):
+
+```bash
+sudo apt install tmux
+```
+
+#### tmux 사용법
+
+**새 tmux 세션 시작:**
+
+```bash
 tmux new-session -s claude
+```
 
-# Claude Code 실행
+→ 특별한 터미널 창 실행됨
+
+**Claude Code 실행:**
+
+```bash
 claude
 ```
 
-다른 창에서:
+**다른 창 열기 (Claude가 실행 중인 상태에서):**
+
+새 터미널에서:
 
 ```bash
-# 새 창 열기 (기존 세션 내)
 tmux new-window -t claude
-
-# 기존 세션 접속
-tmux attach -t claude
 ```
 
-### Claude Code와 터미널 함께 사용
+→ 같은 세션 내에서 새로운 창 열림
 
-Claude Code의 대화와 별도로 직접 명령어를 실행하려면:
+**창 전환하기:**
+
+- `Ctrl + B` → `N` → 다음 창
+- `Ctrl + B` → `P` → 이전 창
+- `Ctrl + B` → `숫자` → 특정 창 (0, 1, 2...)
+
+### 실제 예시
+
+```
+[창 1] Claude Code
+> 로그인 기능 수정 중...
+
+[창 2] 터미널
+$ npm test          # 테스트 돌려보기
+$ git status        # 변경사항 확인
+```
+
+Claude가 수정하는 동안 창 2에서 테스트를 실시간으로 돌릴 수 있습니다!
+
+---
+
+## 와이파이가 바뀌어도 끊기지 않는 원격 접속
+
+### 문제: 회의실 이동했는데 연결 끊김
+
+카페에서 회사로 이동할 때, 와이파이가 바뀌면서 원격 접속(예: AWS EC2 서버)이 끊어질 수 있습니다.
+
+### 해결법: **mosh** 사용하기
+
+**mosh**(Mobile Shell)는 "**와이파이가 바뀌어도 끊기지 않는 원격 접속**"입니다.
+
+#### mosh 설치
+
+Mac:
 
 ```bash
-# 기본: Claude Code가 메인 창
-tmux new-window -t claude  # 새 창에서 다른 작업 수행
+brew install mosh
 ```
 
-예시:
-
-```
-[창 1] Claude Code 세션
-> Build artifacts using new database schema
-
-[창 2] 실제 터미널
-$ npm run build
-$ npm test
-$ git status
-```
-
-### 추천 tmux 설정
-
-`~/.tmux.conf` 추가:
+Linux:
 
 ```bash
-# 기본 접두사 변경 (선택사항)
-set -g prefix C-b
-
-# 새 창/패인 현재 경로에서 열기
-bind c new-window -c "#{pane_current_path}"
-bind - split-window -h -c "#{pane_current_path}"
-bind _ split-window -v -c "#{pane_current_path}"
-
-# 마우스 지원 (선택사항)
-set -g mouse on
-
-# 색상 지원
-set -g default-terminal "screen-256color"
+sudo apt install mosh
 ```
 
-적용:
+#### mosh 사용법
+
+일반 SSH 대신:
 
 ```bash
-tmux source-file ~/.tmux.conf
+ssh user@example.com
 ```
 
-## 권장 .zshrc 설정
-
-Claude Code 사용 경험을 개선하는 .zshrc 설정:
+이렇게 하기:
 
 ```bash
-# ~/.zshrc
-
-# ============ Claude Code 설정 ============
-
-# 별칭
-alias cc="claude"
-alias ccr="claude --resume latest"
-alias ccp="claude -p"
-
-# Claude Code가 기본 모드로 시작되도록
-export CLAUDE_MODE="default"
-
-# 프롬프트에 현재 프로젝트명 표시 (선택사항)
-function prompt_claude_status() {
-  if [ -f "package.json" ] || [ -f "go.mod" ] || [ -f "Cargo.toml" ]; then
-    echo "($(basename $PWD)) "
-  fi
-}
-
-# 프롬프트 커스터마이징
-PROMPT='$(prompt_claude_status)%n@%m:%c$ '
-
-# ============ 일반 터미널 설정 ============
-
-# Vi 모드 (vi 스타일 키 바인딩)
-bindkey -v
-
-# History 설정
-HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
-setopt SHARE_HISTORY
-
-# 자동완성
-autoload -Uz compinit && compinit
-
-# 편리한 cd
-setopt AUTO_CD
-
-# Globbing 개선
-setopt EXTENDED_GLOB
+mosh user@example.com
 ```
 
-적용:
+→ 와이파이가 바뀌어도 **자동으로 재연결됨**
 
-```bash
-source ~/.zshrc
+❌ 주의: 서버에도 mosh가 설치되어 있어야 합니다.
+
+---
+
+## Windows 사용자 안내
+
+위의 설정들(alias, tmux, mosh)은 **주로 Mac/Linux 기준**입니다.
+
+Windows는 조금 다릅니다. 선택지는:
+
+| 선택지 | 난이도 | 추천 |
+|--------|--------|------|
+| **그냥 Claude Code만 쓰기** | ⭐ 쉬움 | 처음 사용자 |
+| **PowerShell 별칭 설정** | ⭐⭐ 중간 | 단축키가 필요할 때 |
+| **WSL(Windows Subsystem for Linux) 설치** | ⭐⭐⭐ 어려움 | tmux/mosh 쓰고 싶을 때 |
+
+### Windows에서 PowerShell 별칭 설정하기
+
+1. **PowerShell 관리자 권한으로 열기**
+2. 프로필 만들기:
+
+```powershell
+if (!(Test-Path $PROFILE)) { New-Item -ItemType File -Path $PROFILE -Force }
 ```
 
-## 터미널 생산성 팁
+3. 프로필 편집:
 
-### Claude Code + 에디터 병행
-
-Claude Code와 IDE를 동시에 열어두면:
-
-1. Claude Code에서 코드 제안 받음
-2. IDE에서 실시간 테스트
-3. 피드백을 Claude Code에 전달
-
-```bash
-# IDE와 Claude Code 동시 실행
-code ~/my-project &
-sleep 2
-claude
+```powershell
+notepad $PROFILE
 ```
+
+4. 아래 추가:
+
+```powershell
+Set-Alias -Name cc -Value claude
+```
+
+5. 저장 후 PowerShell 재시작
+
+---
+
+## 💡 추가 팁
 
 ### 빠른 테스트-수정 루프
 
-```bash
-# 창 1: Claude Code
-$ cc
-> Fix the failing test in src/math.test.js
+```
+[창 1] Claude Code에서:
+> src/math.test.js의 실패한 테스트 고쳐줄 수 있어?
 
-# 창 2: 실제 테스트 실행
+[창 2] 동시에 터미널에서:
 $ npm test -- --watch
 ```
 
-Claude Code가 수정을 제안하면, 창 2의 watch 모드에서 즉시 테스트 결과 확인.
+Claude가 수정 중일 때, 창 2의 watch 모드가 자동으로 **실시간 테스트 결과**를 보여줍니다!
 
-### Claude Code 히스토리 재사용
+### 이전 세션 다시 열기
 
-지난 세션 다시 열기:
+Claude Code를 끝냈다가 다시 같은 대화를 계속하고 싶을 때:
 
 ```bash
-claude --resume latest      # 마지막 세션
-claude --resume <session-id> # 특정 세션 (session-id 확인 필요)
+claude --resume latest
 ```
 
-또는 alias 사용:
+또는 alias를 추가했다면:
+
+```bash
+alias ccr="claude --resume latest"
+```
+
+입력 후:
 
 ```bash
 ccr
 ```
 
+---
+
 ## 문제 해결
 
-### 긴 응답이 끝나지 않을 때
+### 문제: 답변이 너무 길어서 끝나지 않음
 
 ```
-Ctrl+C  # Claude Code의 응답 중단
+Ctrl + C
 ```
 
-그 후:
+→ 답변 중단
+
+그 다음:
 
 ```
-/clear  # 컨텍스트 초기화하고 다시 시작
+/clear
 ```
 
-### 터미널이 깨졌을 때
+→ 대화 초기화하고 다시 시작
+
+### 문제: 터미널이 깨진 것 같음 (글자가 이상함)
 
 ```bash
-reset  # 터미널 상태 복구
+reset
 ```
 
-또는:
+또는 Claude Code 내에서:
+
+```
+Ctrl + L
+```
+
+→ 화면 정리
+
+### 문제: Tab으로 자동완성이 안 됨
+
+파일 경로를 수동으로 입력하기:
+
+```
+read ./src/components/Button.tsx
+```
+
+또는 전체 경로 사용:
+
+```
+read /Users/username/projects/myapp/src/app.js
+```
+
+### 문제: tmux 창이 복잡해짐
+
+현재 세션 끝내기:
 
 ```bash
-Ctrl+L  # Claude Code 내에서 화면 정리
+tmux kill-session -t claude
 ```
 
-### 파일 경로 자동완성 안 될 때
+새로 시작하기:
 
 ```bash
-# Tab 키가 먹지 않으면 수동으로 경로 입력
-Read ./src/components/Button.tsx
-
-# 또는 전체 경로 사용
-Read /Users/username/projects/app/src/app.js
+tmux new-session -s claude
 ```
+
+---
+
+## 정리: 꼭 기억할 것
+
+✅ **필수:**
+- `Escape` — 입력 취소
+- `Ctrl + C` — 답변 중단
+- `Tab` — 파일 경로 자동완성
+
+✅ **편하게:**
+- alias로 명령어 줄이기
+- tmux로 여러 창 띄우기
+
+✅ **고급:**
+- mosh로 안정적인 원격 접속
+- `/resume latest`로 이전 대화 이어가기
+
+---
 
 ## 다음 단계
 
-- [00-quickstart.md](00-quickstart.md) - 설치 및 기본 사용법
-- [01-basic-usage.md](01-basic-usage.md) - 파일 작업, 코드 질문, 검색
+- [00-quickstart.md](00-quickstart.md) — 기본부터 다시 확인
+- [01-basic-usage.md](01-basic-usage.md) — 상황별 활용법

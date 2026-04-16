@@ -1,0 +1,4401 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 핸드북 — seobuk-kim</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --navy: #0f172a;
+    --navy-light: #1e293b;
+    --accent: #3b82f6;
+    --accent-light: #60a5fa;
+    --bg: #ffffff;
+    --bg-alt: #f8fafc;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 11pt;
+  }
+
+  /* Cover */
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 100%);
+    color: white;
+    text-align: center;
+    page-break-after: always;
+  }
+  .cover-icon { font-size: 64px; margin-bottom: 24px; }
+  .cover h1 { font-size: 42pt; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+  .cover .subtitle { font-size: 16pt; font-weight: 300; color: var(--accent-light); margin-bottom: 48px; }
+  .cover .meta { font-size: 10pt; color: #94a3b8; }
+  .cover .meta span { margin: 0 12px; }
+  .cover .badge { display: inline-block; background: var(--accent); color: white; padding: 6px 16px; border-radius: 20px; font-size: 10pt; font-weight: 500; margin-bottom: 48px; }
+
+  /* TOC */
+  .toc {
+    padding: 60px 80px;
+    page-break-after: always;
+  }
+  .toc h2 { font-size: 24pt; font-weight: 700; color: var(--navy); margin-bottom: 32px; border-bottom: 3px solid var(--accent); padding-bottom: 12px; }
+  .toc-section { font-size: 11pt; font-weight: 600; color: var(--accent); margin: 20px 0 8px; text-transform: uppercase; letter-spacing: 1px; }
+  .toc-list { list-style: none; padding: 0; }
+  .toc-list li { padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .toc-list a { color: var(--text); text-decoration: none; font-weight: 400; }
+  .toc-list a:hover { color: var(--accent); }
+
+  /* Chapters */
+  .chapter {
+    padding: 40px 60px;
+    page-break-before: always;
+  }
+  .chapter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  .chapter-badge {
+    background: var(--accent);
+    color: white;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-size: 9pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .chapter-number { color: var(--text-muted); font-size: 9pt; font-weight: 500; }
+  .chapter-content h1 { font-size: 22pt; font-weight: 700; color: var(--navy); margin: 0 0 20px; }
+  .chapter-content h2 { font-size: 16pt; font-weight: 600; color: var(--navy); margin: 28px 0 12px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .chapter-content h3 { font-size: 13pt; font-weight: 600; color: var(--navy-light); margin: 20px 0 8px; }
+  .chapter-content h4 { font-size: 11pt; font-weight: 600; color: var(--text); margin: 16px 0 6px; }
+  .chapter-content p { margin: 8px 0; }
+  .chapter-content ul, .chapter-content ol { margin: 8px 0 8px 24px; }
+  .chapter-content li { margin: 4px 0; }
+  .chapter-content a { color: var(--accent); text-decoration: none; }
+
+  /* Code */
+  .chapter-content pre {
+    background: #0d1117;
+    color: #c9d1d9;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5pt;
+    line-height: 1.5;
+    margin: 12px 0;
+  }
+  .chapter-content code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5pt;
+  }
+  .chapter-content p code, .chapter-content li code {
+    background: #f1f5f9;
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: #be185d;
+    font-size: 9pt;
+  }
+
+  /* Tables */
+  .chapter-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 10pt;
+  }
+  .chapter-content th {
+    background: var(--navy);
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .chapter-content td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .chapter-content tr:nth-child(even) td { background: var(--bg-alt); }
+
+  /* Blockquote */
+  .chapter-content blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 8px 16px;
+    margin: 12px 0;
+    background: #eff6ff;
+    border-radius: 0 6px 6px 0;
+    color: var(--navy-light);
+  }
+
+  /* Print */
+  @media print {
+    body { font-size: 10pt; }
+    .chapter { padding: 30px 50px; }
+    .chapter-content pre { font-size: 8.5pt; }
+    a { color: var(--text) !important; }
+  }
+
+  @page {
+    size: A4;
+    margin: 20mm 15mm 25mm 15mm;
+  }
+</style>
+</head>
+<body>
+
+<!-- Cover -->
+<div class="cover">
+  <div class="cover-icon">⚡</div>
+  <h1>Claude Code 핸드북</h1>
+  <div class="subtitle">seobuk-kim framework</div>
+  <div class="badge">v1.0 — Full-Stack Development Framework</div>
+  <div class="meta">
+    <span>Seobuk Corp.</span>
+    <span>|</span>
+    <span>2026-04-16</span>
+    <span>|</span>
+    <span>14 Chapters</span>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h2>목차</h2>
+  <h3 class="toc-section">입문</h3><ul class="toc-list"><li><a href="#ch0">빠른 시작</a></li><li><a href="#ch1">기본 사용법</a></li><li><a href="#ch2">단축키 & 셸 설정</a></li></ul><h3 class="toc-section">중급</h3><ul class="toc-list"><li><a href="#ch3">Settings 최적화</a></li><li><a href="#ch4">스킬 & 커맨드</a></li><li><a href="#ch5">Git 워크플로우</a></li><li><a href="#ch6">Playwright 자동화</a></li><li><a href="#ch7">MCP 서버</a></li></ul><h3 class="toc-section">고급</h3><ul class="toc-list"><li><a href="#ch8">멀티에이전트</a></li><li><a href="#ch9">cmux 멀티세션</a></li><li><a href="#ch10">컨텍스트 엔지니어링</a></li><li><a href="#ch11">CI/CD 셋업</a></li></ul><h3 class="toc-section">부록</h3><ul class="toc-list"><li><a href="#ch12">문제 해결</a></li></ul>
+</div>
+
+<!-- Chapters -->
+
+    <div class="chapter" id="ch0">
+      <div class="chapter-header">
+        <span class="chapter-badge">입문</span>
+        <span class="chapter-number">Chapter 01</span>
+      </div>
+      <div class="chapter-content">
+        <h1>처음 시작하기 — Claude Code 설치부터 첫 대화까지</h1>
+<h2>Claude Code가 뭔가요?</h2>
+<p>Claude Code는 <strong>AI 비서가 내 컴퓨터에서 직접 일하는 도구</strong>입니다.</p>
+<h3>일반 ChatGPT와 뭐가 다른가요?</h3>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>일반 ChatGPT</th>
+<th>Claude Code</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>어디서?</strong></td>
+<td>웹 브라우저에서만</td>
+<td>내 컴퓨터에서 직접</td>
+</tr>
+<tr>
+<td><strong>뭘 할 수 있나?</strong></td>
+<td>물어보고 답 받기</td>
+<td>파일을 직접 읽고 수정, 명령어 실행, 검색</td>
+</tr>
+<tr>
+<td><strong>파일 수정</strong></td>
+<td>불가능</td>
+<td>직접 가능</td>
+</tr>
+<tr>
+<td><strong>프로젝트 이해도</strong></td>
+<td>낮음 (파일을 못 봄)</td>
+<td>높음 (전체 파일 분석)</td>
+</tr>
+</tbody></table>
+<p><strong>쉽게 말해:</strong> &quot;ChatGPT가 내 컴퓨터에 눈과 손을 가진 셈&quot;이라고 생각하면 됩니다.</p>
+<hr>
+<h2>1단계: 설치하기</h2>
+<h3>Mac에서 설치</h3>
+<ol>
+<li><p><strong>터미널</strong>(컴퓨터에 글자로 명령하는 검은 화면) 열기</p>
+<ul>
+<li>맥의 오른쪽 위 검색 아이콘 → &quot;터미널&quot; 입력 → 엔터</li>
+</ul>
+</li>
+<li><p>아래 한 줄을 복사해서 터미널에 붙여넣고 엔터 치기</p>
+</li>
+</ol>
+<pre><code class="language-bash">brew install anthropic/claude/claude
+</code></pre>
+<ol start="3">
+<li>혹시 위가 안 되면 이 방법 시도하기</li>
+</ol>
+<pre><code class="language-bash">npm install -g @anthropic-ai/claude
+</code></pre>
+<ol start="4">
+<li>설치 확인하기</li>
+</ol>
+<pre><code class="language-bash">claude --version
+</code></pre>
+<p>✅ <code>Claude v0.x</code> 같은 버전이 나오면 설치 완료!</p>
+<h3>Windows에서 설치</h3>
+<ol>
+<li><p><strong>명령 프롬프트</strong> 열기 (또는 PowerShell)</p>
+<ul>
+<li>시작 → &quot;cmd&quot; 입력 → 엔터</li>
+</ul>
+</li>
+<li><p>아래 명령어 복사-붙여넣기</p>
+</li>
+</ol>
+<pre><code class="language-bash">npm install -g @anthropic-ai/claude
+</code></pre>
+<p>❌ 만약 <code>npm을 찾을 수 없음</code> 에러가 나면?
+→ Node.js를 먼저 설치해야 합니다. <a href="https://nodejs.org">https://nodejs.org</a> 에서 LTS 버전 설치</p>
+<hr>
+<h2>2단계: 처음 실행하기</h2>
+<h3>로그인하기</h3>
+<ol>
+<li>터미널에서 아래 입력:</li>
+</ol>
+<pre><code class="language-bash">claude
+</code></pre>
+<ol start="2">
+<li>이런 메시지가 보일 것입니다:</li>
+</ol>
+<pre><code>Claude Code v0.x
+Type /login to authenticate
+</code></pre>
+<ol start="3">
+<li>이렇게 입력:</li>
+</ol>
+<pre><code>/login
+</code></pre>
+<ol start="4">
+<li>엔터 누르면 <strong>자동으로 브라우저 열림</strong></li>
+<li>Anthropic 계정으로 로그인 (없으면 가입)</li>
+<li>승인하기</li>
+<li>터미널로 돌아가면 완료!</li>
+</ol>
+<h3>프로젝트 폴더에서 시작하기</h3>
+<p>Claude Code를 쓸 때는 항상 <strong>프로젝트 폴더에서 시작</strong>해야 합니다.</p>
+<pre><code class="language-bash">cd ~/내_프로젝트_폴더_경로
+claude
+</code></pre>
+<p>❓ &quot;폴더&quot;가 뭐냐고요?</p>
+<ul>
+<li>아, 내 컴퓨터에 파일들이 들어있는 상자 같은 거라고 생각하면 됩니다.</li>
+<li><code>cd</code>는 &quot;이 폴더로 이동해&quot; 라는 의미입니다.</li>
+</ul>
+<hr>
+<h2>3단계: 첫 대화 나누기</h2>
+<p>이제 AI한테 뭔가 물어보세요!</p>
+<h3>예시 10가지</h3>
+<p><strong>상황 1: 이 프로젝트가 뭐 하는 건지 모를 때</strong></p>
+<pre><code>이 프로젝트 구조 설명해줄래?
+</code></pre>
+<p>Claude Code가 폴더 구조를 보고 자동으로 설명해줍니다.</p>
+<p><strong>상황 2: 파일 목록을 보고 싶을 때</strong></p>
+<pre><code>프로젝트에 파일이 뭐가 있어?
+</code></pre>
+<p><strong>상황 3: 특정 파일이 뭐 하는 건지 모를 때</strong></p>
+<pre><code>src/auth.js가 뭐 하는 파일이야?
+</code></pre>
+<p><strong>상황 4: 코드가 이해 안 될 때</strong></p>
+<pre><code>이 코드가 뭐 하는 건지 쉽게 설명해줄래? src/utils/helper.js
+</code></pre>
+<p><strong>상황 5: 뭔가 고장 났을 때</strong></p>
+<pre><code>로그인이 안 되는데 src/login.js 확인해줄래?
+</code></pre>
+<p><strong>상황 6: 새로운 기능을 만들고 싶을 때</strong></p>
+<pre><code>프로필 사진 업로드 기능 만들어줄래?
+</code></pre>
+<p><strong>상황 7: 코드가 너무 복잡할 때</strong></p>
+<pre><code>이 코드 좀 더 간단하게 정리해줄래? src/processing.js
+</code></pre>
+<p><strong>상황 8: 웹에서 뭔가 찾고 싶을 때</strong></p>
+<pre><code>React의 최신 버전이 뭐야? 어떤 변화가 있었어?
+</code></pre>
+<p><strong>상황 9: 에러 메시지가 나올 때</strong></p>
+<pre><code>이 에러 메시지가 뭔 의미야? &quot;TypeError: undefined is not a function&quot;
+</code></pre>
+<p><strong>상황 10: 파일을 찾고 싶을 때</strong></p>
+<pre><code>로그인 관련 파일이 어디에 있어?
+</code></pre>
+<hr>
+<h2>4단계: 모드란?</h2>
+<p>Claude Code는 3가지 <strong>모드</strong>(자동차 기어처럼 생각하면 됨)가 있습니다.</p>
+<table>
+<thead>
+<tr>
+<th>모드</th>
+<th>설명</th>
+<th>언제 쓰나</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>default (D)</strong></td>
+<td>AI가 파일 수정할 때마다 &quot;이거 할까요?&quot; 묻기</td>
+<td>처음 쓰는 사람, 중요한 작업</td>
+</tr>
+<tr>
+<td><strong>plan (P)</strong></td>
+<td>AI가 읽기만 하고 수정 안 함 (분석만)</td>
+<td>코드 분석, 구조 파악</td>
+</tr>
+<tr>
+<td><strong>bypassPermissions (S)</strong></td>
+<td>AI가 마음대로 파일 수정 (자동 승인)</td>
+<td>신뢰할 수 있는 작업, 빠르게 진행</td>
+</tr>
+</tbody></table>
+<p><strong>처음엔 default만 쓰면 됩니다!</strong></p>
+<p>모드 바꾸는 법:</p>
+<pre><code class="language-bash">claude --mode plan
+</code></pre>
+<p>또는 대화 중에 이렇게 말하기:</p>
+<pre><code>모드를 plan으로 바꿔줘
+</code></pre>
+<hr>
+<h2>5단계: 자주 쓰는 명령어</h2>
+<p>대화 중에 이 명령어들을 쓸 수 있습니다.</p>
+<table>
+<thead>
+<tr>
+<th>명령어</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/help</code></td>
+<td>사용 가능한 명령어 목록 보기</td>
+</tr>
+<tr>
+<td><code>/clear</code></td>
+<td>지금까지의 대화 모두 지우고 새로 시작</td>
+</tr>
+<tr>
+<td><code>/status</code></td>
+<td>지금 어떤 상태인지 확인</td>
+</tr>
+<tr>
+<td><code>/exit</code></td>
+<td>Claude Code 끝내기</td>
+</tr>
+</tbody></table>
+<p>예를 들어:</p>
+<pre><code>/clear
+</code></pre>
+<p>엔터 치면 — 지금까지 대화한 모든 내용이 사라지고 새로 시작합니다. (헷갈릴 때 쓰세요)</p>
+<hr>
+<h2>6단계: 끝내기</h2>
+<h3>간단하게 끝내기</h3>
+<pre><code class="language-bash">Ctrl + C
+</code></pre>
+<p>또는:</p>
+<pre><code>/exit
+</code></pre>
+<p>엔터 치면 끝!</p>
+<hr>
+<h2>💡 팁</h2>
+<p>✅ <strong>꼭 기억하세요!</strong></p>
+<ul>
+<li>Claude Code를 실행할 때는 항상 프로젝트 폴더에서 <code>cd</code> 해서 이동한 후 <code>claude</code> 입력</li>
+<li>파일 경로를 말할 때는 정확하게 (예: <code>src/components/Button.js</code>)</li>
+<li>못 이해한 것처럼 물어보기 (AI가 더 쉽게 설명함)</li>
+<li>자주 <code>/clear</code> 써서 대화 초기화하기</li>
+</ul>
+<hr>
+<h2>다음 단계</h2>
+<p><a href="01-basic-usage.md">01-basic-usage.md</a>를 읽으면:</p>
+<ul>
+<li>더 복잡한 작업하는 법</li>
+<li>버그 찾는 법</li>
+<li>새로운 파일 만드는 법</li>
+<li>웹에서 정보 찾는 법</li>
+</ul>
+<p>을 배울 수 있습니다.</p>
+
+      </div>
+    </div>
+    <div class="chapter" id="ch1">
+      <div class="chapter-header">
+        <span class="chapter-badge">입문</span>
+        <span class="chapter-number">Chapter 02</span>
+      </div>
+      <div class="chapter-content">
+        <h1>이런 걸 시킬 수 있어요 — 상황별 AI 활용법</h1>
+<p>Claude Code를 어떻게 쓸지 모르겠다면? 여기 8가지 상황별로 정리했습니다.</p>
+<hr>
+<h2>상황 1: 코드가 이해가 안 될 때</h2>
+<h3>💬 AI한테 이렇게 말하세요</h3>
+<pre><code>이 파일이 뭐 하는 건지 쉽게 설명해줄래? src/api/users.js
+</code></pre>
+<p>또는:</p>
+<pre><code>이 함수 왜 있는 거야? src/utils/formatDate.js의 format() 함수
+</code></pre>
+<p>또는:</p>
+<pre><code>이 부분 뭐 하는 코드인지 모르겠어. 45번 줄 설명해줄래?
+</code></pre>
+<h3>📝 Claude Code가 할 일</h3>
+<ol>
+<li>파일을 읽음 (권한 물어볼 수 있음 - <code>y</code> 입력)</li>
+<li>코드를 <strong>쉬운 말로</strong> 설명</li>
+<li>왜 필요한지 설명</li>
+<li>예시 보여줌</li>
+</ol>
+<hr>
+<h2>상황 2: 뭔가 고치고 싶을 때 (버그 찾기)</h2>
+<h3>💬 AI한테 이렇게 말하세요</h3>
+<pre><code>로그인이 안 되는데 버그를 찾아줄 수 있어? src/auth/login.js
+</code></pre>
+<p>또는:</p>
+<pre><code>이 에러가 뭔 의미야? &quot;TypeError: Cannot read properties of undefined&quot;
+</code></pre>
+<p>또는:</p>
+<pre><code>프로필 이미지가 안 뜨는데 src/components/Profile.tsx 검토해줄래?
+</code></pre>
+<h3>📝 Claude Code가 할 일</h3>
+<ol>
+<li>코드 분석</li>
+<li><strong>문제가 뭔지</strong> 정확하게 설명</li>
+<li>어디서 잘못됐는지 가리키기</li>
+<li><strong>고쳐진 코드</strong> 제시</li>
+<li>승인 물어보기 (default 모드일 때)<ul>
+<li><code>y</code> 입력 → 적용</li>
+<li><code>n</code> 입력 → 거절</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>상황 3: 새로운 기능을 만들고 싶을 때</h2>
+<h3>💬 AI한테 이렇게 말하세요</h3>
+<pre><code>회원가입 페이지에 &quot;비밀번호 확인&quot; 입력창을 추가해줄 수 있을까?
+</code></pre>
+<p>또는:</p>
+<pre><code>사용자 목록을 이름으로 검색하는 기능을 만들어줄래? 백엔드는 src/models/User.js
+</code></pre>
+<p>또는:</p>
+<pre><code>다크 모드 기능 추가해줄래? 지금 있는 테마 설정을 참고해서
+</code></pre>
+<h3>📝 Claude Code가 할 일</h3>
+<ol>
+<li>기존 코드 분석 (패턴 파악)</li>
+<li><strong>새로운 코드 작성</strong></li>
+<li>기존 코드와 어떻게 연결되는지 설명</li>
+<li>수정사항 제시</li>
+<li>승인 요청</li>
+</ol>
+<hr>
+<h2>상황 4: 파일을 찾고 싶을 때</h2>
+<h3>💬 AI한테 이렇게 말하세요</h3>
+<pre><code>로그인 관련 파일이 어디에 있어? 전체 프로젝트에서 찾아줄래?
+</code></pre>
+<p>또는:</p>
+<pre><code>&quot;API_KEY&quot;라는 상수가 어디서 정의되어 있어?
+</code></pre>
+<p>또는:</p>
+<pre><code>모든 테스트 파일을 찾아줄래. (*.test.js 또는 *.spec.ts)
+</code></pre>
+<p>또는:</p>
+<pre><code>&quot;TODO&quot; 주석을 모두 찾아줄래?
+</code></pre>
+<h3>📝 Claude Code가 할 일</h3>
+<ol>
+<li>전체 프로젝트 검색</li>
+<li>매칭되는 모든 파일 나열</li>
+<li>각 파일이 뭐 하는 건지 설명</li>
+<li>몇 개 찾았는지 표시</li>
+</ol>
+<hr>
+<h2>상황 5: 웹에서 뭔가 찾고 싶을 때</h2>
+<h3>💬 AI한테 이렇게 말하세요</h3>
+<pre><code>React의 최신 버전이 뭐야? 어떤 새로운 기능이 추가됐어?
+</code></pre>
+<p>또는:</p>
+<pre><code>&quot;CORS 에러&quot; 해결 방법을 찾아줄 수 있어?
+</code></pre>
+<p>또는:</p>
+<pre><code>Node.js에서 파일 업로드하는 가장 좋은 라이브러리가 뭐야?
+</code></pre>
+<p>또는:</p>
+<pre><code>이 에러가 뭔 의미인지 웹에서 찾아줄래? &quot;socket hang up&quot;
+</code></pre>
+<h3>📝 Claude Code가 할 일</h3>
+<ol>
+<li><strong>인터넷 검색</strong></li>
+<li>신뢰할 수 있는 출처에서 정보 모으기</li>
+<li><strong>가장 최신의 정보</strong> 제공</li>
+<li>코드 예시 보여주기</li>
+<li>출처 링크 제시</li>
+</ol>
+<hr>
+<h2>상황 6: 코드를 정리하고 싶을 때</h2>
+<h3>💬 AI한테 이렇게 말하세요</h3>
+<pre><code>이 코드가 좀 복잡해 보이는데 깔끔하게 정리해줄 수 있을까? src/utils/processing.js
+</code></pre>
+<p>또는:</p>
+<pre><code>중복된 코드를 정리해줄래? src/components/ 폴더를 보면 알 거야
+</code></pre>
+<p>또는:</p>
+<pre><code>주석을 달아줄 수 있어? 각 함수가 뭐 하는지 설명하는 주석
+</code></pre>
+<p>또는:</p>
+<pre><code>TypeScript를 추가해줄 수 있을까? src/api.js
+</code></pre>
+<h3>📝 Claude Code가 할 일</h3>
+<ol>
+<li>코드 분석</li>
+<li>정리해야 할 부분 찾기</li>
+<li><strong>개선된 코드</strong> 제시</li>
+<li>왜 이렇게 변경했는지 설명</li>
+<li>적용할지 묻기</li>
+</ol>
+<hr>
+<h2>상황 7: 테스트하고 싶을 때</h2>
+<h3>💬 AI한테 이렇게 말하세요</h3>
+<pre><code>테스트 한 번 돌려줄 수 있어? npm test
+</code></pre>
+<p>또는:</p>
+<pre><code>이 함수가 잘 작동하는지 확인해봐. src/utils/math.js
+</code></pre>
+<p>또는:</p>
+<pre><code>프로젝트를 빌드해서 에러가 있는지 확인해줄 수 있어?
+</code></pre>
+<p>또는:</p>
+<pre><code>변경사항이 완벽하게 적용됐는지 확인해줄래?
+</code></pre>
+<h3>📝 Claude Code가 할 일</h3>
+<ol>
+<li><strong>실제로 명령어 실행</strong></li>
+<li>결과 보여주기</li>
+<li>에러가 있으면 설명</li>
+<li>문제 해결 방법 제시</li>
+</ol>
+<hr>
+<h2>자주 쓰는 명령어 정리</h2>
+<p>세션 중에 아래 명령어들을 쓸 수 있습니다.</p>
+<table>
+<thead>
+<tr>
+<th>명령어</th>
+<th>뜻</th>
+<th>언제 쓰나</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/help</code></td>
+<td>사용 가능한 모든 명령어 목록 보기</td>
+<td>뭘 할 수 있는지 모를 때</td>
+</tr>
+<tr>
+<td><code>/clear</code></td>
+<td>지금까지의 대화 모두 지우고 새로 시작</td>
+<td>새로운 주제로 넘어갈 때, 헷갈릴 때</td>
+</tr>
+<tr>
+<td><code>/compact</code></td>
+<td>대화를 요약해서 메모리 정리</td>
+<td>한 기능을 다 끝낸 후</td>
+</tr>
+<tr>
+<td><code>/status</code></td>
+<td>지금 어떤 상태인지 확인</td>
+<td>뭐가 현재 설정된 건지 알고 싶을 때</td>
+</tr>
+<tr>
+<td><code>/exit</code></td>
+<td>Claude Code 끝내기</td>
+<td>일 끝낼 때</td>
+</tr>
+</tbody></table>
+<h3>명령어 사용 예시</h3>
+<p><strong>대화 초기화할 때:</strong></p>
+<pre><code>/clear
+</code></pre>
+<p>엔터 → 모든 이전 대화 사라짐 → 새로 시작</p>
+<p><strong>메모리가 부족하다고 느낄 때:</strong></p>
+<pre><code>/compact
+</code></pre>
+<p>엔터 → 대화가 요약됨 → 성능 향상</p>
+<p><strong>상태 확인할 때:</strong></p>
+<pre><code>/status
+</code></pre>
+<p>엔터 → 지금 설정, 프로젝트 경로, 모드 등 표시</p>
+<hr>
+<h2>💡 꿀팁 3가지</h2>
+<h3>팁 1: 정확한 파일 경로 쓰기</h3>
+<p>❌ 안 좋은 예:</p>
+<pre><code>이 파일 확인해줄래? utils에서 뭔가
+</code></pre>
+<p>✅ 좋은 예:</p>
+<pre><code>이 파일 확인해줄래? src/utils/auth.js
+</code></pre>
+<p>→ AI가 정확한 파일을 찾아서 더 빠르게 도움</p>
+<hr>
+<h3>팁 2: 못 이해한 척 물어보기</h3>
+<p>❌ 안 좋은 예:</p>
+<pre><code>이걸 최적화해줄래?
+</code></pre>
+<p>✅ 좋은 예:</p>
+<pre><code>이 코드가 뭐 하는 건지 이해가 안 가. 쉽게 설명해줄 수 있을까?
+</code></pre>
+<p>→ AI가 더 이해하기 쉽게 설명함</p>
+<hr>
+<h3>팁 3: 한 번에 한 가지만</h3>
+<p>❌ 안 좋은 예:</p>
+<pre><code>로그인 버그도 고쳐주고, 회원가입도 추가하고, 비밀번호 초기화도 만들어줄래?
+</code></pre>
+<p>✅ 좋은 예:</p>
+<pre><code>먼저 로그인 버그를 찾아줄 수 있을까?
+</code></pre>
+<p>(끝나면) → &quot;다음으로 회원가입 추가해줄 수 있어?&quot;</p>
+<p>→ AI가 더 집중력 있게 일함, 실수도 줄어듦</p>
+<hr>
+<h2>다음 단계</h2>
+<ul>
+<li><a href="00-quickstart.md">00-quickstart.md</a> — 기본 설정 다시 확인</li>
+<li><a href="02-keyboard-shortcuts.md">02-keyboard-shortcuts.md</a> — 더 빠르게 쓰는 법 배우기</li>
+</ul>
+
+      </div>
+    </div>
+    <div class="chapter" id="ch2">
+      <div class="chapter-header">
+        <span class="chapter-badge">입문</span>
+        <span class="chapter-number">Chapter 03</span>
+      </div>
+      <div class="chapter-content">
+        <h1>더 빠르게 쓰는 법 — 단축키와 편의 설정</h1>
+<p>Claude Code를 더 빨리 쓰려면 손가락이 움직이지 않아야 합니다. 이 장에서 그 방법을 배웁니다.</p>
+<hr>
+<h2>꼭 알아야 할 단축키 5개</h2>
+<p>이 단축키들은 거의 모든 컴퓨터의 <strong>터미널</strong>(글자로 명령하는 검은 화면)에서 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>단축키</th>
+<th>뜻</th>
+<th>언제 쓰나</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Escape</strong></td>
+<td>지금 입력한 것 취소</td>
+<td>길게 작성한 질문이 마음에 안 들 때</td>
+</tr>
+<tr>
+<td><strong>Ctrl + C</strong></td>
+<td>AI의 답변 중단</td>
+<td>답변이 너무 길어질 때, 뭔가 잘못됐을 때</td>
+</tr>
+<tr>
+<td><strong>Ctrl + D</strong></td>
+<td>Claude Code 종료</td>
+<td>일을 다 끝낼 때 (<code>/exit</code>와 같음)</td>
+</tr>
+<tr>
+<td><strong>Tab</strong></td>
+<td>자동 완성</td>
+<td>파일 경로를 자동으로 채우고 싶을 때</td>
+</tr>
+<tr>
+<td><strong>↑ 화살표</strong></td>
+<td>이전에 쓴 질문 다시 불러오기</td>
+<td>같은 질문을 또 하고 싶을 때</td>
+</tr>
+</tbody></table>
+<h3>단축키 사용 예시</h3>
+<p><strong>답변이 길어질 때 멈추기:</strong></p>
+<pre><code>Ctrl + C
+</code></pre>
+<p>→ AI가 말하던 것을 멈춤</p>
+<p><strong>파일 경로 자동완성:</strong></p>
+<p>터미널에:</p>
+<pre><code>read src/com
+</code></pre>
+<p>입력한 후 → <code>Tab</code> 누르기 → 자동으로 <code>src/components/</code>로 완성</p>
+<p><strong>이전 질문 다시 하기:</strong></p>
+<p><code>↑</code> 화살표 눌러서 이전 질문 찾기 → 엔터</p>
+<hr>
+<h2>자주 쓰는 명령어 줄이기</h2>
+<h3>문제: 매번 긴 명령어 치기 귀찮음</h3>
+<p>매번 이렇게 입력하는 게 싫다면?</p>
+<pre><code class="language-bash">claude --mode plan
+</code></pre>
+<h3>해결법: 단축 명령 만들기 (alias)</h3>
+<p><strong>alias</strong>(별칭)란? 자주 쓰는 명령어를 짧게 줄인 것입니다.</p>
+<p>예를 들어, <code>claude</code>를 <code>cc</code>로 줄일 수 있습니다.</p>
+<h3>Mac에서 설정하기</h3>
+<ol>
+<li>터미널 열기</li>
+<li>이 명령어 입력:</li>
+</ol>
+<pre><code class="language-bash">nano ~/.zshrc
+</code></pre>
+<ol start="3">
+<li>맨 아래에 이 코드 추가:</li>
+</ol>
+<pre><code class="language-bash"># ========== Claude Code 단축키 ==========
+alias cc=&quot;claude&quot;
+alias ccp=&quot;claude --mode plan&quot;
+alias cca=&quot;claude --mode acceptEdits&quot;
+</code></pre>
+<ol start="4">
+<li><p><code>Ctrl + X</code> → <code>Y</code> → <code>Enter</code> 눌러서 저장</p>
+</li>
+<li><p>터미널 재시작 또는:</p>
+</li>
+</ol>
+<pre><code class="language-bash">source ~/.zshrc
+</code></pre>
+<h3>이제 이렇게 쓸 수 있음</h3>
+<p>짧은 명령어로 실행:</p>
+<pre><code class="language-bash">cc                  # claude와 같음
+ccp                 # claude --mode plan과 같음
+cca                 # claude --mode acceptEdits와 같음
+</code></pre>
+<h3>Windows에서 설정하기</h3>
+<p>Windows는 다른 방식입니다.</p>
+<ol>
+<li><strong>Windows 검색</strong> → &quot;환경 변수&quot; 입력</li>
+<li>&quot;환경 변수 편집&quot; 클릭</li>
+<li>&quot;새로 만들기&quot; → 변수 이름: <code>CC_ALIAS</code> → 변수 값: <code>claude</code></li>
+<li>명령 프롬프트 재시작</li>
+</ol>
+<p>하지만 Windows에서는 조금 더 복잡해서, <strong>이 방법보다는 파워셸 프로필 수정</strong>을 권장합니다. (고급 사용자용)</p>
+<hr>
+<h2>여러 작업을 동시에 하기</h2>
+<h3>문제: Claude Code를 쓰면서 다른 터미널 명령도 실행하고 싶음</h3>
+<p>예를 들어:</p>
+<ul>
+<li>왼쪽 창: Claude Code가 코드 수정 중</li>
+<li>오른쪽 창: 나는 <code>npm test</code> 실행 중</li>
+</ul>
+<h3>해결법: <strong>tmux</strong> 사용하기</h3>
+<p><strong>tmux</strong>를 쉽게 설명하면 &quot;<strong>브라우저 탭처럼 터미널 창을 여러 개 띄우는 것</strong>&quot;입니다.</p>
+<h4>tmux 설치</h4>
+<p>Mac:</p>
+<pre><code class="language-bash">brew install tmux
+</code></pre>
+<p>Windows (WSL 필요):</p>
+<pre><code class="language-bash">sudo apt install tmux
+</code></pre>
+<h4>tmux 사용법</h4>
+<p><strong>새 tmux 세션 시작:</strong></p>
+<pre><code class="language-bash">tmux new-session -s claude
+</code></pre>
+<p>→ 특별한 터미널 창 실행됨</p>
+<p><strong>Claude Code 실행:</strong></p>
+<pre><code class="language-bash">claude
+</code></pre>
+<p><strong>다른 창 열기 (Claude가 실행 중인 상태에서):</strong></p>
+<p>새 터미널에서:</p>
+<pre><code class="language-bash">tmux new-window -t claude
+</code></pre>
+<p>→ 같은 세션 내에서 새로운 창 열림</p>
+<p><strong>창 전환하기:</strong></p>
+<ul>
+<li><code>Ctrl + B</code> → <code>N</code> → 다음 창</li>
+<li><code>Ctrl + B</code> → <code>P</code> → 이전 창</li>
+<li><code>Ctrl + B</code> → <code>숫자</code> → 특정 창 (0, 1, 2...)</li>
+</ul>
+<h3>실제 예시</h3>
+<pre><code>[창 1] Claude Code
+&gt; 로그인 기능 수정 중...
+
+[창 2] 터미널
+$ npm test          # 테스트 돌려보기
+$ git status        # 변경사항 확인
+</code></pre>
+<p>Claude가 수정하는 동안 창 2에서 테스트를 실시간으로 돌릴 수 있습니다!</p>
+<hr>
+<h2>와이파이가 바뀌어도 끊기지 않는 원격 접속</h2>
+<h3>문제: 회의실 이동했는데 연결 끊김</h3>
+<p>카페에서 회사로 이동할 때, 와이파이가 바뀌면서 원격 접속(예: AWS EC2 서버)이 끊어질 수 있습니다.</p>
+<h3>해결법: <strong>mosh</strong> 사용하기</h3>
+<p><strong>mosh</strong>(Mobile Shell)는 &quot;<strong>와이파이가 바뀌어도 끊기지 않는 원격 접속</strong>&quot;입니다.</p>
+<h4>mosh 설치</h4>
+<p>Mac:</p>
+<pre><code class="language-bash">brew install mosh
+</code></pre>
+<p>Linux:</p>
+<pre><code class="language-bash">sudo apt install mosh
+</code></pre>
+<h4>mosh 사용법</h4>
+<p>일반 SSH 대신:</p>
+<pre><code class="language-bash">ssh user@example.com
+</code></pre>
+<p>이렇게 하기:</p>
+<pre><code class="language-bash">mosh user@example.com
+</code></pre>
+<p>→ 와이파이가 바뀌어도 <strong>자동으로 재연결됨</strong></p>
+<p>❌ 주의: 서버에도 mosh가 설치되어 있어야 합니다.</p>
+<hr>
+<h2>Windows 사용자 안내</h2>
+<p>위의 설정들(alias, tmux, mosh)은 <strong>주로 Mac/Linux 기준</strong>입니다.</p>
+<p>Windows는 조금 다릅니다. 선택지는:</p>
+<table>
+<thead>
+<tr>
+<th>선택지</th>
+<th>난이도</th>
+<th>추천</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>그냥 Claude Code만 쓰기</strong></td>
+<td>⭐ 쉬움</td>
+<td>처음 사용자</td>
+</tr>
+<tr>
+<td><strong>PowerShell 별칭 설정</strong></td>
+<td>⭐⭐ 중간</td>
+<td>단축키가 필요할 때</td>
+</tr>
+<tr>
+<td><strong>WSL(Windows Subsystem for Linux) 설치</strong></td>
+<td>⭐⭐⭐ 어려움</td>
+<td>tmux/mosh 쓰고 싶을 때</td>
+</tr>
+</tbody></table>
+<h3>Windows에서 PowerShell 별칭 설정하기</h3>
+<ol>
+<li><strong>PowerShell 관리자 권한으로 열기</strong></li>
+<li>프로필 만들기:</li>
+</ol>
+<pre><code class="language-powershell">if (!(Test-Path $PROFILE)) { New-Item -ItemType File -Path $PROFILE -Force }
+</code></pre>
+<ol start="3">
+<li>프로필 편집:</li>
+</ol>
+<pre><code class="language-powershell">notepad $PROFILE
+</code></pre>
+<ol start="4">
+<li>아래 추가:</li>
+</ol>
+<pre><code class="language-powershell">Set-Alias -Name cc -Value claude
+</code></pre>
+<ol start="5">
+<li>저장 후 PowerShell 재시작</li>
+</ol>
+<hr>
+<h2>💡 추가 팁</h2>
+<h3>빠른 테스트-수정 루프</h3>
+<pre><code>[창 1] Claude Code에서:
+&gt; src/math.test.js의 실패한 테스트 고쳐줄 수 있어?
+
+[창 2] 동시에 터미널에서:
+$ npm test -- --watch
+</code></pre>
+<p>Claude가 수정 중일 때, 창 2의 watch 모드가 자동으로 <strong>실시간 테스트 결과</strong>를 보여줍니다!</p>
+<h3>이전 세션 다시 열기</h3>
+<p>Claude Code를 끝냈다가 다시 같은 대화를 계속하고 싶을 때:</p>
+<pre><code class="language-bash">claude --resume latest
+</code></pre>
+<p>또는 alias를 추가했다면:</p>
+<pre><code class="language-bash">alias ccr=&quot;claude --resume latest&quot;
+</code></pre>
+<p>입력 후:</p>
+<pre><code class="language-bash">ccr
+</code></pre>
+<hr>
+<h2>문제 해결</h2>
+<h3>문제: 답변이 너무 길어서 끝나지 않음</h3>
+<pre><code>Ctrl + C
+</code></pre>
+<p>→ 답변 중단</p>
+<p>그 다음:</p>
+<pre><code>/clear
+</code></pre>
+<p>→ 대화 초기화하고 다시 시작</p>
+<h3>문제: 터미널이 깨진 것 같음 (글자가 이상함)</h3>
+<pre><code class="language-bash">reset
+</code></pre>
+<p>또는 Claude Code 내에서:</p>
+<pre><code>Ctrl + L
+</code></pre>
+<p>→ 화면 정리</p>
+<h3>문제: Tab으로 자동완성이 안 됨</h3>
+<p>파일 경로를 수동으로 입력하기:</p>
+<pre><code>read ./src/components/Button.tsx
+</code></pre>
+<p>또는 전체 경로 사용:</p>
+<pre><code>read /Users/username/projects/myapp/src/app.js
+</code></pre>
+<h3>문제: tmux 창이 복잡해짐</h3>
+<p>현재 세션 끝내기:</p>
+<pre><code class="language-bash">tmux kill-session -t claude
+</code></pre>
+<p>새로 시작하기:</p>
+<pre><code class="language-bash">tmux new-session -s claude
+</code></pre>
+<hr>
+<h2>정리: 꼭 기억할 것</h2>
+<p>✅ <strong>필수:</strong></p>
+<ul>
+<li><code>Escape</code> — 입력 취소</li>
+<li><code>Ctrl + C</code> — 답변 중단</li>
+<li><code>Tab</code> — 파일 경로 자동완성</li>
+</ul>
+<p>✅ <strong>편하게:</strong></p>
+<ul>
+<li>alias로 명령어 줄이기</li>
+<li>tmux로 여러 창 띄우기</li>
+</ul>
+<p>✅ <strong>고급:</strong></p>
+<ul>
+<li>mosh로 안정적인 원격 접속</li>
+<li><code>/resume latest</code>로 이전 대화 이어가기</li>
+</ul>
+<hr>
+<h2>다음 단계</h2>
+<ul>
+<li><a href="00-quickstart.md">00-quickstart.md</a> — 기본부터 다시 확인</li>
+<li><a href="01-basic-usage.md">01-basic-usage.md</a> — 상황별 활용법</li>
+</ul>
+
+      </div>
+    </div>
+    <div class="chapter" id="ch3">
+      <div class="chapter-header">
+        <span class="chapter-badge">중급</span>
+        <span class="chapter-number">Chapter 04</span>
+      </div>
+      <div class="chapter-content">
+        <h1>내 취향대로 설정하기 — Claude Code 환경 설정</h1>
+<p>Claude Code를 더 편하게 쓰려면, AI 비서에게 &quot;너 이렇게 해&quot;라는 규칙을 정해줄 수 있습니다.</p>
+<h2>1️⃣ 설정 파일이 뭔가요?</h2>
+<p>설정 파일은 <strong>AI 비서의 업무 매뉴얼 같은 것</strong>입니다.</p>
+<p>생각해보세요:</p>
+<ul>
+<li>새 직원이 입사하면 회사 규칙을 알려줘야 합니다</li>
+<li>&quot;이건 이렇게 해&quot;, &quot;저건 저렇게 해&quot; 같은 가이드를 줍니다</li>
+<li>Claude Code의 설정도 똑같습니다</li>
+</ul>
+<h3>설정 파일은 어디에 있나요?</h3>
+<p>프로젝트 폴더에 <code>.claude/CLAUDE.md</code> 파일이 있으면, Claude Code가 그걸 읽고 규칙을 따릅니다.</p>
+<p>또는 JSON 형식으로 <code>settings.json</code>에 저장할 수도 있습니다.</p>
+<hr>
+<h2>2️⃣ 매번 허락 받는 게 귀찮을 때</h2>
+<h3>이런 상황일 때</h3>
+<pre><code>AI가 파일을 수정할 때마다
+&quot;이거 할까요?&quot; (승인 요청)
+이 뜨는 게 자꾸 방해됨
+</code></pre>
+<h3>해결법: 권한 모드 설정</h3>
+<p><strong>3가지 모드</strong>가 있습니다:</p>
+<table>
+<thead>
+<tr>
+<th>모드</th>
+<th>의미</th>
+<th>언제 쓰나</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>default</strong></td>
+<td>파일 수정할 때마다 &quot;이거 할까요?&quot; 묻기</td>
+<td>처음 배울 때, 중요한 작업</td>
+</tr>
+<tr>
+<td><strong>bypassPermissions</strong></td>
+<td>AI가 자동으로 파일 수정 (묻지 않음)</td>
+<td>빠르게 진행하고 싶을 때, 신뢰할 작업</td>
+</tr>
+</tbody></table>
+<h3>AI한테 이렇게 말하세요</h3>
+<pre><code>모드를 bypassPermissions으로 바꿔줄래
+</code></pre>
+<p>또는 터미널에서:</p>
+<pre><code class="language-bash">claude --mode bypassPermissions
+</code></pre>
+<h3>💡 팁</h3>
+<ul>
+<li>처음 쓰는 사람은 default 모드로 시작하세요</li>
+<li>익숙해지면 bypassPermissions로 바꿔서 시간 절약</li>
+</ul>
+<h3>⚠️ 주의</h3>
+<ul>
+<li>bypassPermissions는 <strong>AI가 마음대로 파일을 수정</strong>합니다</li>
+<li>중요한 파일이 있으면 꼭 백업해두세요</li>
+<li>Git을 사용하면 언제든 예전 버전으로 돌릴 수 있으니 더 안전합니다</li>
+</ul>
+<hr>
+<h2>3️⃣ AI가 자꾸 느려질 때</h2>
+<h3>이런 상황일 때</h3>
+<pre><code>AI가 예전 대화들을 다 기억하고 있어서
+자꾸 응답이 느려짐
+</code></pre>
+<p>이유: AI는 우리가 한 모든 대화를 &quot;메모리&quot;에 쌓고 있습니다. 메모리가 가득 차면 느려집니다.</p>
+<h3>해결법: 자동 메모리 정리 설정</h3>
+<p>기능: <code>CLAUDE_AUTOCOMPACT_PCT_OVERRIDE</code> (자동 메모리 정리 시점)</p>
+<p><code>.claude/settings.json</code> 파일에 이렇게 추가하세요:</p>
+<pre><code class="language-json">{
+  &quot;env&quot;: {
+    &quot;CLAUDE_AUTOCOMPACT_PCT_OVERRIDE&quot;: &quot;75&quot;
+  }
+}
+</code></pre>
+<p>또는 매번 수동으로:</p>
+<pre><code>/compact
+</code></pre>
+<p>이렇게 하면:</p>
+<ul>
+<li>지금까지 한 대화를 요약함</li>
+<li>중요한 내용은 남기고 세부 내용은 정리</li>
+<li>메모리 절약 → 응답 속도 향상</li>
+</ul>
+<h3>💡 팁</h3>
+<ul>
+<li>한 기능 완성한 후에 <code>/compact</code> 하세요</li>
+<li>긴 대화를 하다 느려지면 <code>/clear</code> (완전 초기화) 해보세요</li>
+</ul>
+<hr>
+<h2>4️⃣ 작업 현황을 한눈에 보고 싶을 때</h2>
+<h3>이런 상황일 때</h3>
+<pre><code>지금 AI가 뭘 하고 있는지 알고 싶음
+메모리는 얼마나 쓰고 있는지 궁금함
+비용이 얼마나 드는지 확인하고 싶음
+</code></pre>
+<h3>해결법: statusline 설정</h3>
+<p><code>.claude/settings.json</code>에 추가:</p>
+<pre><code class="language-json">{
+  &quot;statusline&quot;: {
+    &quot;left&quot;: [&quot;context-percent&quot;, &quot;cost&quot;, &quot;model&quot;]
+  }
+}
+</code></pre>
+<p>또는 AI에게:</p>
+<pre><code>지금 상태 보여줄래
+</code></pre>
+<h3>AI가 보여주는 정보</h3>
+<pre><code>프로젝트: /Users/you/my-project
+모드: bypassPermissions
+메모리 사용: 45% (15KB / 32KB)
+토큰 비용: $0.12 (이번 세션)
+마지막 작업: 파일 수정 (5분 전)
+</code></pre>
+<h3>💡 팁</h3>
+<ul>
+<li>세션 시작할 때 한 번 확인하면 비용이 예상대로 드는지 알 수 있습니다</li>
+<li>비용이 생각보다 많으면 대화를 정리하고 <code>/clear</code> 하세요</li>
+</ul>
+<hr>
+<h2>5️⃣ 파일 수정 후 자동으로 뭔가 하고 싶을 때</h2>
+<h3>이런 상황일 때</h3>
+<pre><code>파일을 저장할 때마다 자동으로 &quot;코드 정리&quot; (prettier) 하고 싶음
+커밋할 때마다 자동으로 테스트 실행하고 싶음
+</code></pre>
+<p>이런 <strong>자동 실행 규칙</strong>을 &quot;훅(Hook)&quot;이라고 부릅니다. USB 포트 같은 개념입니다.</p>
+<h3>해결법: Hooks 설정</h3>
+<p><code>.claude/settings.json</code>에:</p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;PreCompact&quot;: [
+      {
+        &quot;type&quot;: &quot;shell&quot;,
+        &quot;command&quot;: &quot;git status --short&quot;
+      }
+    ]
+  }
+}
+</code></pre>
+<h3>예시</h3>
+<p>파일을 수정하면 → AI가 자동으로 정렬 → 저장</p>
+<pre><code>[AI가 파일 수정]
+↓
+[자동으로 코드 정리]
+↓
+[정리된 파일 저장]
+</code></pre>
+<h3>💡 팁</h3>
+<ul>
+<li>처음에는 hooks 없이 단순하게 시작하세요</li>
+<li>나중에 &quot;매번 이 작업 반복하는데...&quot; 싶으면 그때 hooks 설정하세요</li>
+</ul>
+<hr>
+<h2>6️⃣ 설정 파일 우선순위</h2>
+<h3>규칙이 겹치면 어느 것을 따르나요?</h3>
+<p>생각해보세요:</p>
+<ul>
+<li>회사 규칙 (모두 따라야 함)</li>
+<li>프로젝트 규칙 (이 프로젝트만 따름)</li>
+<li>내 개인 규칙 (내가 편할 때만)</li>
+</ul>
+<p>Claude Code도 같은 우선순위를 따릅니다:</p>
+<pre><code>1순위: 회사 규칙 (~/.claude/settings.json)
+2순위: 프로젝트 규칙 (.claude/settings.json)
+3순위: 로컬 규칙 (.claude/settings.local.json)
+</code></pre>
+<h3>실제 예시</h3>
+<p>회사 규칙: &quot;파일 수정할 때마다 승인 받아야 함 (default 모드)&quot;</p>
+<p>프로젝트 규칙: &quot;이 프로젝트는 빠르게 (bypassPermissions 모드)&quot;</p>
+<p>→ <strong>프로젝트 규칙이 이기기 때문에</strong>, 이 프로젝트에서는 자동 승인됩니다.</p>
+<h3>💡 팁</h3>
+<ul>
+<li>회사 규칙이 있으면 반드시 따르세요</li>
+<li>프로젝트별로 다른 규칙을 정하고 싶으면, 팀장에게 먼저 물어보세요</li>
+</ul>
+<hr>
+<h2>실전 예시</h2>
+<h3>상황: &quot;매일 아침 AI가 느려서 답답함&quot;</h3>
+<p><strong>AS-IS (지금)</strong></p>
+<pre><code>1. Claude Code 실행
+2. 대화 시작
+3. 점점 느려짐
+4. 답답해함
+</code></pre>
+<p><strong>TO-BE (설정 후)</strong></p>
+<pre><code>1. Claude Code 실행
+2. 대화 시작
+3. 기능 완성
+4. /compact로 메모리 정리 ✅
+5. 빠른 속도 유지 ✅
+</code></pre>
+<h3>상황: &quot;매번 &quot;승인할까요?&quot; 묻는 게 방해됨&quot;</h3>
+<p><strong>AS-IS</strong></p>
+<pre><code>AI: 이렇게 수정할까요?
+&gt; y
+AI: 이건 어때?
+&gt; y
+AI: 그리고 이것도?
+&gt; y
+(너무 많음)
+</code></pre>
+<p><strong>TO-BE (bypassPermissions 설정)</strong></p>
+<pre><code>AI가 자동으로 수정하고 보여줌
+(승인 요청 없음) ✅
+</code></pre>
+<hr>
+<h2>자주 묻는 질문</h2>
+<h3>Q: 설정을 바꾸면 프로젝트가 망가지나요?</h3>
+<p><strong>A: 아니요!</strong> 설정은 AI의 행동만 바꿀 뿐, 코드 자체는 안 건드립니다.
+실수해도 Git으로 언제든 되돌릴 수 있어요.</p>
+<h3>Q: 회사와 개인 설정이 충돌하면?</h3>
+<p><strong>A: 회사 규칙이 우선합니다.</strong>
+프로젝트마다 다르게 설정하고 싶으면 팀장과 상의하세요.</p>
+<h3>Q: 메모리 정리하면 지난 대화를 못 본다고?</h3>
+<p><strong>A: 지난 대화는 요약돼서 남습니다.</strong>
+중요한 내용은 &quot;나중에 이 작업했음&quot;으로 기억하고, 세부 내용은 정리돼요.</p>
+<hr>
+<h2>💡 실천 팁</h2>
+<ul>
+<li>✅ 처음 쓰면 기본값(default)으로 시작</li>
+<li>✅ 익숙해지면 권한 모드 변경</li>
+<li>✅ 느려지면 <code>/compact</code></li>
+<li>✅ 백업은 Git으로 자동 관리</li>
+<li>❌ 중요한 파일은 백업 없이 수정하지 말 것</li>
+</ul>
+<hr>
+<h2>다음 단계</h2>
+<p><a href="04-skills-and-commands.md">04-skills-and-commands.md</a>를 읽으면:</p>
+<ul>
+<li>AI에게 특정 업무 매뉴얼을 가르치는 법 (스킬)</li>
+<li>복잡한 작업을 자동화하는 법</li>
+<li>우리 회사에서 쓸 수 있는 전문 스킬들</li>
+</ul>
+<p>을 배울 수 있습니다.</p>
+
+      </div>
+    </div>
+    <div class="chapter" id="ch4">
+      <div class="chapter-header">
+        <span class="chapter-badge">중급</span>
+        <span class="chapter-number">Chapter 05</span>
+      </div>
+      <div class="chapter-content">
+        <h1>AI에게 전문 기술 가르치기 — 스킬과 커맨드</h1>
+<h2>스킬이 뭔가요?</h2>
+<p>스킬은 <strong>AI에게 특정 업무 매뉴얼을 주는 것</strong>입니다.</p>
+<h3>비유: 신입사원 교육</h3>
+<pre><code>신입사원: &quot;이건 어떻게 해요?&quot;
+선배: 매번 설명하기 귀찮으니까
+     &quot;이건 이 매뉴얼 보고 해&quot; (매뉴얼 건넴)
+
+Claude Code도 똑같음:
+/design-review라고 치면
+AI가 &quot;디자인 리뷰 전문가&quot; 모드로 자동 변신
+</code></pre>
+<hr>
+<h2>우리 회사에서 쓸 수 있는 스킬</h2>
+<h3>1️⃣ <code>/design-plan</code> — &quot;새 페이지 디자인 잡아줘&quot;</h3>
+<h3>이런 상황일 때</h3>
+<pre><code>새로운 기능의 UI/UX를 처음부터 설계해야 할 때
+</code></pre>
+<h3>AI한테 이렇게 말하세요</h3>
+<pre><code>/design-plan
+사용자 프로필 페이지 새로 설계해줘.
+요구사항:
+- 프로필 사진 변경
+- 통계 대시보드
+- 월별 활동 차트
+</code></pre>
+<h3>AI가 해주는 것</h3>
+<ol>
+<li>인터뷰: &quot;사용자가 제일 먼저 봐야 할 것은?&quot;</li>
+<li>디자인 생성: 레이아웃 스케치</li>
+<li>검토: &quot;이 색상이 좋아 보여?&quot;</li>
+<li>개선 제안: 버튼 위치 조정, 폰트 크기 등</li>
+<li>문서화: 최종 설계를 DESIGN.md로 저장</li>
+</ol>
+<h3>✅ 좋은 예</h3>
+<pre><code>/design-plan
+결제 화면 재설계해줘.
+현재: 3단계 (카드입력 → 주소 → 확인)
+목표: 1단계로 줄이기 + 구글페이 추가
+이유: 사용자가 중간에 포기함
+</code></pre>
+<h3>❌ 안 좋은 예</h3>
+<pre><code>/design-plan
+UI 디자인 해줘
+</code></pre>
+<hr>
+<h3>2️⃣ <code>/design-review</code> — &quot;이 화면 디자인 검토해줘&quot;</h3>
+<h3>이런 상황일 때</h3>
+<pre><code>이미 만든 화면이 있는데,
+디자인이 좋은지 검토하고 싶을 때
+</code></pre>
+<h3>AI한테 이렇게 말하세요</h3>
+<pre><code>/design-review
+[스크린샷 첨부]
+이 로그인 폼 사용하기 편해 보여?
+</code></pre>
+<h3>AI가 해주는 것</h3>
+<ol>
+<li>스크린샷을 분석</li>
+<li>&quot;버튼이 너무 작다&quot;, &quot;색상 대비가 약하다&quot; 등 지적</li>
+<li>개선 아이디어 제시</li>
+<li>코드 레벨 수정안 제공</li>
+</ol>
+<h3>✅ 좋은 예</h3>
+<pre><code>/design-review
+[스크린샷]
+이 결제 폼, 사용자가 실수하기 쉬워 보여?
+빨강색으로 경고가 띄워지는 부분이 눈에 띄어?
+</code></pre>
+<h3>❌ 안 좋은 예</h3>
+<pre><code>/design-review
+이거 좋아?
+</code></pre>
+<hr>
+<h3>3️⃣ <code>/review-ai</code> — &quot;코드 리뷰해줘&quot;</h3>
+<h3>이런 상황일 때</h3>
+<pre><code>코드를 작성했는데,
+버그나 보안 문제가 없는지 확인하고 싶을 때
+</code></pre>
+<h3>AI한테 이렇게 말하세요</h3>
+<pre><code>/review-ai src/auth.ts
+</code></pre>
+<h3>AI가 해주는 것</h3>
+<ol>
+<li>코드 읽음</li>
+<li>버그 찾기: &quot;null check 빠짐&quot;</li>
+<li>보안: &quot;비밀번호가 평문으로 저장됨&quot;</li>
+<li>성능: &quot;N+1 쿼리 문제&quot;</li>
+<li>개선 코드 제시</li>
+</ol>
+<h3>✅ 좋은 예</h3>
+<pre><code>/review-ai src/payment/stripe.ts
+focus: 보안 (결제 데이터), 성능 (대량 주문 처리)
+</code></pre>
+<h3>❌ 안 좋은 예</h3>
+<pre><code>/review-ai
+코드 검토해줘
+</code></pre>
+<hr>
+<h3>4️⃣ <code>/cicd-setup</code> — &quot;이 프로젝트 자동 배포 설정해줘&quot;</h3>
+<h3>이런 상황일 때</h3>
+<pre><code>새 프로젝트를 만들었는데,
+코드를 푸시하면 자동으로 테스트 → 배포되게 하고 싶을 때
+</code></pre>
+<h3>AI한테 이렇게 말하세요</h3>
+<pre><code>/cicd-setup
+새 Node.js 프로젝트 CI/CD 해줘.
+테스트 → 빌드 → 배포 자동화해줘.
+</code></pre>
+<h3>AI가 해주는 것</h3>
+<ol>
+<li>GitHub Actions 워크플로우 생성</li>
+<li>자동 테스트 설정</li>
+<li>PM2로 프로덕션 배포 설정</li>
+<li>문서 작성</li>
+</ol>
+<h3>✅ 좋은 예</h3>
+<pre><code>/cicd-setup
+React + Node.js 풀스택 프로젝트.
+- GitHub에 푸시하면 자동 테스트
+- 테스트 통과하면 자동 배포
+- Slack 알림도 보내줘
+</code></pre>
+<h3>❌ 안 좋은 예</h3>
+<pre><code>/cicd-setup
+배포 설정해줘
+</code></pre>
+<hr>
+<h2>커맨드 — &quot;큰 작업 자율적으로 해줘&quot;</h2>
+<h3>1️⃣ <code>/ultrawork</code> — 큰 작업을 한 번에</h3>
+<h3>이런 상황일 때</h3>
+<pre><code>&quot;TypeScript 타입 에러를 다 고쳐줘&quot;
+&quot;코드 스타일을 통일해줘&quot;
+이런 큰 작업을 자율적으로 진행하고 싶을 때
+</code></pre>
+<h3>AI한테 이렇게 말하세요</h3>
+<pre><code>/ultrawork
+TypeScript 타입 검사 0 에러로 만들어줘.
+src/ 폴더 전체.
+</code></pre>
+<h3>AI가 해주는 것</h3>
+<ol>
+<li>모든 타입 에러 찾기</li>
+<li>자동 수정 시도</li>
+<li>수정 안 되는 부분은 경고</li>
+<li>최종 결과 보고</li>
+</ol>
+<h3>✅ 좋은 예</h3>
+<pre><code>/ultrawork
+정규표현식 유효성 검사 추가해줘.
+src/utils/validators.ts와 그걸 쓰는 모든 파일.
+</code></pre>
+<hr>
+<h3>2️⃣ <code>/setup-workspace</code> — &quot;여러 팀이 동시에 작업하게 해줘&quot;</h3>
+<h3>이런 상황일 때</h3>
+<pre><code>프론트엔드, 백엔드, 테스트 팀이
+한 번에 다른 부분을 수정해야 할 때
+</code></pre>
+<h3>AI한테 이렇게 말하세요</h3>
+<pre><code>/setup-workspace
+프론트엔드, 백엔드, QA 동시 작업
+</code></pre>
+<h3>AI가 해주는 것</h3>
+<ol>
+<li>터미널을 여러 칸으로 분할</li>
+<li>각 칸에 에이전트 배치</li>
+<li>부분별로 동시 진행</li>
+</ol>
+<hr>
+<h2>나만의 스킬 만들기</h2>
+<h3>이런 상황일 때</h3>
+<pre><code>&quot;우리 회사는 항상 커밋 메시지를 이렇게 쓴다&quot;
+&quot;새 페이지 만들 때는 항상 이 템플릿을 쓴다&quot;
+이런 반복 작업이 많을 때
+</code></pre>
+<h3>해결법: 스킬 문서 작성</h3>
+<p>프로젝트 폴더에 <code>.claude/skills/my-skill/SKILL.md</code> 파일 만들기:</p>
+<pre><code class="language-markdown">---
+name: &quot;commit-message&quot;
+description: &quot;우리 회사 커밋 메시지 규칙&quot;
+---
+
+# 커밋 메시지 스킬
+
+커밋 메시지는 다음 형식으로 작성:
+1. 제목: 50자 이내, 과거형
+2. 본문: 72자씩 줄바꿈
+3. 이슈 번호: &quot;Fixes #123&quot;
+
+예시:
+feat(auth): 구글 로그인 추가
+
+구글 OAuth를 구현했습니다.
+- oauth.google.com API 등록
+- 로그인 버튼 추가
+- 토큰 저장 로직 구현
+
+Fixes #456
+</code></pre>
+<h3>사용하기</h3>
+<pre><code>/commit-message
+파일 수정 내용을 커밋 메시지로 만들어줘.
+</code></pre>
+<h3>💡 팁</h3>
+<ul>
+<li>자주 반복하는 &quot;매뉴얼 같은 작업&quot;을 스킬로 만들면 편합니다</li>
+<li>팀 전체가 같은 규칙을 따르니까 혼동이 없습니다</li>
+</ul>
+<hr>
+<h2>플러그인 마켓플레이스 — &quot;다른 사람이 만든 스킬 설치하기&quot;</h2>
+<h3>이런 상황일 때</h3>
+<pre><code>다른 회사에서 만든 좋은 스킬이 있는데,
+우리도 쓰고 싶을 때
+</code></pre>
+<h3>설치하기</h3>
+<pre><code>/plugin marketplace add
+[마켓플레이스 스킬명]
+</code></pre>
+<h3>⚠️ 주의</h3>
+<ul>
+<li>회사 규칙과 맞는지 확인 후 설치하세요</li>
+<li>불필요한 권한을 요청하는 스킬은 피하세요</li>
+</ul>
+<hr>
+<h2>스킬 상태 확인</h2>
+<h3>지금 설치된 스킬 보기</h3>
+<pre><code class="language-bash">claude skill list
+</code></pre>
+<p>또는:</p>
+<pre><code>설치된 스킬 보여줄래?
+</code></pre>
+<hr>
+<h2>실전 예시</h2>
+<h3>상황 1: &quot;새 페이지 디자인이 필요함&quot;</h3>
+<pre><code>/design-plan
+관리자 대시보드 새로 설계해줘.
+현재: 표 중심
+목표: 시각적 차트 + 필터 기능
+</code></pre>
+<p>→ AI가 디자인 검토하고 문서 작성</p>
+<h3>상황 2: &quot;코드에 버그가 있을 것 같아&quot;</h3>
+<pre><code>/review-ai src/database/connection.ts
+</code></pre>
+<p>→ AI가 보안/성능 문제 찾음</p>
+<h3>상황 3: &quot;GitHub에 푸시하면 자동 배포되게 하고 싶어&quot;</h3>
+<pre><code>/cicd-setup
+Next.js + Express 백엔드 구성.
+GitHub Actions + PM2 사용해줘.
+</code></pre>
+<p>→ CI/CD 파이프라인 자동 구성</p>
+<hr>
+<h2>💡 실천 팁</h2>
+<ul>
+<li>✅ 스킬은 &quot;이런 상황일 때&quot; 명확히 하고 호출하세요</li>
+<li>✅ <code>/design-review</code>는 꼭 스크린샷과 함께</li>
+<li>✅ <code>/review-ai</code>는 파일 경로 정확히</li>
+<li>✅ 자주 쓰는 작업은 커스텀 스킬로 만들기</li>
+<li>❌ 스킬 이름만 치고 설명 없이 사용하지 말 것</li>
+</ul>
+<hr>
+<h2>다음 단계</h2>
+<p><a href="05-git-workflow.md">05-git-workflow.md</a>를 읽으면:</p>
+<ul>
+<li>코드 변경사항을 관리하는 법 (Git)</li>
+<li>팀과 코드를 공유하는 법 (PR, 커밋)</li>
+<li>실수했을 때 되돌리는 법</li>
+</ul>
+<p>을 배울 수 있습니다.</p>
+
+      </div>
+    </div>
+    <div class="chapter" id="ch5">
+      <div class="chapter-header">
+        <span class="chapter-badge">중급</span>
+        <span class="chapter-number">Chapter 06</span>
+      </div>
+      <div class="chapter-content">
+        <h1>코드 변경사항 관리하기 — Git 기초</h1>
+<h2>Git이 뭔가요?</h2>
+<p>Git은 <strong>문서의 버전 관리. 구글독스의 &quot;버전 기록&quot;과 비슷</strong>합니다.</p>
+<h3>비교</h3>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>구글 독스</th>
+<th>Git</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>뭘 관리?</strong></td>
+<td>문서</td>
+<td>코드 파일들</td>
+</tr>
+<tr>
+<td><strong>언제 저장?</strong></td>
+<td>자동 매 10초</td>
+<td>직접 명령어 사용</td>
+</tr>
+<tr>
+<td><strong>언제 쓰?</strong></td>
+<td>한 사람, 또는 여럿이 함께</td>
+<td>개발팀 전체</td>
+</tr>
+<tr>
+<td><strong>되돌리기</strong></td>
+<td>&quot;버전 기록&quot; 클릭</td>
+<td><code>git reset</code> 명령어</td>
+</tr>
+</tbody></table>
+<h3>예시</h3>
+<pre><code>구글 독스에서:
+[파일 열음]
+→ 2024년 4월 1일 10:00 AM 버전
+→ 2024년 4월 1일 10:05 AM 버전
+→ 2024년 4월 1일 10:10 AM 버전
+아무 버전이나 클릭해서 되돌림
+
+Git에서도:
+[코드 수정]
+→ 커밋 1: &quot;로그인 화면 추가&quot;
+→ 커밋 2: &quot;에러 처리 추가&quot;
+→ 커밋 3: &quot;타입 검사 추가&quot;
+아무 커밋이나 선택해서 그 시점으로 되돌림
+</code></pre>
+<hr>
+<h2>왜 필요한가요?</h2>
+<h3>1️⃣ 누가 언제 뭘 바꿨는지 추적</h3>
+<pre><code>2024-04-01 김철수: 로그인 버그 수정
+2024-04-02 이영희: 버튼 색상 변경
+2024-04-03 박민준: 성능 개선
+
+→ 나중에 &quot;누가 이걸 바꿨어?&quot; 궁금할 때
+   Git 기록에서 찾을 수 있음
+</code></pre>
+<h3>2️⃣ 실수해도 되돌리기 가능</h3>
+<pre><code>코드를 수정했는데 문제가 생김
+→ &quot;어, 실수했네&quot;
+→ 예전 버전으로 되돌리기
+→ 문제 해결
+</code></pre>
+<h3>3️⃣ 여러 사람이 동시에 작업 가능</h3>
+<pre><code>철수: 로그인 화면 작업
+영희: 회원가입 화면 작업
+민준: 프로필 화면 작업
+
+각자 다른 파일을 수정
+→ Git이 모든 변경사항을 통합
+</code></pre>
+<hr>
+<h2>AI한테 Git 시키기</h2>
+<h3>상황 1: &quot;지금까지 바꾼 거 저장해줘&quot;</h3>
+<pre><code>AI한테: 커밋해줄래?
+</code></pre>
+<p>AI가 자동으로:</p>
+<ol>
+<li>뭘 바꿨는지 확인</li>
+<li>커밋 메시지 작성</li>
+<li>저장</li>
+</ol>
+<h3>상황 2: &quot;바꾼 내용 보여줄래&quot;</h3>
+<pre><code>AI한테: 지금까지 뭐 바뀌었는지 보여줄래?
+</code></pre>
+<p>AI가 보여주는 것:</p>
+<pre><code>수정된 파일: src/auth.js, src/components/Button.tsx
+추가된 파일: src/utils/helpers.js
+삭제된 파일: src/old.js
+
+변경 상세:
+- src/auth.js: 15줄 추가, 3줄 삭제
+- src/components/Button.tsx: 8줄 추가
+</code></pre>
+<h3>상황 3: &quot;아까 상태로 돌려줄래&quot;</h3>
+<pre><code>AI한테: 30분 전 상태로 돌려줄래?
+</code></pre>
+<p>AI가 해주는 것:</p>
+<ul>
+<li>모든 변경사항 되돌림</li>
+<li>코드가 예전 버전으로 복구</li>
+</ul>
+<h3>상황 4: &quot;이 변경사항 팀에 공유해줄래&quot;</h3>
+<pre><code>AI한테: main으로 PR(풀 리퀘스트) 만들어줄래?
+</code></pre>
+<p>AI가 해주는 것:</p>
+<ul>
+<li>코드 변경사항 팀에 공유</li>
+<li>팀이 검토하고 승인</li>
+<li>승인되면 자동 병합</li>
+</ul>
+<hr>
+<h2>커밋 메시지 규칙</h2>
+<h3>왜 규칙이 필요할까?</h3>
+<p>구글 독스의 버전 이름처럼, Git의 커밋도 제목이 있어야 나중에 찾기 쉽습니다.</p>
+<h3>규칙: &quot;일기장 제목처럼&quot;</h3>
+<pre><code>✅ 좋은 예:
+&quot;feat(login): 구글 로그인 추가&quot;
+&quot;fix(checkout): 총액 계산 오류 수정&quot;
+&quot;refactor(api): 에러 처리 단순화&quot;
+
+❌ 안 좋은 예:
+&quot;수정&quot;
+&quot;업데이트&quot;
+&quot;작업&quot;
+</code></pre>
+<h3>형식</h3>
+<pre><code>&lt;타입&gt;(&lt;범위&gt;): &lt;제목&gt;
+
+&lt;본문&gt;
+
+&lt;이슈번호&gt;
+</code></pre>
+<h3>타입 설명</h3>
+<table>
+<thead>
+<tr>
+<th>타입</th>
+<th>의미</th>
+<th>예시</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>feat</strong></td>
+<td>새 기능 추가</td>
+<td>feat(user): 프로필 사진 업로드</td>
+</tr>
+<tr>
+<td><strong>fix</strong></td>
+<td>버그 수정</td>
+<td>fix(payment): 결제 오류 해결</td>
+</tr>
+<tr>
+<td><strong>refactor</strong></td>
+<td>코드 정리 (기능 변화 없음)</td>
+<td>refactor(api): 에러 처리 개선</td>
+</tr>
+<tr>
+<td><strong>docs</strong></td>
+<td>문서 추가/수정</td>
+<td>docs: README 업데이트</td>
+</tr>
+<tr>
+<td><strong>test</strong></td>
+<td>테스트 추가</td>
+<td>test: 로그인 flow 테스트</td>
+</tr>
+</tbody></table>
+<h3>✅ 좋은 예</h3>
+<pre><code>feat(auth): 이메일 인증 추가
+
+- 가입할 때 인증 이메일 발송
+- 이메일의 링크 클릭하면 확인
+- 인증 안 된 사용자는 글쓰기 불가
+
+Closes #123
+</code></pre>
+<h3>❌ 안 좋은 예</h3>
+<pre><code>수정해놨습니다
+</code></pre>
+<hr>
+<h2>실전: AI한테 Git 맡기기</h2>
+<h3>상황: &quot;로그인 기능 완성했어. 저장해줄래?&quot;</h3>
+<h4>1단계: AI에게 요청</h4>
+<pre><code>커밋해줄래?
+변경사항:
+- 로그인 폼 추가
+- 인증 로직 구현
+- 에러 메시지 표시
+</code></pre>
+<h4>2단계: AI가 자동으로</h4>
+<pre><code>변경된 파일 확인:
+- src/pages/Login.tsx (120줄 추가)
+- src/auth/login.ts (50줄 추가)
+- src/types/auth.ts (10줄 추가)
+
+커밋 메시지 작성:
+feat(auth): 로그인 페이지 및 인증 로직 구현
+- 로그인 폼 UI 구현
+- OAuth 토큰 검증 로직
+- 에러 처리 추가
+
+이렇게 저장할까요?
+</code></pre>
+<h4>3단계: 승인</h4>
+<pre><code>맞아, 저장해줘
+</code></pre>
+<hr>
+<h2>팀과 코드 공유하기 (PR)</h2>
+<h3>이런 상황일 때</h3>
+<pre><code>내가 코드를 수정했는데,
+팀이 봤다가 문제 있으면 지적해줬으면 좋을 때
+</code></pre>
+<h3>PR이 뭔가요?</h3>
+<p>PR = &quot;Pull Request&quot; = <strong>&quot;이 코드 병합해도 되나요? 먼저 검토해줄래요?&quot;</strong></p>
+<h3>AI한테 이렇게 말하세요</h3>
+<pre><code>main으로 PR 만들어줄래?
+제목: 로그인 기능 추가
+설명: OAuth 인증 추가했습니다
+</code></pre>
+<h3>AI가 해주는 것</h3>
+<ol>
+<li>변경사항 정리</li>
+<li>PR 제목과 설명 작성</li>
+<li>팀이 볼 수 있는 상태로 업로드</li>
+<li>팀이 검토하고 댓글 달 수 있게</li>
+</ol>
+<h3>✅ 좋은 PR 제목</h3>
+<pre><code>&quot;feat: 구글 로그인 추가&quot;
+&quot;fix: 결제 이중 청구 버그 해결&quot;
+&quot;refactor: API 에러 처리 단순화&quot;
+</code></pre>
+<h3>❌ 안 좋은 PR 제목</h3>
+<pre><code>&quot;작업&quot;
+&quot;수정&quot;
+&quot;병합해주세요&quot;
+</code></pre>
+<hr>
+<h2>코드 리뷰 (서로 확인하기)</h2>
+<h3>이런 상황일 때</h3>
+<pre><code>팀 동료의 PR을 보고
+&quot;이 부분 이렇게 하면 더 좋지 않을까?&quot; 피드백할 때
+</code></pre>
+<h3>AI에게 리뷰 요청</h3>
+<pre><code>/review-ai src/payment.ts
+</code></pre>
+<p>AI가 해주는 것:</p>
+<pre><code>버그 찾기:
+- line 45: null check 빠짐
+
+보안 문제:
+- line 82: 비밀번호 평문 저장
+
+성능 개선:
+- line 120: N+1 쿼리 문제
+
+해결안:
+[코드 제시]
+</code></pre>
+<hr>
+<h2>⚠️ 절대 하면 안 되는 것</h2>
+<h3>1️⃣ Force Push (강제 푸시)</h3>
+<pre><code>위험: git push --force
+</code></pre>
+<p><strong>문제</strong>:</p>
+<ul>
+<li>팀이 한 작업을 다 지워버림</li>
+<li>나중에 복구 어려움</li>
+</ul>
+<p><strong>안전한 방법</strong>:</p>
+<ul>
+<li>실수했으면 새 커밋으로 수정</li>
+<li>AI에게: &quot;이 부분 수정해줄래? (새 커밋으로)&quot;</li>
+</ul>
+<h3>2️⃣ 남의 작업 덮어쓰기</h3>
+<pre><code>절대 금지: 다른 사람이 수정 중인 파일을 내가 수정하고 저장
+</code></pre>
+<p><strong>이렇게 하세요</strong>:</p>
+<ul>
+<li>팀과 먼저 상의</li>
+<li>한 사람만 수정하게 역할 분담</li>
+</ul>
+<h3>3️⃣ 중요한 파일을 무분별하게 수정</h3>
+<pre><code>위험한 파일:
+- database.js (데이터베이스 연결)
+- auth.ts (인증)
+- config.json (설정)
+</code></pre>
+<p><strong>이렇게 하세요</strong>:</p>
+<ul>
+<li>수정 전에 Git branch 생성 (임시 공간)</li>
+<li>팀이 검토 후 승인</li>
+<li>그 다음에 merge</li>
+</ul>
+<hr>
+<h2>실전 예시</h2>
+<h3>상황: &quot;새 기능 구현 → 저장 → 팀에 공유&quot;</h3>
+<h4>1단계: 기능 구현</h4>
+<pre><code>AI: 사용자 검색 기능 만들어줄래?
+</code></pre>
+<p>AI가 코드 작성</p>
+<h4>2단계: 커밋 (저장)</h4>
+<pre><code>AI: 이제 커밋해줄래?
+</code></pre>
+<p>AI가 자동으로:</p>
+<pre><code>feat(search): 사용자 검색 기능 추가
+
+- 검색 입력란 UI
+- 검색 API 호출
+- 결과 목록 표시
+</code></pre>
+<h4>3단계: PR 생성 (팀에 공유)</h4>
+<pre><code>AI: main으로 PR 만들어줄래?
+</code></pre>
+<h4>4단계: 팀 검토</h4>
+<pre><code>동료A: &quot;검색 결과가 너무 느려 보여. 페이지네이션 추가할래?&quot;
+동료B: &quot;+1, 좋은 제안&quot;
+</code></pre>
+<h4>5단계: 수정</h4>
+<pre><code>AI: 검색 결과에 페이지네이션 추가해줄래?
+</code></pre>
+<p>AI가 수정 후 PR 업데이트</p>
+<h4>6단계: 승인 및 병합</h4>
+<pre><code>팀장: &quot;좋아, 병합하자&quot;
+AI: 병합 완료! 🎉
+</code></pre>
+<hr>
+<h2>자주 묻는 질문</h2>
+<h3>Q: 커밋을 잘못 했어. 어떻게 하지?</h3>
+<p><strong>A: 새 커밋으로 수정하면 됩니다.</strong></p>
+<pre><code>AI: 아까 커밋이 잘못됐어. 수정해줄래?
+</code></pre>
+<p>AI가 새로운 수정 커밋 생성 (예전 커밋은 건드리지 않음)</p>
+<h3>Q: PR이 너무 많은 파일을 건드려. 괜찮아?</h3>
+<p><strong>A: PR은 작을수록 좋습니다.</strong></p>
+<ul>
+<li>1개 PR = 1개 기능</li>
+<li>너무 크면 팀이 검토하기 힘듦</li>
+</ul>
+<pre><code>AI: 이 기능을 2개 PR로 나눠서 해줄래?
+</code></pre>
+<h3>Q: 팀이 PR에 거절했어. 뭐 하지?</h3>
+<p><strong>A: 피드백을 읽고 수정하세요.</strong></p>
+<pre><code>팀 피드백: &quot;이 함수가 너무 길어. 더 작게 나눠줄래?&quot;
+
+AI: 함수를 작게 나눠서 리팩토링해줄래?
+</code></pre>
+<hr>
+<h2>💡 실천 팁</h2>
+<ul>
+<li>✅ 커밋 메시지는 &quot;일기장 제목&quot;처럼 명확하게</li>
+<li>✅ PR은 자주, 작게</li>
+<li>✅ 팀 리뷰를 받고 수정하기</li>
+<li>✅ 중요한 파일은 신중하게</li>
+<li>❌ Force push는 절대 금지</li>
+<li>❌ 남의 작업 무시하고 덮어쓰지 말 것</li>
+</ul>
+<hr>
+<h2>다음 단계</h2>
+<p><a href="06-playwright.md">06-playwright.md</a>를 읽으면:</p>
+<ul>
+<li>AI가 웹사이트를 직접 조작하는 법</li>
+<li>자동으로 스크린샷 찍는 법</li>
+<li>로그인이 필요한 사이트 자동화하는 법</li>
+</ul>
+<p>을 배울 수 있습니다.</p>
+<p>모든 커밋은 일관된 형식을 따릅니다.</p>
+<pre><code>&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;
+
+&lt;body&gt;
+
+&lt;footer&gt;
+</code></pre>
+<h3>타입 (type)</h3>
+<table>
+<thead>
+<tr>
+<th>타입</th>
+<th>설명</th>
+<th>예시</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>feat</strong></td>
+<td>새 기능</td>
+<td>feat(auth): add OAuth login</td>
+</tr>
+<tr>
+<td><strong>fix</strong></td>
+<td>버그 수정</td>
+<td>fix(checkout): correct total calculation</td>
+</tr>
+<tr>
+<td><strong>refactor</strong></td>
+<td>기능 변경 없이 코드 개선</td>
+<td>refactor(api): simplify error handling</td>
+</tr>
+<tr>
+<td><strong>docs</strong></td>
+<td>문서 추가/수정</td>
+<td>docs: update setup instructions</td>
+</tr>
+<tr>
+<td><strong>chore</strong></td>
+<td>빌드, 의존성, 설정</td>
+<td>chore(deps): upgrade webpack to v5</td>
+</tr>
+<tr>
+<td><strong>test</strong></td>
+<td>테스트 추가/수정</td>
+<td>test: add payment flow tests</td>
+</tr>
+<tr>
+<td><strong>style</strong></td>
+<td>코드 포맷 (기능 변경 없음)</td>
+<td>style: fix linting errors</td>
+</tr>
+</tbody></table>
+<h3>좋은 커밋 메시지 예시</h3>
+<pre><code>feat(user): add email verification
+
+- Send verification link on signup
+- Verify token on email click
+- Block unverified users from posting
+
+Closes #123
+</code></pre>
+<pre><code>fix(api): handle null response from payment provider
+
+The API could return null in edge cases during network failure.
+Now properly catches and retries instead of crashing.
+
+Fixes #456
+</code></pre>
+<h2>Claude에게 커밋 요청</h2>
+<h3>자동 커밋 요청</h3>
+<p>작업이 완료된 후:</p>
+<pre><code>커밋해줄래?
+변경 내용:
+- 사용자 인증 로직 추가
+- 이메일 검증 폼 생성
+- 타입 정의 업데이트
+</code></pre>
+<p>Claude가 <code>git diff</code>를 확인 후 Conventional Commits 형식으로 커밋합니다.</p>
+<h3>커밋 메시지 템플릿 지정</h3>
+<pre><code>다음 형식으로 커밋해:
+
+feat(payments): support multiple payment methods
+
+- Add Stripe and PayPal adapters
+- Update checkout UI for provider selection
+- Add tests for payment retry logic
+
+Closes #789
+</code></pre>
+<h2>PR 생성 자동화</h2>
+<h3>기본 PR 생성</h3>
+<pre><code class="language-bash"># 브랜치 생성 후
+gh pr create --title &quot;Add OAuth login&quot; --body &quot;Adds Google and GitHub OAuth support&quot;
+</code></pre>
+<p>Claude에게 요청:</p>
+<pre><code>main으로 PR 만들어줄래?
+제목: OAuth 로그인 추가
+본문: Google/GitHub 지원, 타입 안전성 강화
+</code></pre>
+<h3>PR 템플릿 사용</h3>
+<p><code>.github/pull_request_template.md</code>:</p>
+<pre><code class="language-markdown">## 설명
+무엇을 변경했나요?
+
+## 이유
+왜 변경했나요?
+
+## 테스트
+어떻게 테스트했나요?
+
+## 체크리스트
+- [ ] 코드 리뷰 완료
+- [ ] 테스트 통과
+- [ ] 문서 업데이트
+</code></pre>
+<h2>코드 리뷰 워크플로우</h2>
+<h3>1단계: 리뷰 요청</h3>
+<pre><code>/review-ai src/payment.ts
+</code></pre>
+<p>또는:</p>
+<pre><code>이 코드 리뷰해줄래?
+focus: performance, security, error handling
+</code></pre>
+<h3>2단계: 피드백 반영</h3>
+<p>Claude의 리뷰 결과를 읽고 수정합니다.</p>
+<pre><code>// Before
+async function processPayment(amount, card) {
+  const result = await stripe.charges.create({ amount, card });
+  return result;
+}
+
+// After (피드백 반영)
+async function processPayment(amount: number, card: PaymentMethod): Promise&lt;PaymentResult&gt; {
+  try {
+    const result = await stripe.charges.create({
+      amount: Math.round(amount * 100), // cents
+      source: card.id,
+    });
+    return { success: true, transactionId: result.id };
+  } catch (error) {
+    logger.error(&#39;Payment failed&#39;, { amount, error });
+    throw new PaymentError(&#39;Transaction failed&#39;, error);
+  }
+}
+</code></pre>
+<h3>3단계: 커밋</h3>
+<pre><code>fix(payments): add error handling and type safety
+
+- Add PaymentMethod and PaymentResult types
+- Convert amount to cents before API call
+- Add try-catch with logging
+- Validate card data
+
+Reviewed-by: Claude Code &lt;review-ai&gt;
+</code></pre>
+<h2>브랜치 전략</h2>
+<h3>Feature Branch 워크플로우</h3>
+<pre><code class="language-bash"># 1. main에서 새 브랜치 생성
+git checkout -b feature/oauth-login
+
+# 2. 작업 진행 (커밋 여러 개)
+git add .
+git commit -m &quot;feat(auth): scaffold OAuth login&quot;
+git commit -m &quot;feat(auth): integrate Google provider&quot;
+git commit -m &quot;test(auth): add OAuth flow tests&quot;
+
+# 3. PR 생성
+gh pr create -B main -H feature/oauth-login
+
+# 4. 리뷰 후 병합
+gh pr merge --squash  # or --rebase
+</code></pre>
+<h3>브랜치 명명 규칙</h3>
+<pre><code>feature/user-auth
+feature/payment-gateway
+bugfix/checkout-crash
+refactor/api-client
+docs/setup-guide
+</code></pre>
+<h2>주의사항: 파괴적 작업</h2>
+<h3>Force Push 금지</h3>
+<pre><code class="language-bash"># 위험 - 팀 코드 손실 가능
+git push --force
+
+# 안전 - 로컬만 영향
+git reset --soft HEAD~1
+</code></pre>
+<h3>Amend 신중하게</h3>
+<p>이미 푸시된 커밋은 amend하지 말기:</p>
+<pre><code class="language-bash"># 위험 - 원격 히스토리 변경
+git commit --amend
+git push --force
+
+# 안전 - 새 커밋으로 수정
+git revert HEAD
+git commit -m &quot;fix: undo previous change&quot;
+</code></pre>
+<h3>Reset 전 백업</h3>
+<pre><code class="language-bash"># 위험한 작업 전
+git branch backup-point
+git reset --hard HEAD~2
+
+# 문제 발생 시 복구
+git reset --hard backup-point
+</code></pre>
+<h2>실제 워크플로우 예시</h2>
+<h3>기능 구현 시작</h3>
+<pre><code class="language-bash">git checkout -b feature/user-dashboard
+</code></pre>
+<p>Claude:</p>
+<pre><code>대시보드 페이지 만들어줄래?
+요구사항:
+- 사용자 통계 표시
+- 월별 차트
+- 내보내기 버튼
+</code></pre>
+<h3>작업 진행</h3>
+<p>Claude가 코드 작성 후:</p>
+<pre><code>git status를 보니 5개 파일이 변경됐어.
+커밋해줄 수 있어?
+</code></pre>
+<p>Claude가 커밋:</p>
+<pre><code>feat(dashboard): create user analytics page
+
+- Add Dashboard component with stats layout
+- Implement monthly chart with Chart.js
+- Add export to CSV functionality
+- Add tests for Dashboard and ExportButton
+
+Closes #234
+</code></pre>
+<h3>PR 생성</h3>
+<pre><code>main으로 PR 만들어줄래?
+제목과 본문도 자동 생성해줘.
+</code></pre>
+<p>Claude:</p>
+<pre><code>gh pr create \
+  --title &quot;feat: add user analytics dashboard&quot; \
+  --body &quot;Implements dashboard with stats and export functionality&quot;
+</code></pre>
+<h3>리뷰 및 병합</h3>
+<pre><code>이 PR의 코드를 리뷰해줄래?
+성능과 테스트 커버리지 중심으로.
+</code></pre>
+<p>피드백 반영 후:</p>
+<pre><code>gh pr merge --squash
+</code></pre>
+<h2>정리</h2>
+<ul>
+<li><strong>Conventional Commits</strong>: feat, fix, refactor, docs, chore 타입 사용</li>
+<li><strong>Claude 커밋</strong>: <code>git diff</code> 확인 후 Conventional Commits 형식으로 자동 생성</li>
+<li><strong>PR 자동화</strong>: gh pr create로 제목/본문 자동 생성</li>
+<li><strong>/review-ai</strong>: 독립적 코드 리뷰</li>
+<li><strong>Feature Branch</strong>: 기능별 브랜치 분리 → PR → squash merge</li>
+<li><strong>위험한 작업</strong>: force push, amend, reset은 신중하게, 필요시 백업 먼저</li>
+</ul>
+
+      </div>
+    </div>
+    <div class="chapter" id="ch6">
+      <div class="chapter-header">
+        <span class="chapter-badge">중급</span>
+        <span class="chapter-number">Chapter 07</span>
+      </div>
+      <div class="chapter-content">
+        <h1>AI가 웹사이트를 직접 조작하게 하기 — 브라우저 자동화</h1>
+<h2>이게 뭔가요?</h2>
+<p>브라우저 자동화는 <strong>AI가 크롬 브라우저를 열고, 클릭하고, 스크린샷 찍는 것</strong>입니다.</p>
+<h3>비유</h3>
+<pre><code>당신: &quot;우리 사이트 로그인 되는지 확인해봐&quot;
+
+❌ 일반 AI:
+&quot;됩니다&quot; (실제로 안 봤는데 대충 대답)
+
+✅ Claude Code (자동화):
+1. 크롬 브라우저 자동 열기
+2. 사이트에 접속
+3. 로그인 버튼 클릭
+4. 이메일/비밀번호 입력
+5. &quot;로그인 완료&quot; 메시지 확인
+6. &quot;네, 로그인 잘 됩니다!&quot; (확실한 답)
+</code></pre>
+<hr>
+<h2>언제 쓰나요?</h2>
+<h3>상황 1: &quot;우리 사이트 스크린샷 찍어줄래&quot;</h3>
+<pre><code>AI한테:
+로그인 화면의 스크린샷 찍어줄래?
+사이트: https://myapp.com
+</code></pre>
+<p>AI가 해주는 것:</p>
+<ol>
+<li>브라우저 자동 열기</li>
+<li>사이트 접속</li>
+<li>스크린샷 촬영</li>
+<li>파일로 저장</li>
+</ol>
+<h3>상황 2: &quot;우리 사이트 로그인 되는지 확인해봐&quot;</h3>
+<pre><code>AI한테:
+우리 사이트 로그인 되는지 확인해봐.
+이메일: test@example.com
+비밀번호: [설정해둔 테스트 계정 비밀번호]
+</code></pre>
+<p>AI가 해주는 것:</p>
+<ol>
+<li>로그인 페이지 접속</li>
+<li>자동 로그인 시도</li>
+<li>&quot;로그인 성공&quot; 또는 &quot;로그인 실패&quot; 보고</li>
+</ol>
+<h3>상황 3: &quot;Google Cloud 콘솔에서 설정 바꿔줘&quot;</h3>
+<pre><code>AI한테:
+Google Cloud 콘솔에 들어가서
+이 프로젝트의 OAuth URI를 추가해줄래?
+http://localhost:3000/callback
+</code></pre>
+<p>AI가 해주는 것:</p>
+<ol>
+<li>Google 콘솔 접속 (자동 로그인)</li>
+<li>설정 페이지 이동</li>
+<li>URI 입력란 찾기</li>
+<li>새 URI 입력</li>
+<li>저장 버튼 클릭</li>
+<li>완료 보고</li>
+</ol>
+<hr>
+<h2>로그인이 필요한 사이트 — &quot;한 번 로그인해두면 다음부터 자동&quot;</h2>
+<h3>이런 상황일 때</h3>
+<pre><code>Google Cloud 콘솔이나 GitHub 같은 곳에서
+매번 로그인하기 귀찮을 때
+</code></pre>
+<h3>AI한테 이렇게 말하세요</h3>
+<pre><code>Google Cloud 콘솔에 로그인해줄래?
+이메일: kmse7@seobuk.kr
+</code></pre>
+<p>AI가 자동으로:</p>
+<ol>
+<li>브라우저 열기</li>
+<li>Google 콘솔 접속</li>
+<li>로그인 진행</li>
+<li>정보 저장</li>
+</ol>
+<h3>해결법: Chrome 프로필로 로그인 정보 저장</h3>
+<h4>1단계: AI한테 로그인 요청</h4>
+<pre><code>Google Cloud 콘솔에 로그인해줄래?
+이메일: kmse7@seobuk.kr
+</code></pre>
+<h4>2단계: AI가 자동으로</h4>
+<ol>
+<li>크롬 브라우저 자동 열기</li>
+<li>Google 로그인 페이지 이동</li>
+<li>이메일 입력</li>
+<li>비밀번호 입력 (설정에서 가져옴)</li>
+<li>로그인 완료</li>
+</ol>
+<h4>3단계: 다음부터 자동</h4>
+<pre><code>다음 번에는:
+AI: Google Cloud 콘솔에 접속할게.
+(로그인 정보 있으니까 자동으로 됨)
+</code></pre>
+<h3>💡 팁</h3>
+<ul>
+<li>로그인 정보는 Mac의 Keychain에 안전하게 저장</li>
+<li>첫 로그인 후 다음부터는 자동</li>
+<li>여러 사이트를 다룰 때 편리</li>
+</ul>
+<hr>
+<h2>일반 크롬과 동시에 쓰기 — &quot;AI용 브라우저는 따로&quot;</h2>
+<h3>이런 상황일 때</h3>
+<pre><code>AI가 자동으로 웹사이트를 만지고 있는데,
+내가 일반 크롬에서 다른 일을 하고 싶을 때
+</code></pre>
+<h3>문제</h3>
+<pre><code>만약 같은 프로필을 쓰면:
+[AI가 자동으로 클릭 중...]
+[나는 일반 크롬을 사용...]
+→ 서로 충돌! 문제 발생
+</code></pre>
+<h3>해결법: Chromium 사용</h3>
+<p>AI는 Chromium (가벼운 브라우저) 사용
+당신은 일반 Chrome 사용</p>
+<pre><code>AI의 브라우저: /Chromium (AI 전용)
+당신의 브라우저: /Chrome (개인 용)
+→ 충돌 없음!
+</code></pre>
+<h3>💡 팁</h3>
+<ul>
+<li>당신은 Chrome 그대로 사용</li>
+<li>AI는 자동으로 Chromium 사용</li>
+<li>따로 설정할 필요 없음</li>
+</ul>
+<hr>
+<h2>💡 실제 활용 예시 3가지</h2>
+<h3>예시 1: 웹사이트 모니터링</h3>
+<pre><code>AI한테:
+매일 오전 9시에 우리 사이트 상태 확인해줘.
+- 홈페이지 접속 가능?
+- 로그인 버튼 작동?
+- 결제 페이지 정상?
+</code></pre>
+<p>AI가 매일 자동으로:</p>
+<ol>
+<li>사이트 접속</li>
+<li>각 기능 확인</li>
+<li>문제 있으면 슬랙 알림 보내기</li>
+</ol>
+<h3>예시 2: 자동 배포 확인</h3>
+<pre><code>AI한테:
+배포 후에 자동으로:
+1. 사이트 접속
+2. 새로운 버튼이 보이나?
+3. 스크린샷 찍어줄래?
+</code></pre>
+<p>AI가 해주는 것:</p>
+<ol>
+<li>배포 완료 대기</li>
+<li>자동 접속</li>
+<li>스크린샷 촬영</li>
+<li>&quot;배포 성공! 스크린샷 첨부&quot;</li>
+</ol>
+<h3>예시 3: 경쟁사 모니터링</h3>
+<pre><code>AI한테:
+우리 경쟁사 사이트 매일 체크해줄래?
+1. 스크린샷 찍기
+2. 뭐 바뀐 게 있으면 알려주기
+</code></pre>
+<p>AI가 해주는 것:</p>
+<ol>
+<li>매일 경쟁사 사이트 방문</li>
+<li>스크린샷 촬영</li>
+<li>어제와 비교</li>
+<li>&quot;이 부분이 변경됐습니다&quot;</li>
+</ol>
+<hr>
+<h2>설정이 필요해요</h2>
+<p>현재 설정:</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;playwright&quot;: {
+      &quot;command&quot;: &quot;npx&quot;,
+      &quot;args&quot;: [&quot;@anthropic-ai/mcp-server-playwright&quot;]
+    }
+  }
+}
+</code></pre>
+<p>이미 설정되어 있으면 그냥 쓰면 됩니다.</p>
+<hr>
+<h2>⚠️ 주의사항</h2>
+<h3>1️⃣ 로그인 정보 관리</h3>
+<pre><code>✅ 좋은 방법:
+- Mac Keychain에 저장
+- 강한 비밀번호 사용
+- 테스트 계정 별도 생성
+
+❌ 위험한 방법:
+- 실제 계정 비밀번호 직접 입력
+- 평문으로 저장
+</code></pre>
+<h3>2️⃣ 사이트 부하 주의</h3>
+<pre><code>너무 자주 자동 클릭하면:
+- 사이트 서버에 부하 증가
+- 봇으로 탐지될 수 있음
+
+좋은 습관:
+- 필요한 만큼만 실행
+- 시간 간격 두기
+- 과도한 자동화 피하기
+</code></pre>
+<h3>3️⃣ 개인정보 주의</h3>
+<pre><code>절대 하면 안 됨:
+- 실제 사용자의 이메일/비밀번호 입력
+- 신용카드 정보 입력
+
+대신:
+- 테스트 계정 사용
+- 테스트 데이터만 입력
+</code></pre>
+<hr>
+<h2>💡 실천 팁</h2>
+<ul>
+<li>✅ 스크린샷은 <code>/design-review</code>와 함께 사용</li>
+<li>✅ 로그인은 테스트 계정으로</li>
+<li>✅ 자동화는 반복되는 작업부터</li>
+<li>✅ 문제 발생 시 스크린샷으로 기록</li>
+<li>❌ 실제 사용자 계정으로 테스트하지 말 것</li>
+<li>❌ 사이트 부하를 무시하고 과도하게 자동화하지 말 것</li>
+</ul>
+<hr>
+<h2>다음 단계</h2>
+<p><a href="07-mcp-servers.md">07-mcp-servers.md</a>를 읽으면:</p>
+<ul>
+<li>AI에게 회사 시스템 접근 권한 주기</li>
+<li>GitHub, 데이터베이스, 웹 검색 자동화</li>
+<li>외부 도구와 연결하는 법</li>
+</ul>
+<p>을 배울 수 있습니다.</p>
+<p>Playwright MCP를 통해 Claude가 브라우저를 제어할 수 있습니다.</p>
+<h3>~/.claude.json 설정</h3>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;playwright&quot;: {
+      &quot;command&quot;: &quot;npx&quot;,
+      &quot;args&quot;: [&quot;@anthropic-ai/mcp-server-playwright&quot;]
+    }
+  }
+}
+</code></pre>
+<p>또는 글로벌 설치:</p>
+<pre><code class="language-bash">npm install -g @anthropic-ai/mcp-server-playwright
+</code></pre>
+<p>그 후:</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;playwright&quot;: {
+      &quot;command&quot;: &quot;playwright-server&quot;
+    }
+  }
+}
+</code></pre>
+<h2>Chrome 프로필 유지로 로그인 세션 보존</h2>
+<p>매번 로그인하지 않으려면 Chrome 사용자 프로필을 유지합니다.</p>
+<h3>프로필 디렉토리 생성</h3>
+<pre><code class="language-bash">mkdir -p ~/.claude-chrome-profile
+</code></pre>
+<h3>Claude 설정</h3>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;playwright&quot;: {
+      &quot;command&quot;: &quot;npx&quot;,
+      &quot;args&quot;: [&quot;@anthropic-ai/mcp-server-playwright&quot;],
+      &quot;env&quot;: {
+        &quot;PLAYWRIGHT_CHROME_USER_DATA_DIR&quot;: &quot;/Users/[username]/.claude-chrome-profile&quot;
+      }
+    }
+  }
+}
+</code></pre>
+<h3>프로필 초기화</h3>
+<p>첫 실행 시 로그인하면 이후 세션에서 자동 유지됩니다.</p>
+<pre><code class="language-javascript">const page = await browser.newPage();
+await page.goto(&#39;https://accounts.google.com&#39;);
+// 브라우저 창에서 수동 로그인
+// 자동으로 프로필에 저장됨
+</code></pre>
+<h2>Chrome vs Chromium 선택</h2>
+<table>
+<thead>
+<tr>
+<th>브라우저</th>
+<th>특징</th>
+<th>선택 기준</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Chrome</strong></td>
+<td>실제 Chrome 사용, 확장 프로그램 지원</td>
+<td>실 환경 테스트, 복잡한 사이트</td>
+</tr>
+<tr>
+<td><strong>Chromium</strong></td>
+<td>가볍고 빠름, 격리됨</td>
+<td>CI/CD, 헤드리스 자동화</td>
+</tr>
+</tbody></table>
+<h3>Chrome 사용</h3>
+<pre><code class="language-json">{
+  &quot;browser&quot;: &quot;chrome&quot;,
+  &quot;browserArgs&quot;: [&quot;--user-data-dir=/Users/[username]/.claude-chrome-profile&quot;]
+}
+</code></pre>
+<h3>Chromium 사용 (기본값)</h3>
+<pre><code class="language-json">{
+  &quot;browser&quot;: &quot;chromium&quot;
+}
+</code></pre>
+<h2>Google OAuth 로그인 자동화</h2>
+<h3>1단계: 키체인에서 비밀번호 조회</h3>
+<p>macOS에서 저장된 비밀번호를 가져옵니다.</p>
+<pre><code class="language-bash">security find-generic-password -a &quot;google-oauth&quot; -w
+</code></pre>
+<p>또는 특정 계정:</p>
+<pre><code class="language-bash">security find-generic-password -a &quot;kmse7@seobuk.kr&quot; -w
+</code></pre>
+<h3>2단계: Claude 설정에 환경 변수 설정</h3>
+<p><code>.claude/settings.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;env&quot;: {
+    &quot;GOOGLE_EMAIL&quot;: &quot;kmse7@seobuk.kr&quot;,
+    &quot;GOOGLE_PASSWORD&quot;: &quot;$(security find-generic-password -a kmse7@seobuk.kr -w)&quot;
+  }
+}
+</code></pre>
+<h3>3단계: OAuth 로그인 자동화 코드</h3>
+<pre><code class="language-javascript">async function loginWithGoogle(page, email, password) {
+  await page.goto(&#39;https://accounts.google.com/login&#39;);
+
+  // 이메일 입력
+  await page.fill(&#39;input[type=&quot;email&quot;]&#39;, email);
+  await page.click(&#39;#identifierNext&#39;);
+
+  // 비밀번호 입력
+  await page.waitForSelector(&#39;input[type=&quot;password&quot;]&#39;);
+  await page.fill(&#39;input[type=&quot;password&quot;]&#39;, password);
+  await page.click(&#39;#passwordNext&#39;);
+
+  // 로그인 완료 대기
+  await page.waitForNavigation();
+  return page;
+}
+</code></pre>
+<h3>4단계: Playwright에서 실행</h3>
+<pre><code class="language-javascript">const email = process.env.GOOGLE_EMAIL;
+const password = process.env.GOOGLE_PASSWORD;
+
+const page = await browser.newPage();
+await loginWithGoogle(page, email, password);
+</code></pre>
+<h2>스크린샷 캡처</h2>
+<h3>기본 스크린샷</h3>
+<pre><code class="language-javascript">await page.screenshot({ path: &#39;screenshot.png&#39; });
+</code></pre>
+<h3>전체 페이지 스크린샷</h3>
+<pre><code class="language-javascript">await page.screenshot({
+  path: &#39;full-page.png&#39;,
+  fullPage: true
+});
+</code></pre>
+<h3>특정 요소만 스크린샷</h3>
+<pre><code class="language-javascript">const element = await page.$(&#39;.modal&#39;);
+await element.screenshot({ path: &#39;modal.png&#39; });
+</code></pre>
+<h3>디자인 리뷰 연동</h3>
+<p>스크린샷 후 즉시 리뷰 요청:</p>
+<pre><code class="language-bash"># 1. 스크린샷 생성
+playwright screenshot https://myapp.com modal.png
+
+# 2. 디자인 리뷰
+/design-review
+[modal.png 첨부]
+이 모달 UX 개선점 찾아줄래?
+</code></pre>
+<h2>Chrome 147+ CDP 제한과 해결법</h2>
+<p>Chrome 147부터 CDP(Chrome DevTools Protocol)에 제한이 생겼습니다.</p>
+<h3>문제</h3>
+<pre><code>Error: Chrome DevTools Protocol not available
+</code></pre>
+<h3>해결: 별도 user-data-dir 사용</h3>
+<pre><code class="language-bash"># 새로운 독립 프로필 생성
+mkdir -p ~/.claude-chrome-isolated
+</code></pre>
+<p><code>.claude/settings.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;env&quot;: {
+    &quot;PLAYWRIGHT_CHROME_USER_DATA_DIR&quot;: &quot;/Users/[username]/.claude-chrome-isolated&quot;
+  }
+}
+</code></pre>
+<p>또는 Playwright 코드에서:</p>
+<pre><code class="language-javascript">const browser = await chromium.launch({
+  args: [
+    `--user-data-dir=/Users/[username]/.claude-chrome-isolated`,
+    &#39;--disable-blink-features=AutomationControlled&#39;
+  ]
+});
+</code></pre>
+<h2>일반 Chrome과 Playwright 동시 사용</h2>
+<p>Playwright와 일반 Chrome이 같은 프로필을 사용하면 잠금 발생합니다.</p>
+<h3>해결: Chromium 사용</h3>
+<p>Playwright에서는 Chromium을, 일반 브라우징은 Chrome 사용:</p>
+<pre><code class="language-json">{
+  &quot;browser&quot;: &quot;chromium&quot;
+}
+</code></pre>
+<p>또는 강제:</p>
+<pre><code class="language-javascript">const browser = await chromium.launch();
+</code></pre>
+<h3>또는 프로필 분리</h3>
+<pre><code class="language-bash"># Playwright용 프로필
+mkdir -p ~/.claude-chrome-profile
+# 일반 Chrome
+open /Applications/Google\ Chrome.app --args --user-data-dir=~/.chrome-personal
+</code></pre>
+<h2>실용 예시: Google Cloud Console OAuth URI 추가</h2>
+<pre><code class="language-javascript">// 1. 로그인
+await page.goto(&#39;https://console.cloud.google.com&#39;);
+await loginWithGoogle(page, process.env.GOOGLE_EMAIL, process.env.GOOGLE_PASSWORD);
+
+// 2. OAuth 설정 페이지 이동
+await page.goto(&#39;https://console.cloud.google.com/apis/credentials&#39;);
+
+// 3. 수정 버튼 클릭
+await page.click(&#39;text=Edit OAuth 2.0 Client ID&#39;);
+
+// 4. URI 필드 찾기
+const uriInput = await page.$(&#39;input[placeholder*=&quot;Redirect&quot;]&#39;);
+
+// 5. 새 URI 추가
+const currentURI = await uriInput.inputValue();
+const newURI = &#39;http://localhost:3000/callback&#39;;
+await uriInput.fill(currentURI + &#39;\n&#39; + newURI);
+
+// 6. 저장
+await page.click(&#39;button:has-text(&quot;Save&quot;)&#39;);
+
+// 7. 스크린샷으로 확인
+await page.screenshot({ path: &#39;oauth-updated.png&#39; });
+
+console.log(&#39;OAuth URI added successfully&#39;);
+</code></pre>
+<h2>Playwright 팁</h2>
+<h3>요소 대기</h3>
+<pre><code class="language-javascript">// 요소 나타날 때까지 대기 (최대 30초)
+await page.waitForSelector(&#39;.loading&#39;, { state: &#39;hidden&#39; });
+
+// 특정 텍스트 대기
+await page.waitForFunction(() =&gt;
+  document.body.textContent.includes(&#39;Ready&#39;)
+);
+
+// 네트워크 요청 완료 대기
+await page.waitForLoadState(&#39;networkidle&#39;);
+</code></pre>
+<h3>네비게이션 대기</h3>
+<pre><code class="language-javascript">// 클릭 후 페이지 로드 대기
+await Promise.all([
+  page.waitForNavigation(),
+  page.click(&#39;a[href=&quot;/dashboard&quot;]&#39;)
+]);
+</code></pre>
+<h3>여러 요소 처리</h3>
+<pre><code class="language-javascript">const links = await page.$$(&#39;a[href^=&quot;/&quot;]&#39;);
+for (const link of links) {
+  const text = await link.textContent();
+  console.log(text);
+}
+</code></pre>
+<h2>정리</h2>
+<ul>
+<li><strong>프로필 유지</strong>: <code>--user-data-dir</code> 설정으로 세션 보존</li>
+<li><strong>OAuth 자동화</strong>: 키체인에서 비밀번호 조회 → 자동 로그인</li>
+<li><strong>디자인 리뷰</strong>: 스크린샷 캡처 후 <code>/design-review</code> 호출</li>
+<li><strong>Chrome 147+</strong>: 별도 user-data-dir 사용</li>
+<li><strong>동시 사용</strong>: Playwright는 Chromium, 일반 브라우징은 Chrome</li>
+</ul>
+
+      </div>
+    </div>
+    <div class="chapter" id="ch7">
+      <div class="chapter-header">
+        <span class="chapter-badge">중급</span>
+        <span class="chapter-number">Chapter 08</span>
+      </div>
+      <div class="chapter-content">
+        <h1>AI에게 회사 시스템 접근 권한 주기 — 외부 도구 연결</h1>
+<h2>MCP가 뭔가요?</h2>
+<p>MCP는 <strong>AI가 외부 서비스에 직접 접근하는 통로. USB 포트처럼</strong>입니다.</p>
+<h3>비유</h3>
+<pre><code>AI가 할 수 있는 것 (MCP 없이):
+- &quot;GitHub PR을 만들려면 이런 명령어를 써요&quot; (설명만)
+- &quot;데이터베이스에 쿼리를 실행해주세요&quot; (직접 못 함)
+
+AI가 할 수 있는 것 (MCP 있이):
+- &quot;PR을 자동으로 만들어드릴게요&quot; (직접 실행)
+- &quot;지난달 매출을 조회해드릴게요&quot; (쿼리 실행)
+</code></pre>
+<h3>예시 비교</h3>
+<table>
+<thead>
+<tr>
+<th>작업</th>
+<th>MCP 없이</th>
+<th>MCP 있이</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GitHub PR 만들기</td>
+<td>&quot;이런 명령어 써요&quot;</td>
+<td>&quot;자동으로 PR 생성 완료&quot;</td>
+</tr>
+<tr>
+<td>데이터베이스 조회</td>
+<td>&quot;직접 SQL 쓰세요&quot;</td>
+<td>&quot;지난달 매출: 5000만원&quot;</td>
+</tr>
+<tr>
+<td>웹 검색</td>
+<td>링크만 제시</td>
+<td>최신 검색 결과 표시</td>
+</tr>
+<tr>
+<td>라이브러리 문서</td>
+<td>예전 기억 사용</td>
+<td>최신 공식 문서 로드</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>연결하면 뭘 할 수 있나요?</h2>
+<h3>1️⃣ GitHub 연결 → &quot;PR 만들어줘&quot;, &quot;이슈 목록 보여줘&quot;</h3>
+<h3>이런 상황일 때</h3>
+<pre><code>GitHub의 PR, Issue를 AI가 자동으로 관리했으면 좋을 때
+</code></pre>
+<h3>AI한테 이렇게 말하세요</h3>
+<pre><code>GitHub PR 만들어줄래?
+제목: 로그인 기능 추가
+</code></pre>
+<p>AI가 자동으로:</p>
+<ol>
+<li>변경사항 정리</li>
+<li>PR 생성</li>
+<li>제목/설명 작성</li>
+<li>GitHub에 업로드</li>
+</ol>
+<h3>다른 예시</h3>
+<pre><code>우리 저장소의 &quot;버그&quot; 레이블 이슈 모두 보여줄래?
+</code></pre>
+<p>AI가 보여주는 것:</p>
+<pre><code>버그 이슈 3개:
+1. 로그인 버튼이 모바일에서 안 보임
+2. 결제 에러 메시지가 영어로 출력됨
+3. 사진 업로드가 느림
+</code></pre>
+<h3>✅ 좋은 예</h3>
+<pre><code>이 PR의 코드 충돌을 자동으로 해결해줄래?
+</code></pre>
+<h3>❌ 안 좋은 예</h3>
+<pre><code>GitHub 관리해줄래?
+</code></pre>
+<hr>
+<h3>2️⃣ 데이터베이스 연결 → &quot;지난달 매출 조회해줘&quot;, &quot;회원 수 몇 명이야?&quot;</h3>
+<h3>이런 상황일 때</h3>
+<pre><code>데이터베이스에서 통계를 뽑아야 할 때
+</code></pre>
+<h3>AI한테 이렇게 말하세요</h3>
+<pre><code>지난달 매출 top 5 상품 보여줄래?
+</code></pre>
+<p>AI가 자동으로:</p>
+<ol>
+<li>SQL 쿼리 작성</li>
+<li>데이터베이스 실행</li>
+<li>결과 분석</li>
+<li>보기 좋게 정리</li>
+</ol>
+<h3>다른 예시</h3>
+<pre><code>4월 신규 가입자는 몇 명이야?
+</code></pre>
+<p>결과:</p>
+<pre><code>4월 신규 가입자: 247명
+지난달 대비: +12%
+</code></pre>
+<h3>✅ 좋은 예</h3>
+<pre><code>최근 7일간 일일 활성 사용자 추이 보여줄래?
+</code></pre>
+<h3>❌ 안 좋은 예</h3>
+<pre><code>데이터 조회해줄래?
+</code></pre>
+<hr>
+<h3>3️⃣ 웹 검색 연결 → &quot;이 기술 최신 정보 찾아줘&quot;</h3>
+<h3>이런 상황일 때</h3>
+<pre><code>특정 기술이나 뉴스를 최신으로 알고 싶을 때
+</code></pre>
+<h3>AI한테 이렇게 말하세요</h3>
+<pre><code>React 19의 새로운 기능이 뭐야?
+</code></pre>
+<p>AI가 자동으로:</p>
+<ol>
+<li>웹 검색 실행</li>
+<li>최신 소식 모음</li>
+<li>신뢰할 만한 출처 제시</li>
+</ol>
+<h3>다른 예시</h3>
+<pre><code>Claude 최신 뉴스 찾아줄래?
+</code></pre>
+<p>결과:</p>
+<pre><code>1. Claude 4o 출시 (2024-11-20)
+   - 성능 개선 30%
+   - 가격 인하
+
+2. 새 기능: Vision 강화
+   ...
+</code></pre>
+<h3>✅ 좋은 예</h3>
+<pre><code>AI 관련 최신 보안 위협 찾아줄래?
+</code></pre>
+<hr>
+<h3>4️⃣ Confluence 연결 → &quot;이 문서 내용 읽어줄래&quot;</h3>
+<h3>이런 상황일 때</h3>
+<pre><code>회사 위키 문서를 AI가 찾아서 읽어줬으면 좋을 때
+</code></pre>
+<h3>AI한테 이렇게 말하세요</h3>
+<pre><code>온보딩 문서에서 개발 환경 설정 부분 찾아줄래?
+</code></pre>
+<p>AI가 자동으로:</p>
+<ol>
+<li>Confluence 검색</li>
+<li>해당 문서 찾기</li>
+<li>내용 읽고 정리</li>
+<li>필요한 부분만 요약</li>
+</ol>
+<h3>✅ 좋은 예</h3>
+<pre><code>우리 API 가이드 문서를 읽고, 인증 부분을 설명해줄래?
+</code></pre>
+<hr>
+<h2>설정은 누가 하나요?</h2>
+<h3>처음 한 번만 개발자가 설정</h3>
+<pre><code>개발자: 데이터베이스 연결해주겠습니다
+(한 번 설정)
+
+이후:
+비개발자: &quot;지난달 매출 보여줄래?&quot;
+AI: &quot;자동으로 조회해드릴게요&quot;
+(자연어로 사용)
+</code></pre>
+<h3>설정 후에는?</h3>
+<pre><code>설정 완료 후에는
+당신이 할 일: 자연어로 요청만 하기
+AI가 할 일: 자동으로 처리
+</code></pre>
+<hr>
+<h2>현재 연결된 서비스 목록</h2>
+<p>지금 우리 회사에서 사용 가능한 MCP:</p>
+<ul>
+<li>✅ <strong>GitHub</strong> — PR, Issue 자동 관리</li>
+<li>✅ <strong>웹 검색 (Brave)</strong> — 최신 정보 검색</li>
+<li>✅ <strong>Playwright</strong> — 브라우저 자동화</li>
+<li>❌ <strong>데이터베이스</strong> — 아직 미연결 (개발팀에 요청)</li>
+<li>❌ <strong>Confluence</strong> — 아직 미연결 (개발팀에 요청)</li>
+</ul>
+<h3>더 연결하고 싶으면?</h3>
+<pre><code>개발팀에 말하기:
+&quot;DBHub으로 데이터베이스 접근 권한 줄 수 있나요?&quot;
+&quot;Confluence 문서를 AI가 읽을 수 있게 해줄 수 있나요?&quot;
+</code></pre>
+<hr>
+<h2>⚠️ 보안 주의사항</h2>
+<h3>1️⃣ 로그인 정보 관리</h3>
+<pre><code>✅ 좋은 방법:
+- 환경 변수에 저장
+- API 토큰 사용 (비밀번호 아님)
+- 토큰마다 권한 제한
+
+❌ 위험한 방법:
+- 실제 비밀번호 저장
+- 평문으로 설정 파일에 쓰기
+- 권한 없는 사람에게 공유
+</code></pre>
+<h3>2️⃣ 데이터베이스 접근 제한</h3>
+<pre><code>AI가 할 수 있는 것:
+- 데이터 조회 (SELECT)
+
+AI가 절대 하면 안 되는 것:
+- 데이터 삭제 (DELETE)
+- 구조 변경 (DROP)
+- 모든 데이터 전체 조회
+
+→ 개발팀이 권한을 &quot;읽기만 가능&quot;으로 제한해야 함
+</code></pre>
+<h3>3️⃣ 민감한 정보 주의</h3>
+<pre><code>절대 쿼리하면 안 됨:
+- 사용자의 비밀번호
+- 신용카드 번호
+- 개인 주소
+
+대신:
+- 통계 데이터만 조회
+- 익명화된 정보만 사용
+</code></pre>
+<h3>4️⃣ 토큰 정기 갱신</h3>
+<pre><code>매 분기마다:
+1. API 토큰 재발급
+2. 기존 토큰 삭제
+3. 새 토큰으로 설정 업데이트
+
+→ 토큰 유출에 대비
+</code></pre>
+<hr>
+<h2>💡 실전 예시</h2>
+<h3>상황 1: &quot;이번 달 가입자가 몇 명이야?&quot;</h3>
+<pre><code>당신: &quot;4월 신규 가입자 수 알고 싶어&quot;
+AI: 자동으로 DB 쿼리
+AI: &quot;4월 신규 가입자: 247명&quot;
+</code></pre>
+<h3>상황 2: &quot;GitHub PR 자동으로 만들어줄래?&quot;</h3>
+<pre><code>당신: &quot;새 기능 완성했어. PR 만들어줄래?&quot;
+AI: 자동으로 변경사항 정리
+AI: &quot;PR #456 생성 완료&quot;
+</code></pre>
+<h3>상황 3: &quot;최신 AI 뉴스 찾아줄래?&quot;</h3>
+<pre><code>당신: &quot;이번 주 AI 관련 뉴스 정리해줄래?&quot;
+AI: 웹 검색 실행
+AI: &quot;주요 뉴스 3개 찾았습니다...&quot;
+</code></pre>
+<hr>
+<h2>자주 묻는 질문</h2>
+<h3>Q: MCP 연결이 안 됐으면 뭐 하지?</h3>
+<p><strong>A: 개발팀에 말하세요.</strong></p>
+<pre><code>&quot;GitHub이 연결 안 된 것 같아요. 확인해주세요&quot;
+개발팀이 설정 확인 후 수정
+</code></pre>
+<h3>Q: 새 서비스를 연결하고 싶어. 뭐 해야 하지?</h3>
+<p><strong>A: 개발팀에 요청하세요.</strong></p>
+<pre><code>&quot;Slack 연결해줄 수 있나요?&quot;
+개발팀이 MCP 설정 추가
+</code></pre>
+<h3>Q: 내가 토큰을 따로 설정할 수 있어?</h3>
+<p><strong>A: 아니요. 보안상 개발팀만 가능합니다.</strong></p>
+<pre><code>개발팀이 토큰 관리
+당신은 자연어로 요청만 하기
+</code></pre>
+<hr>
+<h2>💡 실천 팁</h2>
+<ul>
+<li>✅ 필요한 데이터는 자연어로 요청</li>
+<li>✅ GitHub PR은 AI에게 자동 생성 맡기기</li>
+<li>✅ 최신 정보는 웹 검색 활용</li>
+<li>✅ 회사 규칙이 있으면 개발팀에 먼저 물어보기</li>
+<li>❌ 토큰이나 비밀번호를 직접 만지지 말 것</li>
+<li>❌ 민감한 데이터 조회는 자제</li>
+</ul>
+<hr>
+<h2>다음 단계</h2>
+<p>모든 기본 도구를 배웠습니다!
+이제 실제 업무에서 Claude Code를 활용해보세요.</p>
+<p>궁금한 점이 있으면 <a href="troubleshooting.md">troubleshooting.md</a>를 확인하거나 개발팀에 물어보세요.</p>
+
+      </div>
+    </div>
+    <div class="chapter" id="ch8">
+      <div class="chapter-header">
+        <span class="chapter-badge">고급</span>
+        <span class="chapter-number">Chapter 09</span>
+      </div>
+      <div class="chapter-content">
+        <h1>AI 여러 명이 동시에 일하게 하기 — 멀티에이전트</h1>
+<h2>왜 필요한가요?</h2>
+<p>혼자 일을 하면 느립니다. 여러 명이 나눠서 하면 빠릅니다. AI도 마찬가지입니다.</p>
+<p>예를 들어:</p>
+<ul>
+<li><p><strong>혼자 하는 경우</strong>: &quot;이 프로젝트 구조 파악해줄래? 그리고 이 버그도 봐줄래? 그리고 문서도 작성해줄래?&quot;
+→ AI가 한 번에 하나씩만 처리 (느림)</p>
+</li>
+<li><p><strong>여러 명이 하는 경우</strong>: &quot;A 인턴은 프로젝트 구조 파악해, B 인턴은 버그 찾아, C 인턴은 문서 작성해&quot;
+→ 동시에 진행 (빠름)</p>
+</li>
+</ul>
+<p><strong>Claude Code에서 이렇게 일을 나눌 수 있습니다.</strong></p>
+<hr>
+<h2>4가지 상황별 가이드</h2>
+<h3>상황 1: &quot;뭔가 조사해야 할 때&quot; → Subagent</h3>
+<p><strong>언제 쓰나요?</strong></p>
+<ul>
+<li>대용량 파일을 읽거나 검색해야 할 때</li>
+<li>리서치나 문서 작성이 필요할 때</li>
+<li>지금 하는 작업을 방해받고 싶지 않을 때</li>
+</ul>
+<p><strong>비유</strong>: 인턴에게 &quot;이거 조사해서 정리해놔&quot; 라고 하고, 본인은 다른 일 계속 하는 거</p>
+<h4>💬 AI한테 이렇게 말하세요</h4>
+<pre><code>/explore &quot;프로젝트의 모든 API 엔드포인트를 찾아서 API.md 파일로 정리해줄래?
+- 각 엔드포인트의 경로, 메서드, 설명 포함
+- 예시 요청/응답도 넣어&quot;
+</code></pre>
+<p>또는:</p>
+<pre><code>백그라운드에서 지난 3개월 간의 변경사항을 분석해서 CHANGELOG.md 만들어줄래?
+</code></pre>
+<h4>📝 Claude Code가 할 일</h4>
+<ol>
+<li>별도의 백그라운드 에이전트 생성</li>
+<li>당신의 메인 세션을 방해하지 않음 (계속 다른 일 가능)</li>
+<li>조사 완료 후 파일 생성 또는 정보 제공</li>
+</ol>
+<h4>✅ 성공하면</h4>
+<ul>
+<li>API.md 또는 CHANGELOG.md 같은 새 파일 자동 생성</li>
+<li>당신은 그 사이에 다른 일 계속 가능</li>
+<li>완료 후 확인만 하면 됨</li>
+</ul>
+<hr>
+<h3>상황 2: &quot;여러 파일을 동시에 수정해야 할 때&quot; → Subagent + Worktree</h3>
+<p><strong>언제 쓰나요?</strong></p>
+<ul>
+<li>2-5개 정도의 <strong>독립적인</strong> 파일을 동시에 수정할 때</li>
+<li>파일끼리 영향을 주지 않을 때</li>
+</ul>
+<p><strong>비유</strong>: 3명의 인턴에게 각각 다른 문서를 할당하고, 동시에 작업하게 하는 것</p>
+<h4>💬 AI한테 이렇게 말하세요</h4>
+<pre><code>이 3개 파일을 동시에 수정해줄래?
+- src/pages/login.js: 로그인 페이지 UI 개선
+- src/api/auth.js: API 응답 에러 처리 추가
+- src/styles/theme.css: 다크모드 지원
+</code></pre>
+<h4>📝 Claude Code가 할 일</h4>
+<ol>
+<li>각 파일마다 별도의 &quot;작업 공간(worktree)&quot;을 만듦</li>
+<li>AI 여러 명이 동시에 각각의 파일을 수정</li>
+<li>병합(merge) 자동화</li>
+</ol>
+<h4>✅ 성공하면</h4>
+<pre><code>✓ login.js 수정 완료
+✓ auth.js 수정 완료
+✓ theme.css 수정 완료
+→ 모두 자동으로 병합됨
+</code></pre>
+<h4>⚠️ 주의</h4>
+<pre><code>❌ 금지: 같은 파일을 여러 AI가 동시에 수정
+  (충돌 발생, 데이터 손실 가능)
+
+✅ 허용: 각각 다른 파일만 수정
+</code></pre>
+<hr>
+<h3>상황 3: &quot;프론트+백엔드+테스트 동시에 해야 할 때&quot; → Agent Teams</h3>
+<p><strong>언제 쓰나요?</strong></p>
+<ul>
+<li>복잡한 프로젝트 (front / back / test 다 필요)</li>
+<li>AI들이 서로 소통해야 할 때</li>
+<li>한 AI의 작업이 다른 AI에게 영향을 줄 때</li>
+</ul>
+<p><strong>비유</strong>: 프로젝트팀을 구성해서, 팀장이 각자 진행 상황을 보고받고 조정하는 것</p>
+<h4>💬 AI한테 이렇게 말하세요</h4>
+<pre><code>팀을 꾸려서 새 기능을 만들어줄래?
+- 설계자: 데이터 구조와 API 설계
+- 개발자: 백엔드 코드 작성
+- 테스터: 테스트 케이스 작성 및 검증
+</code></pre>
+<p>또는 명령어로:</p>
+<pre><code>/team-create
+</code></pre>
+<p>그럼 대화형 메뉴가 나옵니다.</p>
+<h4>📝 Claude Code가 할 일</h4>
+<ol>
+<li>여러 에이전트(AI) 구성</li>
+<li>각각의 역할 할당</li>
+<li>에이전트들이 서로 소통하면서 진행</li>
+<li>완성된 코드 + 문서 + 테스트 결과 제공</li>
+</ol>
+<h4>✅ 성공하면</h4>
+<pre><code>✓ 설계자가 schema.md 작성
+✓ 개발자가 그걸 보고 코드 구현
+✓ 테스터가 테스트 케이스 작성하고 검증
+→ 모두 완료 &amp; 문제 없음
+</code></pre>
+<hr>
+<h3>상황 4: &quot;큰 작업을 자율적으로 맡기고 싶을 때&quot; → /ultrawork</h3>
+<p><strong>언제 쓰나요?</strong></p>
+<ul>
+<li>매우 복잡한 작업</li>
+<li>계획 → 실행 → 검증의 단계가 필요할 때</li>
+<li>당신이 자세히 지시하지 않고 싶을 때</li>
+</ul>
+<p><strong>비유</strong>: 팀장한테 &quot;이 프로젝트 자주 봐가면서 해결해줄래?&quot;라고 위임하는 것</p>
+<h4>💬 AI한테 이렇게 말하세요</h4>
+<pre><code>/ultrawork &quot;성능 최적화: 이미지 로딩 속도 2배 빠르게 하기. 빌드 시간도 50% 줄이기&quot;
+</code></pre>
+<p>또는:</p>
+<pre><code>/ultrawork &quot;사용자 인증 시스템 전체 리팩토링. OAuth 추가 및 보안 감시 포함&quot;
+</code></pre>
+<h4>📝 Claude Code가 할 일</h4>
+<p><strong>3단계로 자동 진행됩니다:</strong></p>
+<ol>
+<li><p><strong>Planning (계획)</strong></p>
+<ul>
+<li>작업을 어떻게 나눌지 분석</li>
+<li>리스크 식별</li>
+<li>테스트 계획 수립</li>
+</ul>
+</li>
+<li><p><strong>Execution (실행)</strong></p>
+<ul>
+<li>코드 작성</li>
+<li>테스트 실행</li>
+<li>오류 수정</li>
+</ul>
+</li>
+<li><p><strong>Verification (검증)</strong></p>
+<ul>
+<li>최종 테스트</li>
+<li>성능 측정</li>
+<li>문서 작성</li>
+</ul>
+</li>
+</ol>
+<h4>✅ 성공하면</h4>
+<ul>
+<li>계획 문서</li>
+<li>완성된 코드</li>
+<li>테스트 결과</li>
+<li>사용 가이드</li>
+</ul>
+<p>모두 한 번에 받을 수 있습니다.</p>
+<hr>
+<h2>상황 선택 판단표</h2>
+<table>
+<thead>
+<tr>
+<th>상황</th>
+<th>사용 방식</th>
+<th>이유</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&quot;이 폴더 분석해줄래?&quot;</td>
+<td>Subagent</td>
+<td>한 명이 충분, 빠름</td>
+</tr>
+<tr>
+<td>&quot;이 3개 파일 수정해줄래?&quot;</td>
+<td>Subagent + Worktree</td>
+<td>병렬 처리로 3배 빠름</td>
+</tr>
+<tr>
+<td>&quot;앱 만들어줄래?&quot;</td>
+<td>Agent Teams</td>
+<td>front/back/test 협업 필요</td>
+</tr>
+<tr>
+<td>&quot;버그 찾아줄래, 시간 많아&quot;</td>
+<td>Agent Teams (3-5명)</td>
+<td>다각도 분석</td>
+</tr>
+<tr>
+<td>&quot;이 큰 프로젝트 해줄래?&quot;</td>
+<td>/ultrawork</td>
+<td>자동 계획 &amp; 검증</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>💡 팁 3가지</h2>
+<h3>팁 1: Subagent는 백그라운드가 최고</h3>
+<pre><code>/explore &quot;README 작성&quot;
+
+→ 당신은 코드 수정 계속 가능
+→ 동시에 진행됨
+→ 시간 절약
+</code></pre>
+<h3>팁 2: 같은 파일 금지!</h3>
+<pre><code>❌ 안 됨:
+worker-1이 src/auth.js 수정 중
+worker-2도 src/auth.js 수정
+
+✅ 좋음:
+worker-1 → src/auth.js
+worker-2 → src/api.js
+worker-3 → src/utils.js
+</code></pre>
+<h3>팁 3: Agent Teams는 소통이 핵심</h3>
+<pre><code>architect: &quot;API 설계 완료!&quot;
+dev: &quot;이 설계대로 코드 짤게&quot;
+qa: &quot;테스트 케이스 만들기&quot;
+
+→ 이렇게 자동으로 진행됨
+</code></pre>
+<hr>
+<h2>다음 단계</h2>
+<ul>
+<li><a href="09-cmux.md">09-cmux.md</a> — 여러 프로젝트를 동시에 관리하는 법</li>
+<li><a href="10-context-engineering.md">10-context-engineering.md</a> — AI의 기억력 관리법</li>
+</ul>
+
+      </div>
+    </div>
+    <div class="chapter" id="ch9">
+      <div class="chapter-header">
+        <span class="chapter-badge">고급</span>
+        <span class="chapter-number">Chapter 10</span>
+      </div>
+      <div class="chapter-content">
+        <h1>여러 프로젝트를 동시에 관리하기 — 멀티세션</h1>
+<h2>이게 뭔가요?</h2>
+<p>브라우저에서 탭을 여러 개 띄우는 것처럼, AI 대화창을 여러 개 띄우는 것입니다.</p>
+<h3>왜 필요한가요?</h3>
+<p>일반적인 상황:</p>
+<ul>
+<li>프로젝트 A를 열심히 작업 중</li>
+<li>갑자기 프로젝트 B에서 긴급 버그 발생</li>
+<li>B를 빨리 처리하고 다시 A로 돌아가고 싶음</li>
+</ul>
+<p><strong>안 되는 방법:</strong></p>
+<pre><code>프로젝트 A에서 /clear 하고 B 작업
+→ A에서 하던 작업 진행상황 다 잃음
+→ 귀찮음
+</code></pre>
+<p><strong>좋은 방법 (멀티세션):</strong></p>
+<pre><code>프로젝트 A 세션 열어두고
+프로젝트 B 새 세션으로 따로 열기
+→ 필요할 때 왔다갔다 하기
+→ 진행상황 다 유지됨
+</code></pre>
+<p><strong>비유</strong>:</p>
+<ul>
+<li>노트북 여러 권을 동시에 펼쳐놓는 것</li>
+<li>탭을 여러 개 띄우고 필요할 때 클릭해서 전환하는 것</li>
+</ul>
+<hr>
+<h2>언제 쓰나요?</h2>
+<table>
+<thead>
+<tr>
+<th>상황</th>
+<th>멀티세션</th>
+<th>필요 이유</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>한 프로젝트만 작업</td>
+<td>불필요</td>
+<td>한 세션으로 충분</td>
+</tr>
+<tr>
+<td>A 프로젝트 + B 프로젝트</td>
+<td><strong>필수</strong></td>
+<td>오갈 때마다 /clear 하기 싫음</td>
+</tr>
+<tr>
+<td>A + B + C 3개 이상</td>
+<td><strong>매우 추천</strong></td>
+<td>계속 전환하면서 일해야 할 때</td>
+</tr>
+<tr>
+<td>프로젝트별 메모리 유지</td>
+<td><strong>매우 추천</strong></td>
+<td>&quot;A 프로젝트에서는 뭘 했더라&quot; 할 필요 없음</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>사용법 5가지</h2>
+<h3>1단계: 새 세션 만들기</h3>
+<h4>방법 A: 명령어 (추천)</h4>
+<pre><code class="language-bash">claude --session my-project-b
+</code></pre>
+<p>그러면:</p>
+<ul>
+<li>새로운 Claude Code 대화창 열림</li>
+<li>프로젝트 B 폴더에서 실행</li>
+<li>기존 A 세션은 그대로 열어둠</li>
+</ul>
+<h4>방법 B: 대화 중에 만들기</h4>
+<pre><code>멀티세션으로 새 프로젝트 열어줄 수 있을까?
+</code></pre>
+<p>AI가 안내해줍니다.</p>
+<hr>
+<h3>2단계: 세션 목록 보기</h3>
+<h4>터미널에서</h4>
+<pre><code class="language-bash">cmux list
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-bash">claude --list-sessions
+</code></pre>
+<p><strong>결과 예시:</strong></p>
+<pre><code>세션 목록:
+1. project-a (활성)  ← 지금 이것
+2. project-b (휴지)
+3. project-c (휴지)
+</code></pre>
+<h4>현재 세션 확인</h4>
+<pre><code class="language-bash">/status
+</code></pre>
+<p>이러면 &quot;프로젝트-a 세션에서 작업 중&quot; 이라고 알려줍니다.</p>
+<hr>
+<h3>3단계: 세션 전환하기</h3>
+<h4>방법 A: 명령어로 전환</h4>
+<pre><code class="language-bash">claude --switch project-b
+</code></pre>
+<p>그러면:</p>
+<ul>
+<li>프로젝트 A 세션은 백그라운드에 머무름</li>
+<li>프로젝트 B 세션으로 전환</li>
+<li>대화 이력 유지됨</li>
+</ul>
+<h4>방법 B: tmux 사용 (고급)</h4>
+<p>만약 터미널에서 tmux를 쓰고 있다면:</p>
+<pre><code class="language-bash">tmux select-window -t project-b
+</code></pre>
+<hr>
+<h3>4단계: 세션 간 메시지 보내기</h3>
+<p>A 세션에서 작업하다가 B 세션에 메시지를 보내고 싶을 때:</p>
+<pre><code>프로젝트 B 세션에 이렇게 전달해줄래: &quot;지금까지 작업한 기능 요약해줄 수 있어?&quot;
+</code></pre>
+<p>AI가:</p>
+<ol>
+<li>A 세션 유지</li>
+<li>B 세션으로 메시지 전달</li>
+<li>B에서 응답 받음</li>
+<li>다시 A로 돌아옴</li>
+</ol>
+<hr>
+<h3>5단계: 세션 정리하기</h3>
+<p>작업 완료한 세션은 삭제:</p>
+<pre><code class="language-bash">claude --close-session project-a
+</code></pre>
+<p>또는 대화 중에:</p>
+<pre><code>이 세션 정리해줄래? 더 이상 필요 없어
+</code></pre>
+<hr>
+<h2>💡 실전 패턴: 프로젝트별 세션 나누기</h2>
+<h3>추천 구조</h3>
+<pre><code>메인 세션 (현재 중심)
+├── 프로젝트 A: 성능 최적화
+├── 프로젝트 B: 버그 수정 (긴급)
+├── 프로젝트 C: 문서 작성
+└── 공유 리소스: 라이브러리/CLI
+</code></pre>
+<h3>실제 사용 예시</h3>
+<p><strong>아침 9시:</strong></p>
+<pre><code class="language-bash">cd ~/project-a
+claude --session project-a
+</code></pre>
+<p>→ 프로젝트 A 작업 시작</p>
+<p><strong>오전 10시 — 긴급 버그!</strong></p>
+<pre><code class="language-bash">claude --session project-b
+cd ~/project-b
+</code></pre>
+<p>→ 프로젝트 B 새 세션으로 전환
+→ 버그 수정
+→ <code>claude --switch project-a</code> → A로 돌아감</p>
+<p><strong>오후 2시 — 문서 작성</strong></p>
+<pre><code class="language-bash">claude --session docs
+cd ~/docs
+</code></pre>
+<p>→ 세 번째 세션 열기</p>
+<p><strong>필요할 때 전환:</strong></p>
+<pre><code class="language-bash">claude --switch project-a
+claude --switch project-b
+claude --switch docs
+</code></pre>
+<hr>
+<h2>모바일에서 접속하기</h2>
+<p>만약 맥 미니에서 Claude Code를 실행 중이고, 핸드폰에서도 접속하고 싶다면?</p>
+<h3>mosh (권장)</h3>
+<p>mosh는 &quot;원격 터미널&quot; 도구입니다. 안정성이 좋습니다.</p>
+<pre><code class="language-bash"># 맥 미니 (또는 서버)에서
+mosh your-username@your-ip
+
+# 그 다음 claude 명령어 사용
+claude --session project-a
+</code></pre>
+<p><strong>장점:</strong></p>
+<ul>
+<li>WiFi 끊겨도 자동으로 재연결</li>
+<li>인터넷 느려도 작동</li>
+<li>핸드폰에서도 가능</li>
+</ul>
+<h3>SSH (간단한 방법)</h3>
+<pre><code class="language-bash">ssh your-username@your-server-ip
+</code></pre>
+<p>터미널에 들어간 후:</p>
+<pre><code class="language-bash">claude --session project-a
+</code></pre>
+<p><strong>장점:</strong></p>
+<ul>
+<li>mosh 설치 안 해도 됨</li>
+<li>SSH는 대부분의 기기에 기본 포함</li>
+</ul>
+<p><strong>단점:</strong></p>
+<ul>
+<li>연결 끊기면 다시 접속 필요</li>
+</ul>
+<hr>
+<h2>⚠️ 주의사항</h2>
+<h3>1. 같은 프로젝트 동시에 열지 마세요</h3>
+<pre><code>❌ 안 됨:
+세션 A에서 project-x 작업
+세션 B에서도 project-x 작업
+→ 파일 충돌 발생
+
+✅ 좋음:
+세션 A: project-x
+세션 B: project-y
+</code></pre>
+<h3>2. 메모리는 세션마다 독립적</h3>
+<pre><code>세션 A: &quot;Python 사용하고 있어&quot;
+→ 세션 B로 전환
+→ &quot;Python 사용 중이야?&quot; 물으면...
+→ AI가 &quot;뭔 얘기냐?&quot;
+
+→ 정보를 공유하려면 /status로 확인 후 말하기
+</code></pre>
+<h3>3. 중요한 파일은 백업</h3>
+<p>멀티세션이 여러 작업을 쉽게 하지만, Git에 자주 커밋하세요:</p>
+<pre><code class="language-bash">git add .
+git commit -m &quot;진행상황: 기능 X 추가&quot;
+</code></pre>
+<hr>
+<h2>실수했을 때</h2>
+<h3>실수 1: 세션을 너무 많이 열었어요</h3>
+<pre><code class="language-bash">cmux list
+# → 10개 세션이 떠있음...
+</code></pre>
+<p>불필요한 세션 닫기:</p>
+<pre><code class="language-bash">claude --close-session old-project
+</code></pre>
+<h3>실수 2: 어느 세션에 있는지 모르겠어요</h3>
+<pre><code class="language-bash">/status
+</code></pre>
+<p>입력하면 지금 세션이름, 프로젝트 경로, 현재 상태 보여줍니다.</p>
+<h3>실수 3: 연결이 끊겼어요</h3>
+<p>mosh 사용 중이면:</p>
+<pre><code class="language-bash"># 자동으로 재연결 시도
+mosh your-username@your-ip
+</code></pre>
+<p>SSH 사용 중이면:</p>
+<pre><code class="language-bash"># 다시 접속
+ssh your-username@your-server-ip
+claude --switch project-a
+</code></pre>
+<hr>
+<h2>💡 팁: 세션 명명 규칙</h2>
+<p>일관된 이름을 쓰면 관리가 쉬워집니다.</p>
+<pre><code class="language-bash"># ✅ 좋은 예시
+claude --session settle-feature-auth
+claude --session settle-fix-payment
+claude --session docs-api
+
+# ❌ 나쁜 예시
+claude --session aaa
+claude --session test123
+claude --session 나중에하기
+</code></pre>
+<p><strong>규칙 예시:</strong></p>
+<pre><code>[프로젝트]-[작업타입]-[기능명]
+
+예:
+settle-feature-oauth     (새 기능)
+settle-fix-bug          (버그 수정)
+settle-doc-api          (문서 작성)
+</code></pre>
+<hr>
+<h2>다음 단계</h2>
+<ul>
+<li><a href="10-context-engineering.md">10-context-engineering.md</a> — AI 기억력 관리법 (멀티세션에서 중요!)</li>
+<li><a href="08-multi-agent.md">08-multi-agent.md</a> — 멀티에이전트와 멀티세션 함께 쓰기</li>
+</ul>
+
+      </div>
+    </div>
+    <div class="chapter" id="ch10">
+      <div class="chapter-header">
+        <span class="chapter-badge">고급</span>
+        <span class="chapter-number">Chapter 11</span>
+      </div>
+      <div class="chapter-content">
+        <h1>AI가 자꾸 까먹을 때 — 대화 관리법</h1>
+<h2>왜 까먹나요?</h2>
+<p>AI의 기억력에는 한계가 있습니다. 대화가 길어지면 앞부분을 잊어버려요.</p>
+<p><strong>비유</strong>: 시험공부할 때 책 앞부분을 계속 읽다 보니 처음에 뭘 배웠는지 까먹는 것처럼.</p>
+<h3>구체적 예시</h3>
+<p><strong>처음 1시간 (기억력 좋음):</strong></p>
+<pre><code>당신: &quot;Python 프로젝트야&quot;
+AI: &quot;좋아, Python으로 뭘 만드나?&quot;
+당신: &quot;API 서버&quot;
+AI: &quot;Python API 서버군요!&quot;
+</code></pre>
+<p><strong>3시간 후:</strong></p>
+<pre><code>당신: &quot;이 에러가 뭐야?&quot;
+AI: &quot;음... 뭐하는 프로젝트였더라?&quot;
+당신: &quot;아, Python으로 API 서버 만드는 거야&quot;
+AI: &quot;아, 맞다!&quot;
+</code></pre>
+<p><strong>8시간 후:</strong></p>
+<pre><code>당신: &quot;처음 구조 말해줄 수 있어?&quot;
+AI: &quot;흠... 뭘 하셨는지 잘 모르겠는데...&quot;
+당신: &quot;😤&quot;
+</code></pre>
+<hr>
+<h2>기억력 상태 확인하기</h2>
+<h3>statusline으로 현재 상태 확인</h3>
+<pre><code class="language-bash">/status
+</code></pre>
+<p>결과 예시:</p>
+<pre><code>Claude Code Status
+─────────────────────────────────
+프로젝트: ~/projects/myapp
+모드: default
+세션: main
+메모리 사용: 65% ← 지금 기억력 65% 찼음
+대화 길이: 523 lines
+마지막 활동: 2분 전
+</code></pre>
+<p><strong>기억력 해석:</strong></p>
+<table>
+<thead>
+<tr>
+<th>기억력</th>
+<th>상태</th>
+<th>권장 조치</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0-50%</td>
+<td>여유 있음</td>
+<td>계속 진행 가능</td>
+</tr>
+<tr>
+<td>50-75%</td>
+<td>조심</td>
+<td>대화가 길어지지 않도록 주의</td>
+</tr>
+<tr>
+<td>75-90%</td>
+<td>위험</td>
+<td><code>/compact</code> 고려</td>
+</tr>
+<tr>
+<td>90%+</td>
+<td>긴급</td>
+<td>지금 당장 <code>/compact</code> 또는 <code>/clear</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>기억력 아끼는 법 3가지</h2>
+<h3>1. &quot;한 번에 한 가지만&quot; (가장 중요)</h3>
+<p>❌ <strong>안 좋은 예:</strong></p>
+<pre><code>이 에러 고쳐주고, 이 기능도 추가하고, 문서도 작성해줄 수 있을까?
+</code></pre>
+<p>→ AI가 3가지를 동시에 처리하려다 헷갈림</p>
+<p>✅ <strong>좋은 예:</strong></p>
+<pre><code>먼저 이 에러를 고쳐줄 수 있을까?
+</code></pre>
+<p>(끝나면) → &quot;다음으로 기능을 추가해줄 수 있어?&quot;</p>
+<p><strong>효과:</strong></p>
+<ul>
+<li>AI가 한 가지에만 집중</li>
+<li>기억력 50% 절약</li>
+<li>품질 향상</li>
+</ul>
+<hr>
+<h3>2. &quot;새 주제 시작하면 /clear 하기&quot;</h3>
+<p>새로운 프로젝트나 새로운 기능으로 넘어갈 때:</p>
+<pre><code class="language-bash">/clear
+</code></pre>
+<p><strong>타이밍:</strong></p>
+<ul>
+<li>한 기능 완료했을 때</li>
+<li>새 파일 작업 시작할 때</li>
+<li>버그 수정 끝났을 때</li>
+</ul>
+<p><strong>장점:</strong></p>
+<ul>
+<li>AI의 기억 초기화 (깨끗한 상태)</li>
+<li>기억력 100% 복구</li>
+<li>다음 작업에 집중 가능</li>
+</ul>
+<p><strong>예시:</strong></p>
+<pre><code>당신: &quot;회원가입 기능 만들어줄 수 있어?&quot;
+AI: (작업 중...)
+당신: &quot;좋아, 다 끝났어. /clear&quot;
+
+(새로 시작)
+당신: &quot;이번엔 로그인 기능 만들어줄래?&quot;
+AI: &quot;새로운 프로젝트인가요? 처음부터 설명해주세요&quot;
+당신: &quot;로그인 페이지와 API 백엔드&quot;
+AI: (깨끗한 상태에서 집중)
+</code></pre>
+<hr>
+<h3>3. &quot;길게 조사할 땐 subagent 사용하기&quot;</h3>
+<p>대용량 파일을 읽거나 많은 검색이 필요할 때:</p>
+<p>❌ <strong>안 좋은 예:</strong></p>
+<pre><code>지난 100개 커밋을 분석해줄 수 있을까?
+</code></pre>
+<p>→ AI가 모두 기억하려다 기억력 바닥남</p>
+<p>✅ <strong>좋은 예:</strong></p>
+<pre><code>/explore &quot;지난 100개 커밋을 분석해서 CHANGELOG.md 만들어줄래?&quot;
+</code></pre>
+<p>→ Subagent가 대신 처리 (메인 세션 기억력 아낌)</p>
+<p><strong>효과:</strong></p>
+<ul>
+<li>메인 AI의 기억력 보호</li>
+<li>복잡한 작업도 빠르게 처리</li>
+<li>당신은 다른 일 계속 가능</li>
+</ul>
+<hr>
+<h2>AI한테 기억시키기</h2>
+<h3>방법 1: CLAUDE.md (업무 매뉴얼)</h3>
+<p>이것은 &quot;모든 AI가 읽어야 하는 규칙&quot;입니다.</p>
+<p><strong>어디에 있나?</strong></p>
+<pre><code>프로젝트 루트/CLAUDE.md
+</code></pre>
+<p><strong>뭘 넣을까?</strong></p>
+<pre><code class="language-markdown"># 이 프로젝트의 규칙
+
+## 언어
+- 코드: 영어
+- 주석: 한국어
+- 커밋 메시지: 영어
+
+## 패턴
+- API 응답 형식: JSON
+- 에러 처리: try-catch 사용
+- 테스트: Jest 사용
+
+## 금지 사항
+- DB 암호 파일에 넣지 말 것
+- console.log() 프로덕션 코드에 남기지 말 것
+</code></pre>
+<p><strong>효과:</strong></p>
+<ul>
+<li>AI가 매번 설명을 듣지 않아도 됨</li>
+<li>일관된 스타일 유지</li>
+<li>기억력 20% 절약</li>
+</ul>
+<hr>
+<h3>방법 2: 메모리 (AI의 메모장)</h3>
+<p>긴 프로젝트를 여러 세션에서 진행할 때, AI가 기억해야 할 정보:</p>
+<p><strong>파일 위치:</strong></p>
+<pre><code>~/.claude/projects/[프로젝트명]/memory/
+</code></pre>
+<p><strong>예시:</strong></p>
+<p>memory/project-progress.md:</p>
+<pre><code class="language-markdown"># 프로젝트 진행상황
+
+## 완료된 것
+- [x] 회원가입 기능
+- [x] 로그인 API
+- [x] DB 설계
+
+## 진행 중
+- [ ] 비밀번호 리셋
+- [ ] 이메일 인증
+
+## 알아야 할 것
+- API 응답 형식: { code, message, data }
+- DB: PostgreSQL
+- 에러 코드: 400(입력 오류), 401(인증 오류), 500(서버 오류)
+</code></pre>
+<p>AI가 새 세션에서:</p>
+<pre><code>당신: &quot;진행상황 어디까지?&quot;
+AI: (메모리 확인) &quot;회원가입과 로그인은 완료했고, 비밀번호 리셋 진행 중입니다&quot;
+</code></pre>
+<p><strong>효과:</strong></p>
+<ul>
+<li>멀티세션에서도 일관성 유지</li>
+<li>새 AI도 바로 상황 파악 가능</li>
+<li>기억력 30% 절약</li>
+</ul>
+<hr>
+<h2>AI가 느려지면?</h2>
+<h3>방법 1: /compact (메모리 정리)</h3>
+<p>대화가 너무 많아져서 느려질 때:</p>
+<pre><code class="language-bash">/compact
+</code></pre>
+<p><strong>효과:</strong></p>
+<ul>
+<li>지금까지의 대화를 요약</li>
+<li>불필요한 부분 정리</li>
+<li>기억력 70% → 40%로 감소 (여유 생김)</li>
+<li>속도 2-3배 향상</li>
+</ul>
+<p><strong>타이밍:</strong></p>
+<ul>
+<li>한 기능 완료 후</li>
+<li>대화가 500줄 이상일 때</li>
+<li>느려지는 게 느껴질 때</li>
+</ul>
+<hr>
+<h3>방법 2: /clear (완전 초기화)</h3>
+<p>더 깨끗한 상태로 시작하고 싶을 때:</p>
+<pre><code class="language-bash">/clear
+</code></pre>
+<p><strong>효과:</strong></p>
+<ul>
+<li>모든 대화 기록 삭제</li>
+<li>기억력 100% 복구</li>
+<li>완전히 새로운 상태</li>
+</ul>
+<p><strong>주의:</strong></p>
+<ul>
+<li>/clear 전에 중요한 진행상황은 Git에 커밋하기</li>
+<li>또는 메모리에 저장하기</li>
+</ul>
+<hr>
+<h2>💡 실전 패턴: 하루 업무 루틴</h2>
+<h3>아침 9시: 프로젝트 시작</h3>
+<pre><code class="language-bash">cd ~/my-project
+claude --session myapp
+</code></pre>
+<p><strong>AI한테 첫 인사:</strong></p>
+<pre><code>안녕! 어제 작업한 로그인 기능 테스트해줄 수 있을까?
+</code></pre>
+<hr>
+<h3>오전 중: 한 기능씩 처리</h3>
+<pre><code>당신: &quot;로그인 테스트 통과했어?&quot;
+AI: &quot;네, 모두 통과했습니다&quot;
+당신: &quot;좋아! /clear&quot;
+
+(새로 시작)
+당신: &quot;이번엔 비밀번호 리셋 기능을 만들어야 해&quot;
+AI: &quot;새 프로젝트군요? 상세히 설명해주세요&quot;
+</code></pre>
+<hr>
+<h3>오후 2시: 기억력 확인</h3>
+<pre><code class="language-bash">/status
+</code></pre>
+<p>메모리 사용이 80% 이상이면:</p>
+<pre><code class="language-bash">/compact
+</code></pre>
+<hr>
+<h3>저녁 5시: 마무리</h3>
+<pre><code class="language-bash">/status  # 진행상황 확인
+git add . &amp;&amp; git commit -m &quot;feat: 비밀번호 리셋&quot;
+</code></pre>
+<hr>
+<h3>내일 아침: 어제 이어하기</h3>
+<pre><code class="language-bash">cd ~/my-project
+claude --session myapp
+</code></pre>
+<p>메모리 파일 읽기:</p>
+<pre><code>어제 비밀번호 리셋까지 했어. 메모리에 저장된 진행상황 확인해줄 수 있을까?
+</code></pre>
+<hr>
+<h2>⚠️ 주의사항</h2>
+<h3>1. /clear는 돌이킬 수 없어</h3>
+<pre><code>❌ 하면 안 됨:
+/clear → 아, 잠깐! (이미 늦음)
+
+✅ 해야 할 것:
+/clear 하기 전에 git commit
+또는 메모리에 저장
+</code></pre>
+<h3>2. 메모리에 보안 정보 넣지 말기</h3>
+<pre><code>❌ 안 됨:
+memory/secrets.md:
+API_KEY=sk_live_xxx
+DB_PASSWORD=mypassword123
+
+✅ 좋음:
+memory/config.md:
+API 사용 중
+DB는 prod-db 사용
+(암호는 .env 파일에만)
+</code></pre>
+<h3>3. 메모리 파일도 Git에 커밋하지 말기</h3>
+<pre><code class="language-bash"># .gitignore
+~/.claude/projects/*/memory/
+</code></pre>
+<hr>
+<h2>실수했을 때</h2>
+<h3>실수 1: /clear를 잘못 해버렸어요</h3>
+<pre><code class="language-bash">git log  # 최근 커밋 확인
+git show HEAD  # 내용 확인
+git reset --soft HEAD~1  # 필요하면 되돌리기
+</code></pre>
+<h3>실수 2: AI가 계속 같은 실수를 반복해요</h3>
+<p><strong>해결:</strong></p>
+<ol>
+<li>CLAUDE.md에 규칙 추가 (AI의 &quot;업무 매뉴얼&quot; 업데이트)</li>
+<li>예시 제시: &quot;이렇게 해줘&quot; (구체적으로)</li>
+<li>/clear 후 다시 시작</li>
+</ol>
+<h3>실수 3: 멀티세션인데 어느 프로젝트 정보인지 헷갈려요</h3>
+<p><strong>해결:</strong></p>
+<pre><code class="language-bash">/status  # 현재 세션 확인
+</code></pre>
+<p>각 프로젝트마다 별도의 memory/ 폴더 유지</p>
+<hr>
+<h2>💡 팁: 효율적인 대화법</h2>
+<h3>팁 1: 한 번에 한 가지만</h3>
+<p>❌ &quot;이 버그 고쳐주고, 문서 작성해주고, 테스트도 돌려줄 수 있을까?&quot;</p>
+<p>✅ &quot;이 버그를 고쳐줄 수 있을까?&quot;</p>
+<h3>팁 2: 구체적으로 말하기</h3>
+<p>❌ &quot;뭔가 이상해&quot;</p>
+<p>✅ &quot;로그인이 안 되는데, 에러 메시지는 &#39;TypeError: undefined is not a function&#39;&quot;</p>
+<h3>팁 3: 기억력 아낄 때는 subagent 활용</h3>
+<p>❌ &quot;지난 1년의 모든 커밋을 분석해줄 수 있을까?&quot;</p>
+<p>✅ &quot;/explore &quot;지난 1년의 커밋을 분석해서 연도별 통계를 만들어줄래?&quot;&quot;</p>
+<hr>
+<h2>다음 단계</h2>
+<ul>
+<li><a href="11-cicd-setup.md">11-cicd-setup.md</a> — 자동 배포 설정하기</li>
+<li><a href="troubleshooting.md">troubleshooting.md</a> — 문제 해결 가이드</li>
+</ul>
+
+      </div>
+    </div>
+    <div class="chapter" id="ch11">
+      <div class="chapter-header">
+        <span class="chapter-badge">고급</span>
+        <span class="chapter-number">Chapter 12</span>
+      </div>
+      <div class="chapter-content">
+        <h1>코드를 자동으로 배포하기 — CI/CD</h1>
+<h2>CI/CD가 뭔가요?</h2>
+<p><strong>CI/CD = &quot;자동 배포 시스템&quot;</strong></p>
+<p>구글독스를 생각해보세요. 파일을 수정하면 저장 버튼 안 눌러도 자동으로 반영됩니다.</p>
+<p><strong>CI/CD도 비슷합니다:</strong></p>
+<pre><code>당신이 코드 수정
+→ GitHub에 업로드
+→ 자동으로 검사 (버그 없나?)
+→ 자동으로 배포 (서버에 반영)
+→ 끝!
+</code></pre>
+<p><strong>비유:</strong></p>
+<ul>
+<li><strong>수동 배포</strong>: 음식을 매번 손으로 만들어서 테이블에 갖다주기 (느림, 실수 많음)</li>
+<li><strong>CI/CD</strong>: 자동 조리 로봇이 음식을 만들고, 배달 로봇이 갖다주기 (빠름, 실수 적음)</li>
+</ul>
+<hr>
+<h2>왜 필요한가요?</h2>
+<h3>없을 때의 문제</h3>
+<pre><code>당신이 해야 할 일:
+1. 코드 수정
+2. 로컬에서 테스트
+3. 서버 접속
+4. 파일 삭제
+5. 새 파일 업로드
+6. 서버 재시작
+7. 다시 테스트
+8. 문제 생기면? 이전 버전 찾아서 복구...
+
+→ 30분 걸림, 실수 많음
+</code></pre>
+<h3>CI/CD 있을 때의 과정</h3>
+<pre><code>당신이 해야 할 일:
+1. 코드 수정
+2. GitHub에 업로드 (push)
+
+→ 자동으로 나머지 처리
+→ 5분 걸림, 실수 거의 없음
+</code></pre>
+<p><strong>효과:</strong></p>
+<ul>
+<li>시간 절약: 85% 단축</li>
+<li>실수 감소: 자동 검사로 버그 조기 발견</li>
+<li>마음의 평화: 배포가 자동이니 걱정 덜어짐</li>
+</ul>
+<hr>
+<h2>우리 회사 방식</h2>
+<h3>3단계 자동화</h3>
+<pre><code>1️⃣  코드 수정 및 업로드
+   당신: &quot;코드 완성했어, push&quot;
+
+2️⃣  자동 검사 &amp; 테스트
+   자동: &quot;이 코드 버그 없나? 테스트 돌려봐&quot;
+
+3️⃣  자동 배포
+   자동: &quot;좋아, 서버에 올릴게&quot;
+
+✅ 끝! 사용자가 사용 가능
+</code></pre>
+<h3>어디서 확인?</h3>
+<pre><code>GitHub → Actions 탭 → 초록색(성공) 또는 빨간색(실패)
+</code></pre>
+<hr>
+<h2>AI한테 맡기기</h2>
+<h3>새 프로젝트에 CI/CD 설정하기</h3>
+<p>프로젝트 처음 시작할 때:</p>
+<pre><code>이 프로젝트에 자동 배포를 설정해줄 수 있을까?
+</code></pre>
+<p>또는 명령어로:</p>
+<pre><code class="language-bash">/cicd-setup
+</code></pre>
+<p><strong>AI가 할 일:</strong></p>
+<ol>
+<li>GitHub 설정 (자동 실행 규칙 추가)</li>
+<li>서버 설정 (배포 파일 업로드)</li>
+<li>테스트 (제대로 작동하나?)</li>
+<li>문서 작성 (배포 방법 설명)</li>
+</ol>
+<p><strong>결과:</strong></p>
+<ul>
+<li><code>.github/workflows/</code> 폴더 생성 (자동화 규칙)</li>
+<li><code>deploy.sh</code> 생성 (배포 스크립트)</li>
+<li>README에 배포 가이드 추가</li>
+</ul>
+<hr>
+<h2>배포 확인하기</h2>
+<h3>GitHub에서 확인</h3>
+<ol>
+<li>GitHub 사이트 방문</li>
+<li>프로젝트 선택</li>
+<li><strong>Actions</strong> 탭 클릭</li>
+</ol>
+<pre><code>✅ 초록색 체크마크
+   → 배포 성공!
+
+❌ 빨간색 X 마크
+   → 배포 실패 (뭐가 문제일까?)
+</code></pre>
+<h3>상세 로그 보기</h3>
+<p>초록색/빨간색 항목 클릭 → 상세 로그 확인</p>
+<pre><code>예시:
+─────────────────
+✅ 테스트 통과
+✅ 빌드 성공
+✅ 배포 완료
+</code></pre>
+<p>또는:</p>
+<pre><code>❌ 테스트 실패
+   - TypeError: undefined is not a function (src/api.js:45)
+</code></pre>
+<hr>
+<h3>AI한테 물어보기</h3>
+<p><strong>배포 실패했을 때:</strong></p>
+<pre><code>GitHub Actions에서 배포가 실패했어. 이 에러를 확인해줄 수 있을까?
+</code></pre>
+<p>(에러 메시지 붙여주기)</p>
+<p>AI가:</p>
+<ol>
+<li>에러 원인 분석</li>
+<li>어디서 문제인지 가리키기</li>
+<li>고쳐진 코드 제시</li>
+<li>다시 배포</li>
+</ol>
+<hr>
+<h2>문제 생기면?</h2>
+<h3>배포 자동 실패 처리</h3>
+<p>배포가 실패하면:</p>
+<pre><code>💡 안내:
+ - 이전 버전으로 자동 복구됨
+ - 사용자는 영향 없음
+ - 당신은 에러 메시지 확인 후 수정
+</code></pre>
+<p><strong>타임라인:</strong></p>
+<pre><code>1:00 PM   배포 시작
+1:05 PM   테스트 실패 ❌
+1:06 PM   자동으로 이전 버전 복구 ✅
+          (사용자는 전혀 모름)
+1:30 PM   당신이 버그 수정
+1:35 PM   다시 배포 ✅
+</code></pre>
+<hr>
+<h2>⚠️ 주의사항</h2>
+<h3>1. 배포 설정은 신중하게</h3>
+<pre><code>❌ 위험:
+&quot;아무나 배포할 수 있게 해줄래&quot;
+
+✅ 안전:
+&quot;팀장만 배포 권한 가지게 해줄래&quot;
+</code></pre>
+<p>회사 규정에 따라 개발팀과 상의하세요.</p>
+<hr>
+<h3>2. 환경 변수 관리</h3>
+<pre><code>❌ 안 됨:
+API_KEY=&quot;sk_live_xxx&quot;를 코드에 직접 쓰기
+
+✅ 좋음:
+API_KEY를 GitHub Secrets에 저장
+코드에서는 ${API_KEY} 참조
+</code></pre>
+<p><strong>AI에게 말하기:</strong></p>
+<pre><code>API 키를 안전하게 설정해줄 수 있을까?
+</code></pre>
+<hr>
+<h3>3. 배포 전 테스트 꼭 하기</h3>
+<pre><code>❌ 위험:
+코드만 수정하고 테스트 안 함
+→ 배포 실패 → 사용자 피해
+
+✅ 안전:
+로컬에서 테스트 → CI/CD 자동 테스트
+→ 배포
+</code></pre>
+<hr>
+<h2>배포 로그 이해하기</h2>
+<h3>성공한 배포 로그</h3>
+<pre><code>[main 1a2b3c4] feat: add login page
+ 1 file changed, 50 insertions(+)
+
+✅ GitHub Actions
+   └─ tests      ... PASSED
+   └─ build      ... PASSED
+   └─ deploy     ... PASSED
+
+✨ 배포 완료 (prod 서버)
+</code></pre>
+<h3>실패한 배포 로그</h3>
+<pre><code>❌ GitHub Actions
+   └─ tests      ... FAILED
+      └─ Error: Expected true, got false
+         File: tests/login.test.js:25
+
+🔧 조치:
+   - 테스트 코드 수정 필요
+   - 다시 push
+</code></pre>
+<hr>
+<h2>💡 실전 패턴</h2>
+<h3>아침: 코드 수정</h3>
+<pre><code class="language-bash"># 1. 코드 수정 후
+git add .
+git commit -m &quot;feat: add logout button&quot;
+git push
+</code></pre>
+<h3>자동으로</h3>
+<pre><code>GitHub Actions 자동 실행
+→ 테스트 돌림
+→ 빌드 함
+→ 배포 함
+</code></pre>
+<h3>오후: 배포 확인</h3>
+<p>GitHub의 Actions 탭을 확인하거나:</p>
+<pre><code>AI한테 물어보기:
+&quot;배포 상태 어때? 모든 테스트 통과했어?&quot;
+</code></pre>
+<hr>
+<h2>배포 실패했을 때 AI한테 물어보기</h2>
+<pre><code>GitHub Actions에서 배포가 실패했어.
+에러: &quot;npm ERR! Cannot find module &#39;express&#39;&quot;
+
+이게 뭐고 어떻게 고쳐?
+</code></pre>
+<p>AI가:</p>
+<ol>
+<li>문제 분석: &quot;package.json에 express가 없음&quot;</li>
+<li>원인: &quot;dependencies에 안 적혔음&quot;</li>
+<li>해결: &quot;npm install express 또는 package.json 수정&quot;</li>
+<li>코드 제시</li>
+</ol>
+<hr>
+<h2>다음 단계</h2>
+<ul>
+<li><a href="troubleshooting.md">troubleshooting.md</a> — 배포 외 다른 문제 해결</li>
+<li><a href="08-multi-agent.md">08-multi-agent.md</a> — 복잡한 배포는 AI팀으로 처리하기</li>
+</ul>
+
+      </div>
+    </div>
+    <div class="chapter" id="ch12">
+      <div class="chapter-header">
+        <span class="chapter-badge">부록</span>
+        <span class="chapter-number">Chapter 13</span>
+      </div>
+      <div class="chapter-content">
+        <h1>이럴 때 이렇게 하세요 — 문제 해결 가이드</h1>
+<p>이 문서는 자주 나오는 문제 10가지를 Q&amp;A 형식으로 정리했습니다.</p>
+<hr>
+<h2>Q1. &quot;AI가 너무 느려요&quot;</h2>
+<h3>증상</h3>
+<ul>
+<li>대답이 오래 걸림</li>
+<li>화면이 멈춘 것처럼 보임</li>
+<li>매분마다 &quot;기다리는 중...&quot; 표시</li>
+</ul>
+<h3>원인</h3>
+<p>기억력이 가득 찼거나, 대화가 너무 길어짐</p>
+<h3>해결법</h3>
+<h4>방법 1: 빠른 정리 (/compact)</h4>
+<pre><code class="language-bash">/compact
+</code></pre>
+<p><strong>효과:</strong></p>
+<ul>
+<li>대화를 요약하고 정리</li>
+<li>기억력 60% 정도로 줄어듦 (여유 생김)</li>
+<li>속도 2-3배 향상</li>
+<li>진행상황은 유지됨</li>
+</ul>
+<p><strong>언제:</strong> 대화가 1시간 이상이거나, 느려지는 게 느껴질 때</p>
+<h4>방법 2: 완전 초기화 (/clear)</h4>
+<pre><code class="language-bash">/clear
+</code></pre>
+<p><strong>효과:</strong></p>
+<ul>
+<li>모든 대화 삭제</li>
+<li>기억력 100% 복구 (가장 빠름)</li>
+<li>완전히 새로운 상태</li>
+</ul>
+<p><strong>언제:</strong> 한 기능을 완료했을 때, 새로운 작업 시작할 때</p>
+<p><strong>주의:</strong> clear 전에 git commit 하기!</p>
+<hr>
+<h2>Q2. &quot;AI가 내 말을 못 알아들어요&quot;</h2>
+<h3>증상</h3>
+<pre><code>당신: &quot;로그인이 안 되는데 봐줄래?&quot;
+AI: &quot;뭔 로그인이요? 자세히 설명해주세요&quot;
+</code></pre>
+<h3>원인</h3>
+<p>너무 추상적으로 설명함</p>
+<h3>해결법</h3>
+<h4>✅ 구체적으로 말하기</h4>
+<p><strong>안 좋은 예:</strong></p>
+<pre><code>이 부분 좀 이상한데 봐줄래?
+</code></pre>
+<p><strong>좋은 예:</strong></p>
+<pre><code>src/auth/login.js 45번 줄에 있는 이 부분:
+    const result = verifyPassword(user.password, input);
+여기서 &quot;Cannot read properties of undefined&quot; 에러 나와.
+</code></pre>
+<h4>✅ 파일 경로 명시하기</h4>
+<p><strong>안 좋은 예:</strong></p>
+<pre><code>utils 폴더에서 뭔가
+</code></pre>
+<p><strong>좋은 예:</strong></p>
+<pre><code>src/utils/api.js
+</code></pre>
+<h4>✅ 에러 메시지 복사-붙여넣기</h4>
+<p><strong>안 좋은 예:</strong></p>
+<pre><code>이상한 에러가 나
+</code></pre>
+<p><strong>좋은 예:</strong></p>
+<pre><code>TypeError: Cannot read properties of undefined (reading &#39;email&#39;)
+    at Object.getUserInfo (src/api/user.js:12:5)
+</code></pre>
+<hr>
+<h2>Q3. &quot;AI가 파일을 못 찾아요&quot;</h2>
+<h3>증상</h3>
+<pre><code>당you: &quot;src/auth.js 수정해줄래?&quot;
+AI: &quot;그 파일을 찾을 수 없습니다&quot;
+</code></pre>
+<h3>원인</h3>
+<p>프로젝트 폴더에서 실행하지 않았거나, 경로가 잘못됨</p>
+<h3>해결법</h3>
+<h4>1단계: 프로젝트 폴더 확인</h4>
+<pre><code class="language-bash">pwd  # 현재 위치 확인
+</code></pre>
+<p><strong>결과 예시:</strong></p>
+<pre><code>/Users/yourname/projects/myapp  ← 좋음
+/Users/yourname  ← 나쁨 (홈 폴더)
+</code></pre>
+<h4>2단계: 프로젝트 폴더로 이동</h4>
+<pre><code class="language-bash">cd ~/projects/myapp
+</code></pre>
+<h4>3단계: Claude Code 다시 시작</h4>
+<pre><code class="language-bash">claude
+</code></pre>
+<h4>4단계: 파일 존재 확인</h4>
+<pre><code>이 폴더에 어떤 파일이 있어?
+</code></pre>
+<hr>
+<h2>Q4. &quot;AI가 권한을 계속 물어봐요&quot;</h2>
+<h3>증상</h3>
+<pre><code>파일을 수정할까요? (y/n)
+테스트를 돌릴까요? (y/n)
+...
+(계속 묻고 묻고...)
+</code></pre>
+<h3>원인</h3>
+<p>default 모드로 설정되어 있음 (안전하지만 느림)</p>
+<h3>해결법</h3>
+<h4>모드 변경하기</h4>
+<pre><code class="language-bash">claude --mode bypassPermissions
+</code></pre>
+<p>또는 대화 중에:</p>
+<pre><code>모드를 bypassPermissions로 바꿔줄래?
+</code></pre>
+<h4>모드 설명</h4>
+<table>
+<thead>
+<tr>
+<th>모드</th>
+<th>설명</th>
+<th>언제 쓰나</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>default (D)</td>
+<td>매번 묻기</td>
+<td>처음 쓸 때, 중요한 파일 수정할 때</td>
+</tr>
+<tr>
+<td>plan (P)</td>
+<td>읽기만 하기</td>
+<td>분석만 필요할 때</td>
+</tr>
+<tr>
+<td>bypassPermissions (S)</td>
+<td>자동 승인</td>
+<td>신뢰할 수 있을 때, 빠르게 진행할 때</td>
+</tr>
+</tbody></table>
+<h4>모드 확인</h4>
+<pre><code class="language-bash">/status
+</code></pre>
+<p>결과에 현재 모드 표시됨</p>
+<hr>
+<h2>Q5. &quot;브라우저 자동화가 안 돼요&quot;</h2>
+<h3>증상</h3>
+<pre><code>당신: &quot;이 웹사이트에서 로그인해줄 수 있을까?&quot;
+AI: &quot;브라우저를 열 수 없습니다&quot;
+</code></pre>
+<h3>원인</h3>
+<p>Chrome 프로필 설정 문제</p>
+<h3>해결법</h3>
+<h4>1단계: Chrome 설정 확인</h4>
+<pre><code class="language-bash"># Chrome이 설치되어 있나?
+which google-chrome
+# 또는
+which &quot;Google Chrome&quot;
+</code></pre>
+<h4>2단계: 프로필 리셋</h4>
+<pre><code class="language-bash">claude --reset-browser
+</code></pre>
+<h4>3단계: 다시 시도</h4>
+<pre><code>이번엔 로그인해줄 수 있어?
+</code></pre>
+<h4>계속 안 되면</h4>
+<p>AI에게 물어보기:</p>
+<pre><code>브라우저 자동화가 안 되는데 뭐가 문제일까? 환경 설정을 확인해줄 수 있을까?
+</code></pre>
+<hr>
+<h2>Q6. &quot;외부 도구(DB, GitHub) 연결이 안 돼요&quot;</h2>
+<h3>증상</h3>
+<pre><code>당신: &quot;GitHub에 코드 올려줄 수 있을까?&quot;
+AI: &quot;GitHub에 접속할 수 없습니다&quot;
+</code></pre>
+<h3>원인</h3>
+<p>MCP (도구 연결) 설정이 안 되어 있음</p>
+<h3>MCP란?</h3>
+<p>Claude Code가 외부 도구(GitHub, DB, 클라우드)를 사용하기 위한 설정</p>
+<h3>해결법</h3>
+<h4>1단계: 필요한 도구 확인</h4>
+<pre><code>당신이 뭐를 하려고 하는가?
+- GitHub에 코드 올리기 → GitHub MCP 필요
+- Database에 접속 → DB MCP 필요
+- Google Calendar 사용 → Google Calendar MCP 필요
+</code></pre>
+<h4>2단계: 개발팀에 요청</h4>
+<pre><code>이메일 또는 메시지:
+&quot;Github MCP 설정을 활성화해줄 수 있을까?&quot;
+(또는 필요한 도구명)
+</code></pre>
+<h4>3단계: 설정 후 다시 시도</h4>
+<p>개발팀이 설정 완료하면:</p>
+<pre><code>이제 GitHub에 코드를 올려줄 수 있어?
+</code></pre>
+<hr>
+<h2>Q7. &quot;갑자기 연결이 끊겼어요&quot;</h2>
+<h3>증상</h3>
+<pre><code>[연결 끊김]
+터미널이 응답하지 않음
+</code></pre>
+<h3>원인</h3>
+<p>네트워크 문제 또는 서버 재시작</p>
+<h3>해결법</h3>
+<h4>mosh 사용 중이면 (권장)</h4>
+<pre><code class="language-bash"># 자동으로 재연결됨
+mosh your-username@your-ip
+</code></pre>
+<p><strong>특징:</strong> WiFi 꺼졌다 켜져도 자동으로 복구</p>
+<h4>SSH 사용 중이면</h4>
+<pre><code class="language-bash"># 다시 접속
+ssh your-username@your-server-ip
+
+# 그 후
+claude --session your-session-name
+</code></pre>
+<h4>세션 복구</h4>
+<p>연결이 끊어졌어도 터미널의 tmux 세션은 살아있습니다:</p>
+<pre><code class="language-bash"># 세션 목록 확인
+tmux list-sessions
+
+# 원하는 세션에 다시 접속
+tmux attach-session -t my-project
+</code></pre>
+<hr>
+<h2>Q8. &quot;실수로 중요한 파일을 바꿨어요&quot;</h2>
+<h3>증상</h3>
+<pre><code>어? 이 파일이 이렇게 변경되면 안 되는데...
+</code></pre>
+<h3>해결법</h3>
+<h4>방법 1: AI한테 되돌려 달라고 하기 (가장 쉬움)</h4>
+<pre><code>아, 잠깐! 방금 한 변경 다 되돌려줄 수 있을까?
+</code></pre>
+<p>AI가 자동으로 이전 상태로 복구</p>
+<h4>방법 2: Git으로 복구 (확실함)</h4>
+<pre><code class="language-bash"># 최근 변경 확인
+git log --oneline | head -5
+
+# 원하는 버전으로 되돌리기
+git reset --hard HEAD~1
+# 또는
+git reset --hard abc1234  # 커밋 해시
+
+# 확인
+git log
+</code></pre>
+<h4>방법 3: 특정 파일만 복구</h4>
+<pre><code class="language-bash"># 한 파일만 되돌리기
+git checkout HEAD -- src/auth.js
+</code></pre>
+<hr>
+<h2>Q9. &quot;AI가 같은 실수를 반복해요&quot;</h2>
+<h3>증상</h3>
+<pre><code>당신: &quot;이건 이렇게 해줄래?&quot; (설명)
+AI: (작업)
+당신: &quot;이건 또 틀렸네...&quot;
+(반복)
+</code></pre>
+<h3>원인</h3>
+<p>AI가 당신의 규칙을 몰라서</p>
+<h3>해결법</h3>
+<h4>방법 1: CLAUDE.md 업데이트 (가장 효과적)</h4>
+<p>프로젝트 루트의 CLAUDE.md에 규칙 추가:</p>
+<pre><code class="language-markdown"># 이 프로젝트의 규칙
+
+## API 응답 형식 (매우 중요!)
+모든 API 응답은 다음 형식:
+{
+  &quot;code&quot;: &quot;SUCCESS&quot; | &quot;ERROR&quot;,
+  &quot;message&quot;: &quot;사용자 메시지&quot;,
+  &quot;data&quot;: { /* 실제 데이터 */ }
+}
+
+## 금지 사항
+- console.log() 프로덕션 코드에 남기지 말 것
+- DB 암호를 코드에 넣지 말 것
+</code></pre>
+<p>AI가 매번 이 규칙을 읽음 → 실수 줄어듦</p>
+<h4>방법 2: 예시 제시 (빠른 해결)</h4>
+<pre><code>다음 예시대로 해줄래:
+
+✅ 좋은 코드:
+function getUser(id) {
+  return db.query(...);
+}
+
+❌ 나쁜 코드:
+function getUser() {
+  return user_data;  // 잘못됨
+}
+</code></pre>
+<h4>방법 3: /clear 후 다시 시작</h4>
+<pre><code class="language-bash">/clear
+</code></pre>
+<p>새로운 마음으로 시작 → 실수 확률 낮아짐</p>
+<hr>
+<h2>Q10. &quot;어디에 문제가 있는지 모르겠어요&quot;</h2>
+<h3>증상</h3>
+<pre><code>뭔가 이상한데... 어디서부터 시작해야 할지 모르겠어
+</code></pre>
+<h3>해결법</h3>
+<h4>1단계: 상황 설명</h4>
+<pre><code>당신: &quot;이 기능이 제대로 작동 안 해.
+- 뭘 했나: 회원가입 페이지 만들었음
+- 뭐가 안 되나: 가입 버튼 눌러도 아무 일도 안 일어남
+- 에러 메시지: 없음 (조용함)&quot;
+</code></pre>
+<h4>2단계: AI에게 진단 요청</h4>
+<pre><code>이 문제의 원인이 뭘 것 같은지 진단해줄 수 있을까?
+</code></pre>
+<h4>3단계: 체계적 확인</h4>
+<p>AI가:</p>
+<ol>
+<li>프론트엔드 확인 (버튼 코드)</li>
+<li>백엔드 확인 (API 동작)</li>
+<li>DB 확인 (데이터 저장)</li>
+<li>네트워크 확인 (요청이 가나?)</li>
+</ol>
+<p>원인 찾기</p>
+<hr>
+<h2>도움 요청 방법</h2>
+<p>문제 해결이 안 되면, <strong>개발팀에 이렇게 설명하세요:</strong></p>
+<pre><code>제목: [Claude Code] ... 문제 발생
+
+상황:
+- 하려던 일: [구체적으로]
+- 현재 상황: [에러 메시지 또는 스크린샷]
+- 이미 시도한 것: [한 것들 나열]
+
+예시:
+─────────────────
+제목: [Claude Code] GitHub 연결 안 됨
+
+상황:
+- 하려던 일: GitHub에 코드 올리기
+- 에러: &quot;GitHub에 접속할 수 없습니다&quot;
+- 이미 시도한 것:
+  1. /status로 확인
+  2. GitHub 토큰 확인
+  3. Claude Code 재시작
+
+추가 정보:
+- 사용 모드: default
+- 프로젝트: settlement-service
+</code></pre>
+<hr>
+<h2>💡 예방 팁</h2>
+<h3>팁 1: 자주 커밋하기</h3>
+<pre><code class="language-bash">git add .
+git commit -m &quot;feat: 로그인 API&quot;
+</code></pre>
+<p>→ 문제 생기면 바로 이전 상태로 복구 가능</p>
+<h3>팁 2: /status 자주 확인</h3>
+<pre><code class="language-bash">/status
+</code></pre>
+<p>→ 지금 상태가 어떤지 알 수 있음</p>
+<h3>팁 3: 한 번에 한 가지만</h3>
+<pre><code>❌ &quot;A도 하고 B도 하고 C도 해줄래?&quot;
+✅ &quot;A를 해줄 수 있을까?&quot;
+</code></pre>
+<p>→ 문제 발생해도 뭐가 문제인지 파악하기 쉬움</p>
+<h3>팁 4: 메모리 자주 정리</h3>
+<pre><code class="language-bash">/compact
+</code></pre>
+<p>→ 느려지거나 이상한 동작 방지</p>
+<hr>
+<h2>빠른 참조표</h2>
+<table>
+<thead>
+<tr>
+<th>상황</th>
+<th>명령어</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AI가 느려</td>
+<td><code>/compact</code></td>
+<td>메모리 정리</td>
+</tr>
+<tr>
+<td>AI가 까먹음</td>
+<td><code>/status</code> 또는 CLAUDE.md 업데이트</td>
+<td>기억 상기</td>
+</tr>
+<tr>
+<td>파일 못 찾음</td>
+<td><code>cd ~/project &amp;&amp; claude</code></td>
+<td>폴더 이동 후 재시작</td>
+</tr>
+<tr>
+<td>권한 물어봐</td>
+<td><code>claude --mode bypassPermissions</code></td>
+<td>모드 변경</td>
+</tr>
+<tr>
+<td>연결 끊김</td>
+<td><code>mosh user@ip</code> 또는 <code>tmux attach-session -t session</code></td>
+<td>재연결</td>
+</tr>
+<tr>
+<td>파일 되돌리기</td>
+<td><code>git reset --hard HEAD~1</code></td>
+<td>이전 상태로 복구</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>다음 단계</h2>
+<ul>
+<li><a href="08-multi-agent.md">08-multi-agent.md</a> — 복잡한 문제는 AI팀으로 해결</li>
+<li><a href="10-context-engineering.md">10-context-engineering.md</a> — AI 기억력 관리</li>
+</ul>
+<p><strong>계속 막히면:</strong> 개발팀 slack에 @here &quot;Claude Code 문제 있습니다&quot; 라고 쓰면 됩니다!</p>
+
+      </div>
+    </div>
+
+<script>hljs.highlightAll();</script>
+</body>
+</html>

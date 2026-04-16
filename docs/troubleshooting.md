@@ -1,692 +1,554 @@
-# Troubleshooting: 자주 겪는 문제 + 해결법
+# 이럴 때 이렇게 하세요 — 문제 해결 가이드
 
-실전 경험을 바탕으로 한 빠른 문제 해결 가이드.
+이 문서는 자주 나오는 문제 10가지를 Q&A 형식으로 정리했습니다.
 
 ---
 
-## Claude Code 느려질 때
+## Q1. "AI가 너무 느려요"
 
 ### 증상
-- 응답 지연 (30초 이상)
-- 메시지 입력 후 로딩 화면 길어짐
-- Statusline에 "90% 이상" 표시
+- 대답이 오래 걸림
+- 화면이 멈춘 것처럼 보임
+- 매분마다 "기다리는 중..." 표시
+
+### 원인
+기억력이 가득 찼거나, 대화가 너무 길어짐
 
 ### 해결법
 
-#### 1. /compact (우선 시도)
+#### 방법 1: 빠른 정리 (/compact)
 
-```
+```bash
 /compact
 ```
 
-현재 세션의 대화를 자동 요약. 컨텍스트 사용량 60-70%로 단계별.
+**효과:**
+- 대화를 요약하고 정리
+- 기억력 60% 정도로 줄어듦 (여유 생김)
+- 속도 2-3배 향상
+- 진행상황은 유지됨
 
-**효과**: 응답 속도 50% 향상
+**언제:** 대화가 1시간 이상이거나, 느려지는 게 느껴질 때
 
-#### 2. /clear (재시작 필요 시)
+#### 방법 2: 완전 초기화 (/clear)
 
-```
+```bash
 /clear
 ```
 
-현재 세션의 모든 이전 메시지 삭제. 완전히 새로운 상태에서 시작.
+**효과:**
+- 모든 대화 삭제
+- 기억력 100% 복구 (가장 빠름)
+- 완전히 새로운 상태
 
-**주의**: 이전 대화 내용 손실. 중요한 정보는 파일로 저장 후 사용.
+**언제:** 한 기능을 완료했을 때, 새로운 작업 시작할 때
 
-#### 3. 자동 컴팩트 설정
+**주의:** clear 전에 git commit 하기!
 
-```bash
-# ~/.zshrc 에 추가
-export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=80
+---
+
+## Q2. "AI가 내 말을 못 알아들어요"
+
+### 증상
+```
+당신: "로그인이 안 되는데 봐줄래?"
+AI: "뭔 로그인이요? 자세히 설명해주세요"
 ```
 
-80% 도달 시 자동 컴팩트. Claude Code 재시작 필요.
+### 원인
+너무 추상적으로 설명함
 
-#### 4. 파일 정리
+### 해결법
 
-```bash
-# 현재 디렉토리의 불필요한 파일 삭제
-rm -rf node_modules/  # node_modules는 .gitignore에 보통 있음
-rm -rf .next/         # Next.js 빌드 결과
-rm -rf dist/          # 일반 빌드 결과
+#### ✅ 구체적으로 말하기
 
-# 임시 파일 정리
-find . -name "*.log" -delete
-find . -name ".DS_Store" -delete
+**안 좋은 예:**
+```
+이 부분 좀 이상한데 봐줄래?
 ```
 
-### 예방
-
+**좋은 예:**
 ```
-한 세션 = 한 기능
-↓
-40-50K 토큰으로 충분
-↓
-컨텍스트 60% 미만 유지
-↓
-항상 빠른 응답
+src/auth/login.js 45번 줄에 있는 이 부분:
+    const result = verifyPassword(user.password, input);
+여기서 "Cannot read properties of undefined" 에러 나와.
+```
+
+#### ✅ 파일 경로 명시하기
+
+**안 좋은 예:**
+```
+utils 폴더에서 뭔가
+```
+
+**좋은 예:**
+```
+src/utils/api.js
+```
+
+#### ✅ 에러 메시지 복사-붙여넣기
+
+**안 좋은 예:**
+```
+이상한 에러가 나
+```
+
+**좋은 예:**
+```
+TypeError: Cannot read properties of undefined (reading 'email')
+    at Object.getUserInfo (src/api/user.js:12:5)
 ```
 
 ---
 
-## MCP 서버 안 뜰 때
+## Q3. "AI가 파일을 못 찾아요"
 
 ### 증상
+```
+당you: "src/auth.js 수정해줄래?"
+AI: "그 파일을 찾을 수 없습니다"
+```
+
+### 원인
+프로젝트 폴더에서 실행하지 않았거나, 경로가 잘못됨
+
+### 해결법
+
+#### 1단계: 프로젝트 폴더 확인
+
+```bash
+pwd  # 현재 위치 확인
+```
+
+**결과 예시:**
+```
+/Users/yourname/projects/myapp  ← 좋음
+/Users/yourname  ← 나쁨 (홈 폴더)
+```
+
+#### 2단계: 프로젝트 폴더로 이동
+
+```bash
+cd ~/projects/myapp
+```
+
+#### 3단계: Claude Code 다시 시작
+
+```bash
+claude
+```
+
+#### 4단계: 파일 존재 확인
 
 ```
-Error: MCP server failed to start
-Configuration error: enabledMcpServers
+이 폴더에 어떤 파일이 있어?
 ```
 
-또는 특정 도구가 사용 불가:
+---
+
+## Q4. "AI가 권한을 계속 물어봐요"
+
+### 증상
+```
+파일을 수정할까요? (y/n)
+테스트를 돌릴까요? (y/n)
+...
+(계속 묻고 묻고...)
+```
+
+### 원인
+default 모드로 설정되어 있음 (안전하지만 느림)
+
+### 해결법
+
+#### 모드 변경하기
+
+```bash
+claude --mode bypassPermissions
+```
+
+또는 대화 중에:
 
 ```
-Tool "github" not found
+모드를 bypassPermissions로 바꿔줄래?
+```
+
+#### 모드 설명
+
+| 모드 | 설명 | 언제 쓰나 |
+|------|------|---------|
+| default (D) | 매번 묻기 | 처음 쓸 때, 중요한 파일 수정할 때 |
+| plan (P) | 읽기만 하기 | 분석만 필요할 때 |
+| bypassPermissions (S) | 자동 승인 | 신뢰할 수 있을 때, 빠르게 진행할 때 |
+
+#### 모드 확인
+
+```bash
+/status
+```
+
+결과에 현재 모드 표시됨
+
+---
+
+## Q5. "브라우저 자동화가 안 돼요"
+
+### 증상
+```
+당신: "이 웹사이트에서 로그인해줄 수 있을까?"
+AI: "브라우저를 열 수 없습니다"
+```
+
+### 원인
+Chrome 프로필 설정 문제
+
+### 해결법
+
+#### 1단계: Chrome 설정 확인
+
+```bash
+# Chrome이 설치되어 있나?
+which google-chrome
+# 또는
+which "Google Chrome"
+```
+
+#### 2단계: 프로필 리셋
+
+```bash
+claude --reset-browser
+```
+
+#### 3단계: 다시 시도
+
+```
+이번엔 로그인해줄 수 있어?
+```
+
+#### 계속 안 되면
+
+AI에게 물어보기:
+
+```
+브라우저 자동화가 안 되는데 뭐가 문제일까? 환경 설정을 확인해줄 수 있을까?
+```
+
+---
+
+## Q6. "외부 도구(DB, GitHub) 연결이 안 돼요"
+
+### 증상
+```
+당신: "GitHub에 코드 올려줄 수 있을까?"
+AI: "GitHub에 접속할 수 없습니다"
+```
+
+### 원인
+MCP (도구 연결) 설정이 안 되어 있음
+
+### MCP란?
+Claude Code가 외부 도구(GitHub, DB, 클라우드)를 사용하기 위한 설정
+
+### 해결법
+
+#### 1단계: 필요한 도구 확인
+
+```
+당신이 뭐를 하려고 하는가?
+- GitHub에 코드 올리기 → GitHub MCP 필요
+- Database에 접속 → DB MCP 필요
+- Google Calendar 사용 → Google Calendar MCP 필요
+```
+
+#### 2단계: 개발팀에 요청
+
+```
+이메일 또는 메시지:
+"Github MCP 설정을 활성화해줄 수 있을까?"
+(또는 필요한 도구명)
+```
+
+#### 3단계: 설정 후 다시 시도
+
+개발팀이 설정 완료하면:
+
+```
+이제 GitHub에 코드를 올려줄 수 있어?
+```
+
+---
+
+## Q7. "갑자기 연결이 끊겼어요"
+
+### 증상
+```
+[연결 끊김]
+터미널이 응답하지 않음
+```
+
+### 원인
+네트워크 문제 또는 서버 재시작
+
+### 해결법
+
+#### mosh 사용 중이면 (권장)
+
+```bash
+# 자동으로 재연결됨
+mosh your-username@your-ip
+```
+
+**특징:** WiFi 꺼졌다 켜져도 자동으로 복구
+
+#### SSH 사용 중이면
+
+```bash
+# 다시 접속
+ssh your-username@your-server-ip
+
+# 그 후
+claude --session your-session-name
+```
+
+#### 세션 복구
+
+연결이 끊어졌어도 터미널의 tmux 세션은 살아있습니다:
+
+```bash
+# 세션 목록 확인
+tmux list-sessions
+
+# 원하는 세션에 다시 접속
+tmux attach-session -t my-project
+```
+
+---
+
+## Q8. "실수로 중요한 파일을 바꿨어요"
+
+### 증상
+```
+어? 이 파일이 이렇게 변경되면 안 되는데...
 ```
 
 ### 해결법
 
-#### 1. enabledMcpServers 확인
+#### 방법 1: AI한테 되돌려 달라고 하기 (가장 쉬움)
 
-settings.json에서:
-
-```json
-{
-  "enabledMcpServers": {
-    "github": true,
-    "brave-search": true,
-    "context7": true
-  }
-}
+```
+아, 잠깐! 방금 한 변경 다 되돌려줄 수 있을까?
 ```
 
-비활성화된 서버가 있으면 `true`로 변경.
+AI가 자동으로 이전 상태로 복구
 
-#### 2. 글로벌 설치로 전환
-
-npx 대신 글로벌 설치:
+#### 방법 2: Git으로 복구 (확실함)
 
 ```bash
-# 잘못된 설정 (npx, 느림)
-npx @brave/browser-search
+# 최근 변경 확인
+git log --oneline | head -5
 
-# 올바른 설정 (글로벌, 빠름)
-npm install -g @brave/browser-search
-which brave-search  # 경로 확인
-```
-
-#### 3. MCP 서버 로그 확인
-
-```bash
-# Claude Code 콘솔
-Cmd + ` (백틱)
-```
-
-에러 메시지 확인:
-
-```
-[MCP] github: ENOENT: no such file
-[MCP] brave-search: connection timeout
-```
-
-#### 4. 수동 재시작
-
-```bash
-# settings.json 편집
-"forceRestartMcp": true
-
-# Claude Code 재시작
-Cmd + Shift + P > "Restart"
-```
-
-#### 5. MCP 서버 재설치
-
-```bash
-# 제거
-npm uninstall -g @brave/browser-search
-
-# 설치
-npm install -g @brave/browser-search
+# 원하는 버전으로 되돌리기
+git reset --hard HEAD~1
+# 또는
+git reset --hard abc1234  # 커밋 해시
 
 # 확인
-which brave-search
-# /usr/local/bin/brave-search
+git log
+```
 
-# 경로를 settings.json에 등록
-"mcpServers": {
-  "brave": {
-    "command": "/usr/local/bin/brave-search"
-  }
-}
+#### 방법 3: 특정 파일만 복구
+
+```bash
+# 한 파일만 되돌리기
+git checkout HEAD -- src/auth.js
 ```
 
 ---
 
-## Playwright Chrome 충돌
+## Q9. "AI가 같은 실수를 반복해요"
 
 ### 증상
-
 ```
-Error: Browser not found
-Puppeteer: Install Chrome manually or use downloadBrowser()
-```
-
-또는 프로세스 충돌:
-
-```
-FATAL: Error: Port 9222 is already in use
-```
-
-### 해결법
-
-#### 1. 명시적 브라우저 선택
-
-settings.json에서:
-
-```json
-{
-  "playwrightConfig": {
-    "use": {
-      "browser": "chromium"  // chrome 대신 chromium
-    }
-  }
-}
-```
-
-#### 2. 사용자 데이터 디렉토리 분리
-
-```bash
-# 스크립트에서 (예: Playwright 테스트)
-const browser = await chromium.launch({
-  userDataDir: `/tmp/claude-${Date.now()}`
-});
-```
-
-#### 3. 좀비 Chrome 프로세스 정리
-
-```bash
-# 실행 중인 Chrome 확인
-ps aux | grep -i chrome
-
-# 강제 종료
-pkill -9 Chrome
-
-# 포트 확인
-lsof -i :9222
-kill -9 <PID>
-```
-
-#### 4. Playwright 재설치
-
-```bash
-npm uninstall -g playwright
-npm install -g playwright
-npx playwright install  # 브라우저 다운로드
-```
-
----
-
-## Google 로그인 매번 필요
-
-### 증상
-
-- 매 세션마다 Google 로그인 프롬프트
-- 쿠키/세션이 저장되지 않음
-- "일회용" 인증 상태
-
-### 해결법
-
-#### 1. Chrome 프로필 유지
-
-settings.json:
-
-```json
-{
-  "playwrightConfig": {
-    "use": {
-      "profile": "/Users/YOUR_USER/Library/Application Support/Google/Chrome/Default"
-    }
-  }
-}
-```
-
-또는 임시 프로필:
-
-```json
-{
-  "playwrightConfig": {
-    "use": {
-      "userDataDir": "/Users/YOUR_USER/.claude/browser-profile"
-    }
-  }
-}
-```
-
-#### 2. 로컬 스토리지 보존
-
-테스트 코드:
-
-```javascript
-await context.addInitScript(() => {
-  // localStorage는 자동 보존됨
-  // 필요한 쿠키만 명시
-  localStorage.setItem('auth_token', 'your_token');
-});
-```
-
-#### 3. 환경 변수로 토큰 관리
-
-.env:
-
-```
-GOOGLE_AUTH_TOKEN=ya29.xxx...
-```
-
-코드:
-
-```javascript
-const token = process.env.GOOGLE_AUTH_TOKEN;
-// Google API 직접 호출 (OAuth 스킵)
-```
-
-#### 4. 서비스 계정 사용 (권장)
-
-Google Cloud Console:
-- 서비스 계정 생성
-- JSON 키 다운로드
-- 애플리케이션에서 사용
-
-```javascript
-const {GoogleAuth} = require('google-auth-library');
-
-const auth = new GoogleAuth({
-  keyFilename: '/path/to/service-account.json',
-});
-
-const client = await auth.getClient();
-```
-
----
-
-## mosh 좀비 세션
-
-### 증상
-
-```
-Mosh did not make progress sending packets
-```
-
-연결은 활성화되어 보이지만 응답 없음.
-
-### 원인
-
-- 오래된 mosh 연결이 남아있음
-- 네트워크 인터페이스 변화 (Wi-Fi ↔ 4G)
-- mosh-server 데몬이 응답 불가
-
-### 해결법
-
-#### 1. 로컬 mosh 프로세스 정리
-
-```bash
-ps aux | grep mosh
-# 명령 찾기
-
-# 강제 종료
-pkill -9 mosh
-
-# 환경 변수 초기화
-unset MOSH_KEY MOSH_PREDICTION
-```
-
-#### 2. 서버의 mosh 데몬 정리
-
-```bash
-ssh user@remote-server
-
-# 데몬 확인
-ps aux | grep mosh-server
-
-# 강제 종료
-pkill -9 mosh-server
-
-# 또는 원격에서 한 줄로
-ssh user@remote-server "pkill -9 mosh-server"
-```
-
-#### 3. 네트워크 타임아웃 조정
-
-~/.bashrc 또는 ~/.zshrc:
-
-```bash
-export MOSH_SERVER_NETWORK_TMOUT=86400  # 24시간
-export MOSH_CLIENT_NETWORK_TMOUT=60     # 60초
-```
-
-#### 4. 새로 접속
-
-```bash
-mosh user@remote-server
-# 또는
-mosh user@remote-server -- tmux attach -t photoism
-```
-
----
-
-## 리소스 부족
-
-### 증상
-
-```
-Out of memory
-Cannot allocate memory
-Killed (OOM)
-```
-
-또는 시스템 느려짐.
-
-### 체크리스트
-
-#### 1. 좀비 Claude 세션 정리
-
-```bash
-ps aux | grep claude
-
-# 응답 없는 프로세스 종료
-kill -9 <PID>
-```
-
-#### 2. mosh 좀비 세션 정리
-
-```bash
-ps aux | grep mosh
-pkill -9 mosh  # 모든 mosh 프로세스 종료
-
-# 또는 선택적으로
-kill -9 <특정_PID>
-```
-
-#### 3. Docker 컨테이너 정리
-
-```bash
-# 실행 중인 컨테이너
-docker ps
-
-# 중지된 컨테이너 정리
-docker container prune
-
-# 이미지 정리
-docker image prune
-
-# 전체 정리 (주의: 데이터 손실 가능)
-docker system prune -a
-```
-
-#### 4. Chrome 탭 정리
-
-Playwright 테스트 후 Chrome 프로세스가 남음:
-
-```bash
-pkill -9 chrome
-pkill -9 chromium
-```
-
-#### 5. 메모리 상태 확인
-
-```bash
-# macOS
-top -l 1 | head -20
-
-# Linux
-free -h
-htop
-
-# 큰 파일 찾기
-du -sh /*  # 루트에서
-du -sh ~/  # 홈 폴더에서
-```
-
----
-
-## Git Hook 실패
-
-### 증상
-
-```
-husky > pre-commit hook failed
-error: commit did not complete
-```
-
-또는 lint 에러로 커밋 불가.
-
-### 해결법
-
-#### 1. 에러 원인 조사
-
-```bash
-# 직접 hook 실행
-npm run lint
-
-# 타입 체크
-npm run typecheck
-
-# 에러 메시지 읽고 수정
-```
-
-#### 2. 새 커밋 생성 (amend 금지)
-
-```
-금지: git commit --amend --no-verify
-      ↑ --no-verify는 hook 스킵 (나쁜 습관)
-
-권장: 에러 수정 후 새 커밋
-      git add .
-      git commit -m "fix: resolve lint errors"
-```
-
-#### 3. Hook 임시 비활성화 (긴급 상황만)
-
-```bash
-# 특정 커밋에만
-git commit -m "msg" --no-verify
-
-# 이후 즉시 복구
-git commit --amend -m "fix: add proper fixes"
-```
-
-#### 4. Hook 설정 확인
-
-.husky/pre-commit:
-
-```bash
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-npm run lint:fix  # auto-fix 활성화?
-npm run typecheck
-```
-
----
-
-## Gemini CLI Rate Limit
-
-### 증상
-
-```
-Error: Rate limit exceeded
-429 Too Many Requests
+당신: "이건 이렇게 해줄래?" (설명)
+AI: (작업)
+당신: "이건 또 틀렸네..."
+(반복)
 ```
 
 ### 원인
-
-- API 할당량 초과
-- 계정 제한
-- 모델 변경 필요
+AI가 당신의 규칙을 몰라서
 
 ### 해결법
 
-#### 1. 계정 확인
+#### 방법 1: CLAUDE.md 업데이트 (가장 효과적)
 
-```bash
-gcloud auth list
-gcloud config list project
+프로젝트 루트의 CLAUDE.md에 규칙 추가:
 
-# 올바른 계정인지 확인
-```
+```markdown
+# 이 프로젝트의 규칙
 
-#### 2. 요청 간 딜레이 추가
-
-```bash
-# 스크립트에서
-for i in {1..10}; do
-  gemini-api-call
-  sleep 2  # 2초 대기
-done
-```
-
-#### 3. 모델 변경
-
-```json
+## API 응답 형식 (매우 중요!)
+모든 API 응답은 다음 형식:
 {
-  "model": "gemini-2.0-flash",  // 변경
-  "generationConfig": {
-    "temperature": 1,
-    "topP": 0.95,
-    "topK": 40,
-    "maxOutputTokens": 8192,
-  }
+  "code": "SUCCESS" | "ERROR",
+  "message": "사용자 메시지",
+  "data": { /* 실제 데이터 */ }
+}
+
+## 금지 사항
+- console.log() 프로덕션 코드에 남기지 말 것
+- DB 암호를 코드에 넣지 말 것
+```
+
+AI가 매번 이 규칙을 읽음 → 실수 줄어듦
+
+#### 방법 2: 예시 제시 (빠른 해결)
+
+```
+다음 예시대로 해줄래:
+
+✅ 좋은 코드:
+function getUser(id) {
+  return db.query(...);
+}
+
+❌ 나쁜 코드:
+function getUser() {
+  return user_data;  // 잘못됨
 }
 ```
 
-또는 claude로 전환:
+#### 방법 3: /clear 후 다시 시작
 
 ```bash
-export CLAUDE_API_KEY=sk-ant-...
-# Claude API 사용 (rate limit 안 할 수도)
+/clear
 ```
 
-#### 4. API 할당량 확인
-
-Google Cloud Console:
-- APIs & Services > Quotas
-- Gemini API의 할당량 확인
-- 필요 시 할당량 증가 요청
+새로운 마음으로 시작 → 실수 확률 낮아짐
 
 ---
 
-## dbhub MCP 좀비
+## Q10. "어디에 문제가 있는지 모르겠어요"
 
 ### 증상
-
 ```
-Tool "dbhub-query" not found
-Database connection failed
-```
-
-또는:
-
-```
-Cannot find module 'dbhub'
+뭔가 이상한데... 어디서부터 시작해야 할지 모르겠어
 ```
 
 ### 해결법
 
-#### 1. 글로벌 설치로 전환
+#### 1단계: 상황 설명
 
-```bash
-# 제거
-npm uninstall -g @dbhub/mcp
-
-# 글로벌 설치
-npm install -g @dbhub/mcp
-
-# 경로 확인
-which dbhub-mcp
+```
+당신: "이 기능이 제대로 작동 안 해.
+- 뭘 했나: 회원가입 페이지 만들었음
+- 뭐가 안 되나: 가입 버튼 눌러도 아무 일도 안 일어남
+- 에러 메시지: 없음 (조용함)"
 ```
 
-#### 2. settings.json 업데이트
+#### 2단계: AI에게 진단 요청
 
-```json
-{
-  "mcpServers": {
-    "dbhub": {
-      "command": "/usr/local/bin/dbhub-mcp",
-      "args": [],
-      "env": {
-        "DBHUB_API_KEY": "your-api-key"
-      }
-    }
-  }
-}
+```
+이 문제의 원인이 뭘 것 같은지 진단해줄 수 있을까?
 ```
 
-#### 3. 프로세스 정리
+#### 3단계: 체계적 확인
 
-```bash
-ps aux | grep dbhub
-pkill -9 dbhub
+AI가:
+1. 프론트엔드 확인 (버튼 코드)
+2. 백엔드 확인 (API 동작)
+3. DB 확인 (데이터 저장)
+4. 네트워크 확인 (요청이 가나?)
 
-# Claude Code 재시작
+원인 찾기
+
+---
+
+## 도움 요청 방법
+
+문제 해결이 안 되면, **개발팀에 이렇게 설명하세요:**
+
 ```
+제목: [Claude Code] ... 문제 발생
 
-#### 4. 연결 테스트
+상황:
+- 하려던 일: [구체적으로]
+- 현재 상황: [에러 메시지 또는 스크린샷]
+- 이미 시도한 것: [한 것들 나열]
 
-```bash
-# 직접 API 호출
-curl https://api.dbhub.io/v1/db/list \
-  -H "Authorization: Bearer YOUR_TOKEN"
+예시:
+─────────────────
+제목: [Claude Code] GitHub 연결 안 됨
 
-# 응답이 있으면 API는 정상
-# Claude Code만 재시작하면 됨
+상황:
+- 하려던 일: GitHub에 코드 올리기
+- 에러: "GitHub에 접속할 수 없습니다"
+- 이미 시도한 것:
+  1. /status로 확인
+  2. GitHub 토큰 확인
+  3. Claude Code 재시작
+
+추가 정보:
+- 사용 모드: default
+- 프로젝트: settlement-service
 ```
 
 ---
 
-## 빠른 참조
+## 💡 예방 팁
 
-| 문제 | 우선 시도 | 2번째 | 3번째 |
-|------|---------|-------|-------|
-| 느림 | /compact | /clear | 재시작 |
-| MCP 안 뜸 | 화이트리스트 확인 | 글로벌 설치 | 재시작 |
-| Chrome 충돌 | userDataDir | pkill | 재설치 |
-| Google 로그인 | profile 설정 | 토큰 관리 | 서비스 계정 |
-| mosh 좀비 | pkill mosh | 타임아웃 조정 | 새로 접속 |
-| OOM | 좀비 정리 | Docker prune | 재부팅 |
-| Git hook 실패 | lint 수정 | 새 커밋 | 원인 조사 |
-
----
-
-## 체크리스트: 시스템 점검
-
-매주 1회 실행:
+### 팁 1: 자주 커밋하기
 
 ```bash
-# 세션 정리
-tmux kill-server 2>/dev/null
-
-# 좀비 프로세스 정리
-pkill -9 mosh
-pkill -9 chrome
-pkill -9 node
-
-# 로그 정리
-rm -rf /tmp/*.log
-rm -rf ~/.claude/logs/*.log
-
-# 디스크 확인
-df -h  # 85% 이상이면 정리
-
-# 메모리 상태
-free -h  # Linux
-vm_stat | grep "Pages free"  # macOS
+git add .
+git commit -m "feat: 로그인 API"
 ```
+
+→ 문제 생기면 바로 이전 상태로 복구 가능
+
+### 팁 2: /status 자주 확인
+
+```bash
+/status
+```
+
+→ 지금 상태가 어떤지 알 수 있음
+
+### 팁 3: 한 번에 한 가지만
+
+```
+❌ "A도 하고 B도 하고 C도 해줄래?"
+✅ "A를 해줄 수 있을까?"
+```
+
+→ 문제 발생해도 뭐가 문제인지 파악하기 쉬움
+
+### 팁 4: 메모리 자주 정리
+
+```bash
+/compact
+```
+
+→ 느려지거나 이상한 동작 방지
 
 ---
 
-## 팁
+## 빠른 참조표
 
-1. **로그는 진짜 중요**: 에러 메시지를 끝까지 읽으면 80% 자해결
-2. **주기적 정리**: 주 1회 좀비 프로세스 정리가 예방책
-3. **글로벌 설치 우선**: npx는 느림, npm install -g 추천
-4. **amend 금지**: Git hook 실패 시 새 커밋으로 (amend는 히스토리 복잡하게 함)
-5. **환경 변수는 스크립트로**: 매번 입력하지 말고 ~/.zshrc에 저장
+| 상황 | 명령어 | 설명 |
+|------|--------|------|
+| AI가 느려 | `/compact` | 메모리 정리 |
+| AI가 까먹음 | `/status` 또는 CLAUDE.md 업데이트 | 기억 상기 |
+| 파일 못 찾음 | `cd ~/project && claude` | 폴더 이동 후 재시작 |
+| 권한 물어봐 | `claude --mode bypassPermissions` | 모드 변경 |
+| 연결 끊김 | `mosh user@ip` 또는 `tmux attach-session -t session` | 재연결 |
+| 파일 되돌리기 | `git reset --hard HEAD~1` | 이전 상태로 복구 |
+
+---
+
+## 다음 단계
+
+- [08-multi-agent.md](08-multi-agent.md) — 복잡한 문제는 AI팀으로 해결
+- [10-context-engineering.md](10-context-engineering.md) — AI 기억력 관리
+
+**계속 막히면:** 개발팀 slack에 @here "Claude Code 문제 있습니다" 라고 쓰면 됩니다!

@@ -1,504 +1,356 @@
-# cmux: 멀티세션 워크스페이스 가이드
+# 여러 프로젝트를 동시에 관리하기 — 멀티세션
 
-## cmux란?
+## 이게 뭔가요?
 
-Claude Multiplexer (cmux)는 한 개의 Claude Code 인스턴스에서 여러 독립적인 세션을 동시에 관리한다. tmux 기반으로 프로젝트별, 기능별 세션을 분리하여 컨텍스트 오염을 방지한다.
+브라우저에서 탭을 여러 개 띄우는 것처럼, AI 대화창을 여러 개 띄우는 것입니다.
 
-### 핵심 이점
+### 왜 필요한가요?
 
-- **컨텍스트 격리**: 각 세션이 독립적인 메모리 공간 사용
-- **병렬 작업**: 프로젝트 A 배포 중에 프로젝트 B 개발
-- **세션 보존**: 연결 끊어도 백그라운드에서 실행 유지
-- **협업 가능**: tmux send-keys로 세션 간 명령 전달
+일반적인 상황:
+- 프로젝트 A를 열심히 작업 중
+- 갑자기 프로젝트 B에서 긴급 버그 발생
+- B를 빨리 처리하고 다시 A로 돌아가고 싶음
+
+**안 되는 방법:**
+```
+프로젝트 A에서 /clear 하고 B 작업
+→ A에서 하던 작업 진행상황 다 잃음
+→ 귀찮음
+```
+
+**좋은 방법 (멀티세션):**
+```
+프로젝트 A 세션 열어두고
+프로젝트 B 새 세션으로 따로 열기
+→ 필요할 때 왔다갔다 하기
+→ 진행상황 다 유지됨
+```
+
+**비유**:
+- 노트북 여러 권을 동시에 펼쳐놓는 것
+- 탭을 여러 개 띄우고 필요할 때 클릭해서 전환하는 것
 
 ---
 
-## 설치 및 세팅
+## 언제 쓰나요?
 
-### 1. 사전 설치
-
-```bash
-# macOS
-brew install tmux mosh
-
-# Linux (Ubuntu/Debian)
-sudo apt-get install tmux mosh
-
-# Linux (CentOS/RHEL)
-sudo yum install tmux mosh
-```
-
-### 2. Claude Code 워크스페이스 초기화
-
-```
-/setup-workspace
-```
-
-대화형 프롬프트:
-- 프로젝트 이름 (photoism, settle, card 등)
-- 세션 구조 선택 (프로젝트별 vs 기능별)
-- 에이전트 수 (몇 개 워커가 필요한가)
-
-결과:
-```
-.cmux/
-├── tmux.conf
-├── sessions.json
-└── scripts/
-    ├── start.sh
-    ├── attach.sh
-    └── kill.sh
-```
+| 상황 | 멀티세션 | 필요 이유 |
+|------|---------|---------|
+| 한 프로젝트만 작업 | 불필요 | 한 세션으로 충분 |
+| A 프로젝트 + B 프로젝트 | **필수** | 오갈 때마다 /clear 하기 싫음 |
+| A + B + C 3개 이상 | **매우 추천** | 계속 전환하면서 일해야 할 때 |
+| 프로젝트별 메모리 유지 | **매우 추천** | "A 프로젝트에서는 뭘 했더라" 할 필요 없음 |
 
 ---
 
-## tmux 세션 구성 패턴
+## 사용법 5가지
 
-### 패턴 1: 프로젝트별 세션
+### 1단계: 새 세션 만들기
 
-각 프로젝트가 독립적인 세션을 가짐.
+#### 방법 A: 명령어 (추천)
 
-```
-cmux sessions:
-
-photoism
-├── window 0: main dev
-├── window 1: tests
-└── window 2: deployment
-
-settle
-├── window 0: api dev
-├── window 1: db migration
-└── window 2: monitoring
-
-card
-├── window 0: frontend
-├── window 1: backend
-└── window 2: infra
+```bash
+claude --session my-project-b
 ```
 
-### 패턴 2: 기능별 세션
+그러면:
+- 새로운 Claude Code 대화창 열림
+- 프로젝트 B 폴더에서 실행
+- 기존 A 세션은 그대로 열어둠
 
-한 프로젝트 내에서 역할별 세션 분리.
-
-```
-photoism-frontend
-├── dev environment
-└── test runner
-
-photoism-backend
-├── api server
-├── worker jobs
-└── db operations
-
-photoism-devops
-├── CI/CD logs
-├── monitoring
-└── incident response
-```
-
-### 추천 구성
+#### 방법 B: 대화 중에 만들기
 
 ```
-# 중소 팀 (프로젝트 2-3개)
-프로젝트별 세션 + 프로젝트 내 기능별 윈도우
-
-# 대규모 팀 (프로젝트 5개 이상)
-기능별 세션 (역할 분담)
+멀티세션으로 새 프로젝트 열어줄 수 있을까?
 ```
+
+AI가 안내해줍니다.
 
 ---
 
-## tmux 필수 명령어
+### 2단계: 세션 목록 보기
 
-### 세션 관리
+#### 터미널에서
 
 ```bash
-# 모든 세션 확인
-tmux list-sessions
-
-# 특정 세션 접속
-tmux attach-session -t photoism
-tmux attach -t photoism  # 단축형
-
-# 세션 나가기 (백그라운드 유지)
-Ctrl+B D  # detach
-
-# 세션 종료
-tmux kill-session -t photoism
-
-# 모든 세션 종료
-tmux kill-server
+cmux list
 ```
 
-### 윈도우 관리
+또는:
 
 ```bash
-# 윈도우 목록 (세션 내)
-Ctrl+B W
-
-# 새 윈도우
-Ctrl+B C
-
-# 윈도우 이동
-Ctrl+B 0  # 윈도우 0 (번호 기반)
-Ctrl+B N  # next
-Ctrl+B P  # previous
-
-# 윈도우 이름 변경
-Ctrl+B ,
-# 프롬프트에 새 이름 입력
-
-# 윈도우 종료
-Ctrl+B X
+claude --list-sessions
 ```
 
-### 명령 전송
-
-```bash
-# 특정 세션의 특정 윈도우에 명령 전송
-tmux send-keys -t photoism:0 "npm run dev" Enter
-
-# 세션의 모든 윈도우에 명령 전송
-tmux send-keys -t settle "git pull origin main" Enter
-
-# 현재 윈도우 동기화 (모든 파인에 동시 입력)
-Ctrl+B :
-# 프롬프트에: set synchronize-panes
+**결과 예시:**
+```
+세션 목록:
+1. project-a (활성)  ← 지금 이것
+2. project-b (휴지)
+3. project-c (휴지)
 ```
 
-### 화면 분할
+#### 현재 세션 확인
 
 ```bash
-# 수평 분할
-Ctrl+B "
+/status
+```
 
-# 수직 분할
-Ctrl+B %
+이러면 "프로젝트-a 세션에서 작업 중" 이라고 알려줍니다.
 
-# 분할 영역 이동
-Ctrl+B O  # next pane
-Ctrl+B ;  # toggle last pane
+---
 
-# 분할 영역 크기 조정
-Ctrl+B Ctrl+Up/Down/Left/Right
+### 3단계: 세션 전환하기
+
+#### 방법 A: 명령어로 전환
+
+```bash
+claude --switch project-b
+```
+
+그러면:
+- 프로젝트 A 세션은 백그라운드에 머무름
+- 프로젝트 B 세션으로 전환
+- 대화 이력 유지됨
+
+#### 방법 B: tmux 사용 (고급)
+
+만약 터미널에서 tmux를 쓰고 있다면:
+
+```bash
+tmux select-window -t project-b
 ```
 
 ---
 
-## tmux 세션 간 메시지 전달
+### 4단계: 세션 간 메시지 보내기
 
-프로젝트 간 정보 공유나 수동 트리거가 필요할 때 사용.
+A 세션에서 작업하다가 B 세션에 메시지를 보내고 싶을 때:
 
-### 사례 1: API 배포 완료 후 프론트엔드 배포
-
-```bash
-# API 세션에서 배포 완료
-# → 프론트 세션에 신호 전달
-
-tmux send-keys -t photoism-frontend:0 "npm run build:prod" Enter
-
-# 또는 스크립트로 자동화
-scripts/deploy-after-api.sh
+```
+프로젝트 B 세션에 이렇게 전달해줄래: "지금까지 작업한 기능 요약해줄 수 있어?"
 ```
 
-### 사례 2: DB 마이그레이션 후 API 재시작
+AI가:
+1. A 세션 유지
+2. B 세션으로 메시지 전달
+3. B에서 응답 받음
+4. 다시 A로 돌아옴
+
+---
+
+### 5단계: 세션 정리하기
+
+작업 완료한 세션은 삭제:
 
 ```bash
-# 마이그레이션 세션이 완료되면
-# → API 워커를 재시작
-
-tmux send-keys -t settle-api:0 "npm restart" Enter
-
-# 확인 명령
-tmux capture-pane -t settle-api:0 -p | tail -20
+claude --close-session project-a
 ```
 
-### 사례 3: 모니터링 세션에서 이상 감지 후 즉시 action
+또는 대화 중에:
 
-```bash
-# monitoring 세션에서 에러율 급증 감지
-# → devops 세션에 알림 + 명령 실행
-
-tmux send-keys -t card-devops:0 "kubectl get pods -n production" Enter
-tmux send-keys -t card-devops:0 "kubectl logs -f deployment/api -n production" Enter
 ```
-
-### send-keys 스크립트 예
-
-```bash
-#!/bin/bash
-# scripts/cross-session-trigger.sh
-
-SESSION_NAME=$1
-WINDOW=$2
-COMMAND=$3
-
-tmux send-keys -t ${SESSION_NAME}:${WINDOW} "${COMMAND}" Enter
-
-# 로그 확인
-sleep 2
-tmux capture-pane -t ${SESSION_NAME}:${WINDOW} -p
-```
-
-사용법:
-```bash
-./cross-session-trigger.sh photoism 0 "npm run build"
+이 세션 정리해줄래? 더 이상 필요 없어
 ```
 
 ---
 
-## mosh + tmux 조합 (모바일 접속)
+## 💡 실전 패턴: 프로젝트별 세션 나누기
 
-SSH 연결이 끊어져도 세션이 유지되는 조합.
+### 추천 구조
 
-### 원격 서버 세팅
-
-```bash
-# 서버에 mosh 설치
-sudo apt-get install mosh
-
-# mosh 포트 열기 (기본: 60000-61000)
-sudo ufw allow 60000:61000/udp
+```
+메인 세션 (현재 중심)
+├── 프로젝트 A: 성능 최적화
+├── 프로젝트 B: 버그 수정 (긴급)
+├── 프로젝트 C: 문서 작성
+└── 공유 리소스: 라이브러리/CLI
 ```
 
-### 로컬에서 접속
+### 실제 사용 예시
 
+**아침 9시:**
 ```bash
-# SSH 대신 mosh 사용
-mosh user@remote-server
+cd ~/project-a
+claude --session project-a
+```
+→ 프로젝트 A 작업 시작
 
-# 연결 후 tmux 시작
-tmux attach -t photoism
+**오전 10시 — 긴급 버그!**
+```bash
+claude --session project-b
+cd ~/project-b
+```
+→ 프로젝트 B 새 세션으로 전환
+→ 버그 수정
+→ `claude --switch project-a` → A로 돌아감
 
-# 또는 한 줄로
-mosh user@remote-server -- tmux attach -t photoism
+**오후 2시 — 문서 작성**
+```bash
+claude --session docs
+cd ~/docs
+```
+→ 세 번째 세션 열기
+
+**필요할 때 전환:**
+```bash
+claude --switch project-a
+claude --switch project-b
+claude --switch docs
 ```
 
-### 네트워크 끊김 처리
+---
 
-mosh는 자동으로 재연결 시도. 연결이 오래 끊기면:
+## 모바일에서 접속하기
+
+만약 맥 미니에서 Claude Code를 실행 중이고, 핸드폰에서도 접속하고 싶다면?
+
+### mosh (권장)
+
+mosh는 "원격 터미널" 도구입니다. 안정성이 좋습니다.
 
 ```bash
-# 로컬 환경 변수 확인
-echo $MOSH_KEY
+# 맥 미니 (또는 서버)에서
+mosh your-username@your-ip
 
-# 서버의 좀비 mosh 세션 정리
-ps aux | grep mosh
-kill -9 <PID>
+# 그 다음 claude 명령어 사용
+claude --session project-a
+```
 
+**장점:**
+- WiFi 끊겨도 자동으로 재연결
+- 인터넷 느려도 작동
+- 핸드폰에서도 가능
+
+### SSH (간단한 방법)
+
+```bash
+ssh your-username@your-server-ip
+```
+
+터미널에 들어간 후:
+
+```bash
+claude --session project-a
+```
+
+**장점:**
+- mosh 설치 안 해도 됨
+- SSH는 대부분의 기기에 기본 포함
+
+**단점:**
+- 연결 끊기면 다시 접속 필요
+
+---
+
+## ⚠️ 주의사항
+
+### 1. 같은 프로젝트 동시에 열지 마세요
+
+```
+❌ 안 됨:
+세션 A에서 project-x 작업
+세션 B에서도 project-x 작업
+→ 파일 충돌 발생
+
+✅ 좋음:
+세션 A: project-x
+세션 B: project-y
+```
+
+### 2. 메모리는 세션마다 독립적
+
+```
+세션 A: "Python 사용하고 있어"
+→ 세션 B로 전환
+→ "Python 사용 중이야?" 물으면...
+→ AI가 "뭔 얘기냐?"
+
+→ 정보를 공유하려면 /status로 확인 후 말하기
+```
+
+### 3. 중요한 파일은 백업
+
+멀티세션이 여러 작업을 쉽게 하지만, Git에 자주 커밋하세요:
+
+```bash
+git add .
+git commit -m "진행상황: 기능 X 추가"
+```
+
+---
+
+## 실수했을 때
+
+### 실수 1: 세션을 너무 많이 열었어요
+
+```bash
+cmux list
+# → 10개 세션이 떠있음...
+```
+
+불필요한 세션 닫기:
+
+```bash
+claude --close-session old-project
+```
+
+### 실수 2: 어느 세션에 있는지 모르겠어요
+
+```bash
+/status
+```
+
+입력하면 지금 세션이름, 프로젝트 경로, 현재 상태 보여줍니다.
+
+### 실수 3: 연결이 끊겼어요
+
+mosh 사용 중이면:
+
+```bash
+# 자동으로 재연결 시도
+mosh your-username@your-ip
+```
+
+SSH 사용 중이면:
+
+```bash
 # 다시 접속
-mosh user@remote-server
+ssh your-username@your-server-ip
+claude --switch project-a
 ```
 
 ---
 
-## 세션 관리 팁
+## 💡 팁: 세션 명명 규칙
 
-### 좀비 세션 정리
-
-```bash
-# 응답 없는 세션 확인
-tmux list-sessions
-
-# 응답 없는 세션 강제 종료
-tmux kill-session -t dead-session
-
-# 모든 데드 세션 자동 정리 (주기적 실행)
-for session in $(tmux list-sessions -F "#{session_name}"); do
-  tmux send-keys -t "$session" "" 2>/dev/null || tmux kill-session -t "$session"
-done
-```
-
-### 세션 자동 시작
-
-.cmux/scripts/startup.sh:
+일관된 이름을 쓰면 관리가 쉬워집니다.
 
 ```bash
-#!/bin/bash
+# ✅ 좋은 예시
+claude --session settle-feature-auth
+claude --session settle-fix-payment
+claude --session docs-api
 
-# 세션 존재 여부 확인
-check_session() {
-  tmux list-sessions -F "#{session_name}" | grep -q "^$1$"
-}
-
-# photoism 프로젝트
-if ! check_session "photoism"; then
-  tmux new-session -d -s photoism -x 120 -y 40
-  tmux send-keys -t photoism "cd ~/projects/photoism" Enter
-  tmux new-window -t photoism -n dev
-  tmux new-window -t photoism -n test
-fi
-
-# settle 프로젝트
-if ! check_session "settle"; then
-  tmux new-session -d -s settle
-  tmux send-keys -t settle "cd ~/projects/settle" Enter
-  tmux new-window -t settle -n api
-  tmux new-window -t settle -n db
-fi
-
-echo "Sessions started"
+# ❌ 나쁜 예시
+claude --session aaa
+claude --session test123
+claude --session 나중에하기
 ```
 
-실행:
-```bash
-chmod +x .cmux/scripts/startup.sh
-./.cmux/scripts/startup.sh
+**규칙 예시:**
 ```
+[프로젝트]-[작업타입]-[기능명]
 
-### 세션 설정 저장/복원
-
-tmux.conf:
-
-```conf
-# 세션 저장 경로
-set-option -g default-shell /bin/zsh
-
-# 윈도우 번호 1부터 시작
-set -g base-index 1
-
-# 마우스 활성화
-set -g mouse on
-
-# 색상
-set -g default-terminal "screen-256color"
-
-# 상태바 커스터마이징
-set -g status-bg black
-set -g status-fg white
-set -g status-right "#(date '+%H:%M') | #(whoami)@#(hostname)"
+예:
+settle-feature-oauth     (새 기능)
+settle-fix-bug          (버그 수정)
+settle-doc-api          (문서 작성)
 ```
 
 ---
 
-## mosh 좀비 세션 정리
+## 다음 단계
 
-### 문제: mosh가 응답 불가 상태
-
-```
-Mosh did not make progress sending packets
-```
-
-### 원인
-
-- 오래된 mosh 연결이 남아있음
-- 네트워크 인터페이스 변화 (Wi-Fi → 4G)
-- mosh 서버 데몬이 죽음
-
-### 해결
-
-```bash
-# 1. 로컬 mosh 프로세스 확인
-ps aux | grep mosh
-
-# 2. 서버의 mosh 데몬 정리
-ssh user@remote-server "pkill -9 mosh-server"
-
-# 3. 환경 변수 초기화 (로컬)
-unset MOSH_KEY MOSH_PREDICTION
-
-# 4. 다시 접속
-mosh user@remote-server
-```
-
-### 예방
-
-환경 변수 설정:
-
-```bash
-# ~/.bashrc 또는 ~/.zshrc
-export MOSH_SERVER_NETWORK_TMOUT=86400  # 24시간
-export MOSH_CLIENT_NETWORK_TMOUT=60     # 60초
-```
-
----
-
-## 실전 예제
-
-### 예제 1: 프로젝트별 일일 세팅
-
-```bash
-# morning-routine.sh
-#!/bin/bash
-
-# 기존 세션 정리
-tmux kill-server 2>/dev/null
-
-# 새 세션 시작
-tmux new-session -d -s photoism -c ~/projects/photoism
-tmux new-session -d -s settle -c ~/projects/settle
-
-# 개발 환경 시작
-tmux send-keys -t photoism "npm run dev" Enter
-tmux send-keys -t settle "npm run dev" Enter
-
-# 테스트 윈도우
-tmux new-window -t photoism -n test -c ~/projects/photoism
-tmux new-window -t settle -n test -c ~/projects/settle
-
-echo "Ready to work!"
-```
-
-실행:
-```bash
-chmod +x morning-routine.sh
-./morning-routine.sh
-
-# 세션 확인
-tmux list-sessions
-
-# photoism 접속
-tmux attach -t photoism
-```
-
-### 예제 2: CI/CD 모니터링
-
-```bash
-# monitor-ci.sh
-SESSION="ci-monitor"
-
-tmux new-session -d -s $SESSION
-
-# GitHub Actions 로그 스트리밍
-tmux send-keys -t $SESSION "watch -n 5 'gh run list --repo myorg/myrepo --limit 10'" Enter
-
-# 새 윈도우: 배포 상태
-tmux new-window -t $SESSION -n deploy
-tmux send-keys -t $SESSION:deploy "kubectl get deployment -A --watch" Enter
-
-echo "CI monitoring started at $(date)"
-```
-
-### 예제 3: 원격 디버깅 세션
-
-```bash
-# remote-debug.sh
-REMOTE="user@prod-server"
-
-# 로컬 tmux 세션
-tmux new-session -d -s debug
-
-# pane 1: 서버 로그
-tmux send-keys -t debug "mosh $REMOTE -- tail -f /var/log/app.log" Enter
-
-# pane 2: 서버 상태
-tmux new-window -t debug -n status
-tmux send-keys -t debug:status "mosh $REMOTE -- htop" Enter
-
-# pane 3: 수동 명령
-tmux new-window -t debug -n shell
-tmux send-keys -t debug:shell "mosh $REMOTE" Enter
-
-echo "Debug session ready"
-tmux attach -t debug
-```
-
----
-
-## 팁
-
-1. **정기적으로 정리**: 주 1회 `tmux kill-server`로 좀비 세션 제거
-2. **명확한 윈도우 이름**: "dev", "test", "deploy" 같이 구체적으로
-3. **send-keys 동기화**: `synchronize-panes` 활성화하면 한 번에 여러 윈도우에 명령 가능
-4. **mosh는 네트워크 변화에 강함**: Wi-Fi 켜기/끄기, 모바일 토글해도 연결 유지
+- [10-context-engineering.md](10-context-engineering.md) — AI 기억력 관리법 (멀티세션에서 중요!)
+- [08-multi-agent.md](08-multi-agent.md) — 멀티에이전트와 멀티세션 함께 쓰기

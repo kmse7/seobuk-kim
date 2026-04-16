@@ -1,496 +1,324 @@
-# CI/CD 셋업 가이드: GitHub Actions + pm2 배포
+# 코드를 자동으로 배포하기 — CI/CD
 
-## 개요
+## CI/CD가 뭔가요?
 
-새 프로젝트를 시작할 때 자동으로 실행되는 CI/CD 파이프라인 구성 방법. PR 검증 → 메인 배포 → 라이브 배포까지 자동화.
+**CI/CD = "자동 배포 시스템"**
+
+구글독스를 생각해보세요. 파일을 수정하면 저장 버튼 안 눌러도 자동으로 반영됩니다.
+
+**CI/CD도 비슷합니다:**
+```
+당신이 코드 수정
+→ GitHub에 업로드
+→ 자동으로 검사 (버그 없나?)
+→ 자동으로 배포 (서버에 반영)
+→ 끝!
+```
+
+**비유:**
+- **수동 배포**: 음식을 매번 손으로 만들어서 테이블에 갖다주기 (느림, 실수 많음)
+- **CI/CD**: 자동 조리 로봇이 음식을 만들고, 배달 로봇이 갖다주기 (빠름, 실수 적음)
 
 ---
 
-## /cicd-setup 스킬 사용법
+## 왜 필요한가요?
 
-가장 빠른 방법.
+### 없을 때의 문제
 
 ```
+당신이 해야 할 일:
+1. 코드 수정
+2. 로컬에서 테스트
+3. 서버 접속
+4. 파일 삭제
+5. 새 파일 업로드
+6. 서버 재시작
+7. 다시 테스트
+8. 문제 생기면? 이전 버전 찾아서 복구...
+
+→ 30분 걸림, 실수 많음
+```
+
+### CI/CD 있을 때의 과정
+
+```
+당신이 해야 할 일:
+1. 코드 수정
+2. GitHub에 업로드 (push)
+
+→ 자동으로 나머지 처리
+→ 5분 걸림, 실수 거의 없음
+```
+
+**효과:**
+- 시간 절약: 85% 단축
+- 실수 감소: 자동 검사로 버그 조기 발견
+- 마음의 평화: 배포가 자동이니 걱정 덜어짐
+
+---
+
+## 우리 회사 방식
+
+### 3단계 자동화
+
+```
+1️⃣  코드 수정 및 업로드
+   당신: "코드 완성했어, push"
+
+2️⃣  자동 검사 & 테스트
+   자동: "이 코드 버그 없나? 테스트 돌려봐"
+
+3️⃣  자동 배포
+   자동: "좋아, 서버에 올릴게"
+
+✅ 끝! 사용자가 사용 가능
+```
+
+### 어디서 확인?
+
+```
+GitHub → Actions 탭 → 초록색(성공) 또는 빨간색(실패)
+```
+
+---
+
+## AI한테 맡기기
+
+### 새 프로젝트에 CI/CD 설정하기
+
+프로젝트 처음 시작할 때:
+
+```
+이 프로젝트에 자동 배포를 설정해줄 수 있을까?
+```
+
+또는 명령어로:
+
+```bash
 /cicd-setup
 ```
 
-### 대화형 질문
+**AI가 할 일:**
+1. GitHub 설정 (자동 실행 규칙 추가)
+2. 서버 설정 (배포 파일 업로드)
+3. 테스트 (제대로 작동하나?)
+4. 문서 작성 (배포 방법 설명)
+
+**결과:**
+- `.github/workflows/` 폴더 생성 (자동화 규칙)
+- `deploy.sh` 생성 (배포 스크립트)
+- README에 배포 가이드 추가
+
+---
+
+## 배포 확인하기
+
+### GitHub에서 확인
+
+1. GitHub 사이트 방문
+2. 프로젝트 선택
+3. **Actions** 탭 클릭
 
 ```
-프로젝트 프레임워크? > Next.js
-언어? > TypeScript
-DB? > PostgreSQL
-배포 환경? > Vercel (또는 self-hosted)
+✅ 초록색 체크마크
+   → 배포 성공!
+
+❌ 빨간색 X 마크
+   → 배포 실패 (뭐가 문제일까?)
 ```
 
-### 결과 파일
+### 상세 로그 보기
+
+초록색/빨간색 항목 클릭 → 상세 로그 확인
 
 ```
-.github/
-├── workflows/
-│   ├── pr-validation.yml
-│   ├── deploy-main.yml
-│   └── deploy-production.yml
-├── actions/
-│   └── notify.js
+예시:
+─────────────────
+✅ 테스트 통과
+✅ 빌드 성공
+✅ 배포 완료
+```
 
-ecosystem.config.js
-pm2.config.js
-deploy.sh
+또는:
 
-.env.example
+```
+❌ 테스트 실패
+   - TypeError: undefined is not a function (src/api.js:45)
 ```
 
 ---
 
-## GitHub Actions Self-Hosted Runner 설치
+### AI한테 물어보기
 
-Vercel이나 클라우드 배포가 아니라 자체 서버에 배포할 때.
+**배포 실패했을 때:**
 
-### 1. Runner 다운로드 및 설치
-
-```bash
-# 프로젝트 폴더
-mkdir -p ~/runners/photoism
-cd ~/runners/photoism
-
-# GitHub에서 runner 토큰 생성
-# Settings > Actions > Runners > New self-hosted runner
-
-# 다운로드
-curl -o actions-runner-linux-x64-X.X.X.tar.gz \
-  -L https://github.com/actions/runner/releases/download/...
-tar xzf actions-runner-linux-x64-*.tar.gz
-
-# 설정
-./config.sh --url https://github.com/YOUR_ORG/YOUR_REPO \
-  --token YOUR_TOKEN
+```
+GitHub Actions에서 배포가 실패했어. 이 에러를 확인해줄 수 있을까?
 ```
 
-### 2. 백그라운드 실행 (systemd)
+(에러 메시지 붙여주기)
 
-```bash
-# 서비스 등록
-sudo ./svc.sh install
-
-# 시작
-sudo ./svc.sh start
-
-# 상태 확인
-sudo ./svc.sh status
-
-# 로그
-journalctl -u actions.runner.* -f
-```
-
-### 3. 설정 확인
-
-GitHub > Settings > Actions > Runners에서 "Online" 상태 확인.
+AI가:
+1. 에러 원인 분석
+2. 어디서 문제인지 가리키기
+3. 고쳐진 코드 제시
+4. 다시 배포
 
 ---
 
-## PR 검증 파이프라인
+## 문제 생기면?
 
-PR이 생성되면 자동으로 typecheck + build 검증.
+### 배포 자동 실패 처리
 
-### 파일: .github/workflows/pr-validation.yml
+배포가 실패하면:
 
-```yaml
-name: PR Validation
-
-on:
-  pull_request:
-    branches: [main]
-
-jobs:
-  validate:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Type check
-        run: npm run typecheck
-        continue-on-error: false
-
-      - name: Lint
-        run: npm run lint
-        continue-on-error: true
-
-      - name: Build
-        run: npm run build
-        continue-on-error: false
-
-      - name: Run tests
-        run: npm run test
-        continue-on-error: true
-
-      - name: Notify on failure
-        if: failure()
-        run: |
-          echo "PR validation failed"
-          exit 1
+```
+💡 안내:
+ - 이전 버전으로 자동 복구됨
+ - 사용자는 영향 없음
+ - 당신은 에러 메시지 확인 후 수정
 ```
 
-### 검증 항목
-
-| 항목 | 필수 | 실패 시 |
-|------|------|--------|
-| Typecheck | O | PR 병합 차단 |
-| Build | O | PR 병합 차단 |
-| Lint | X | 경고만 |
-| Tests | X | 경고만 |
-
----
-
-## Main 브랜치 배포 파이프라인
-
-main에 머지되면 자동으로 빌드 + pm2 리로드.
-
-### 파일: .github/workflows/deploy-main.yml
-
-```yaml
-name: Deploy to Main
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: [self-hosted, photoism]  # 특정 runner 지정
-    timeout-minutes: 30
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci --omit=dev
-
-      - name: Build
-        run: npm run build
-        env:
-          NODE_ENV: production
-
-      - name: Run migrations
-        run: npm run migrate
-        continue-on-error: true
-
-      - name: Reload with pm2
-        run: |
-          pm2 reload ecosystem.config.js --env production
-          pm2 save
-        env:
-          NODE_ENV: production
-
-      - name: Health check
-        run: |
-          sleep 5
-          curl -f http://localhost:3000/health || exit 1
-
-      - name: Notify deployment
-        if: success()
-        run: |
-          echo "Deployment successful"
-          # Slack 알림 추가 가능
-
-      - name: Notify failure
-        if: failure()
-        run: |
-          echo "Deployment failed, rolling back"
-          pm2 reload ecosystem.config.js --env production
-          exit 1
+**타임라인:**
+```
+1:00 PM   배포 시작
+1:05 PM   테스트 실패 ❌
+1:06 PM   자동으로 이전 버전 복구 ✅
+          (사용자는 전혀 모름)
+1:30 PM   당신이 버그 수정
+1:35 PM   다시 배포 ✅
 ```
 
 ---
 
-## ecosystem.config.js 작성
+## ⚠️ 주의사항
 
-pm2 배포 설정. 앱 시작, 환경 변수, 로그 위치 등.
+### 1. 배포 설정은 신중하게
 
-### 최소 설정
+```
+❌ 위험:
+"아무나 배포할 수 있게 해줄래"
 
-```javascript
-module.exports = {
-  apps: [
-    {
-      name: "photoism",
-      script: "npm",
-      args: "start",
-      instances: "max",
-      exec_mode: "cluster",
-      env: {
-        NODE_ENV: "development",
-        PORT: 3000,
-      },
-      env_production: {
-        NODE_ENV: "production",
-        PORT: 3000,
-      },
-      error_file: "./logs/err.log",
-      out_file: "./logs/out.log",
-      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
-      merge_logs: true,
-      max_memory_restart: "500M",
-    },
-  ],
-
-  deploy: {
-    production: {
-      user: "deploy",
-      host: "api.example.com",
-      ref: "origin/main",
-      repo: "git@github.com:ORG/photoism.git",
-      path: "/home/deploy/photoism",
-      "post-deploy": "npm install && npm run build && pm2 reload ecosystem.config.js --env production",
-      "pre-deploy-local": "echo 'Deploying to production'",
-    },
-  },
-};
+✅ 안전:
+"팀장만 배포 권한 가지게 해줄래"
 ```
 
-### 주요 옵션
-
-| 옵션 | 설명 |
-|------|------|
-| `instances: "max"` | CPU 코어 수만큼 프로세스 시작 |
-| `exec_mode: "cluster"` | 클러스터 모드 (로드 밸런싱) |
-| `max_memory_restart` | 메모리 초과 시 재시작 |
-| `error_file` | 에러 로그 경로 |
-| `merge_logs` | 여러 프로세스 로그를 한 파일로 |
+회사 규정에 따라 개발팀과 상의하세요.
 
 ---
 
-## Cloudflare Tunnel 연동
+### 2. 환경 변수 관리
 
-외부 IP 노출 없이 안전하게 배포.
+```
+❌ 안 됨:
+API_KEY="sk_live_xxx"를 코드에 직접 쓰기
 
-### 1. Tunnel 생성
-
-```bash
-# Cloudflare CLI 설치
-brew install cloudflare/cloudflare/cloudflared
-
-# 인증
-cloudflared tunnel login
-
-# 터널 생성
-cloudflared tunnel create photoism
-
-# DNS 레코드 자동 추가
-cloudflared tunnel route dns photoism api.example.com
+✅ 좋음:
+API_KEY를 GitHub Secrets에 저장
+코드에서는 ${API_KEY} 참조
 ```
 
-### 2. 설정 파일: ~/.cloudflared/config.yml
-
-```yaml
-tunnel: photoism
-credentials-file: /home/deploy/.cloudflared/TUNNEL_ID.json
-
-ingress:
-  - hostname: api.example.com
-    service: http://localhost:3000
-  - service: http_status:404
+**AI에게 말하기:**
 ```
-
-### 3. 백그라운드 실행
-
-```bash
-# Systemd 서비스
-sudo cloudflared service install
-
-# 시작
-sudo systemctl start cloudflared
-sudo systemctl status cloudflared
+API 키를 안전하게 설정해줄 수 있을까?
 ```
 
 ---
 
-## 실용 예시: Next.js 프로젝트 배포
-
-### 디렉토리 구조
+### 3. 배포 전 테스트 꼭 하기
 
 ```
-my-next-app/
-├── .github/workflows/
-│   ├── pr-validation.yml
-│   └── deploy-main.yml
-├── ecosystem.config.js
-├── package.json
-├── tsconfig.json
-├── next.config.js
-└── src/
-    ├── pages/
-    ├── components/
-    └── api/
-```
+❌ 위험:
+코드만 수정하고 테스트 안 함
+→ 배포 실패 → 사용자 피해
 
-### package.json 스크립트
-
-```json
-{
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint . --fix",
-    "typecheck": "tsc --noEmit",
-    "test": "jest",
-    "migrate": "prisma migrate deploy",
-    "seed": "node scripts/seed.js"
-  },
-  "devDependencies": {
-    "eslint": "^8.0.0",
-    "typescript": "^5.0.0",
-    "jest": "^29.0.0"
-  }
-}
-```
-
-### next.config.js
-
-```javascript
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
-  compress: true,
-  productionBrowserSourceMaps: false,
-  poweredByHeader: false,
-  env: {
-    API_URL: process.env.API_URL || "http://localhost:3000",
-  },
-};
-
-module.exports = nextConfig;
-```
-
-### 배포 순서
-
-```bash
-# 1. 로컬에서 테스트
-npm run build
-npm start
-
-# 2. PR 생성
-git checkout -b feature/new-api
-# ... 코드 작성 ...
-git push origin feature/new-api
-
-# GitHub: PR 생성 → 자동 검증 실행
-
-# 3. PR 병합
-# GitHub: Merge pull request
-
-# 4. main 배포 자동 실행
-# - build 실행
-# - migration 실행
-# - pm2 reload
-# - health check
-
-# 5. 배포 확인
-curl https://api.example.com/health
+✅ 안전:
+로컬에서 테스트 → CI/CD 자동 테스트
+→ 배포
 ```
 
 ---
 
-## 모니터링 및 롤백
+## 배포 로그 이해하기
 
-### 배포 로그 확인
+### 성공한 배포 로그
 
-```bash
-# pm2 로그 실시간
-pm2 logs photoism
+```
+[main 1a2b3c4] feat: add login page
+ 1 file changed, 50 insertions(+)
 
-# 최근 로그 (마지막 100줄)
-pm2 logs photoism --lines 100
+✅ GitHub Actions
+   └─ tests      ... PASSED
+   └─ build      ... PASSED
+   └─ deploy     ... PASSED
 
-# 특정 프로세스 로그
-pm2 logs "photoism-0"
+✨ 배포 완료 (prod 서버)
 ```
 
-### 수동 롤백
+### 실패한 배포 로그
 
-배포 후 문제 발생 시:
-
-```bash
-# 1. 이전 커밋으로 돌아가기
-git revert HEAD
-git push origin main
-
-# 2. GitHub Actions 자동 재배포 (실패한 커밋 다시 배포됨)
-
-# 또는 수동 롤백:
-git reset --hard HEAD~1
-git push origin main -f  # 주의: 팀 협업 중이면 위험
 ```
+❌ GitHub Actions
+   └─ tests      ... FAILED
+      └─ Error: Expected true, got false
+         File: tests/login.test.js:25
 
-### Health Check 스크립트
-
-배포 후 자동으로 상태 확인:
-
-```bash
-#!/bin/bash
-# scripts/health-check.sh
-
-HEALTH_URL="http://localhost:3000/health"
-MAX_RETRIES=10
-RETRY_DELAY=2
-
-for i in $(seq 1 $MAX_RETRIES); do
-  if curl -f "$HEALTH_URL" > /dev/null 2>&1; then
-    echo "Health check passed"
-    exit 0
-  fi
-  echo "Retry $i/$MAX_RETRIES..."
-  sleep $RETRY_DELAY
-done
-
-echo "Health check failed"
-exit 1
-```
-
-.github/workflows/deploy-main.yml에서 호출:
-```yaml
-- name: Health check
-  run: bash scripts/health-check.sh
+🔧 조치:
+   - 테스트 코드 수정 필요
+   - 다시 push
 ```
 
 ---
 
-## 팁
+## 💡 실전 패턴
 
-1. **PR 검증은 필수 통과**: build 및 typecheck는 `continue-on-error: false`로 설정
-2. **Self-hosted runner는 전용**: 다른 프로젝트와 공유하지 말 것 (리소스 경합)
-3. **환경 변수 분리**: .env.example에는 값 없이, 실제 값은 GitHub Secrets에서 관리
-4. **Rollback 계획**: 배포 전에 항상 롤백 경로 확인
-5. **로그 보관**: `/logs` 폴더는 정기적으로 정리 (디스크 부족 방지)
+### 아침: 코드 수정
 
-## 체크리스트
+```bash
+# 1. 코드 수정 후
+git add .
+git commit -m "feat: add logout button"
+git push
+```
 
-새 프로젝트 시작할 때:
+### 자동으로
 
-- [ ] `/cicd-setup` 실행
-- [ ] GitHub Actions runner 설정
-- [ ] pm2 ecosystem.config.js 작성
-- [ ] 환경 변수 설정 (.env.example)
-- [ ] Health check 엔드포인트 구현 (`/api/health`)
-- [ ] 배포 테스트 (staging 먼저)
-- [ ] Slack/이메일 알림 설정 (선택)
-- [ ] 롤백 계획 문서화
+```
+GitHub Actions 자동 실행
+→ 테스트 돌림
+→ 빌드 함
+→ 배포 함
+```
+
+### 오후: 배포 확인
+
+GitHub의 Actions 탭을 확인하거나:
+
+```
+AI한테 물어보기:
+"배포 상태 어때? 모든 테스트 통과했어?"
+```
+
+---
+
+## 배포 실패했을 때 AI한테 물어보기
+
+```
+GitHub Actions에서 배포가 실패했어.
+에러: "npm ERR! Cannot find module 'express'"
+
+이게 뭐고 어떻게 고쳐?
+```
+
+AI가:
+1. 문제 분석: "package.json에 express가 없음"
+2. 원인: "dependencies에 안 적혔음"
+3. 해결: "npm install express 또는 package.json 수정"
+4. 코드 제시
+
+---
+
+## 다음 단계
+
+- [troubleshooting.md](troubleshooting.md) — 배포 외 다른 문제 해결
+- [08-multi-agent.md](08-multi-agent.md) — 복잡한 배포는 AI팀으로 처리하기

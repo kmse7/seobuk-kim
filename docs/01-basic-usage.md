@@ -1,274 +1,341 @@
-# Claude Code 기본 사용법
+# 이런 걸 시킬 수 있어요 — 상황별 AI 활용법
 
-Claude Code를 이용한 실무 작업 방법을 배웁니다. 각 섹션은 실제 예시와 함께 제시됩니다.
+Claude Code를 어떻게 쓸지 모르겠다면? 여기 8가지 상황별로 정리했습니다.
 
-## 파일 작업
+---
 
-### 파일 읽기
+## 상황 1: 코드가 이해가 안 될 때
 
-Claude Code에 파일을 읽도록 요청합니다.
-
-```
-Read src/utils/auth.js
-```
-
-또는:
+### 💬 AI한테 이렇게 말하세요
 
 ```
-This file is confusing - src/components/Button.tsx - explain what it does
-```
-
-Claude Code가:
-- 파일 내용 읽음 (권한 요청 → 승인)
-- 요청에 맞게 응답
-
-### 파일 수정
-
-수정 요청:
-
-```
-Fix the bug in src/api/users.js line 45. The password validation is wrong.
+이 파일이 뭐 하는 건지 쉽게 설명해줄래? src/api/users.js
 ```
 
 또는:
 
 ```
-Add TypeScript types to src/utils/helpers.js
-```
-
-변경 시 Claude Code가:
-- 변경사항 요약 표시
-- 승인 대기 (default 모드)
-- `y` 입력으로 적용, `n`으로 거절
-
-### 파일 생성
-
-새 파일 생성:
-
-```
-Create src/config/constants.ts with these values:
-- API_BASE_URL = "https://api.example.com"
-- MAX_RETRIES = 3
-- TIMEOUT_MS = 5000
+이 함수 왜 있는 거야? src/utils/formatDate.js의 format() 함수
 ```
 
 또는:
 
 ```
-Generate a test file for src/utils/math.js. Use Jest syntax.
+이 부분 뭐 하는 코드인지 모르겠어. 45번 줄 설명해줄래?
 ```
 
-## 코드 질문
+### 📝 Claude Code가 할 일
 
-### 함수 설명 요청
+1. 파일을 읽음 (권한 물어볼 수 있음 - `y` 입력)
+2. 코드를 **쉬운 말로** 설명
+3. 왜 필요한지 설명
+4. 예시 보여줌
 
-```
-What does this function do? src/lib/parseCSV.js
-```
+---
 
-Claude Code가:
-- 파일 읽음
-- 목적, 입력값, 출력값 설명
-- 사용 예시 제시
+## 상황 2: 뭔가 고치고 싶을 때 (버그 찾기)
 
-### 버그 찾기
+### 💬 AI한테 이렇게 말하세요
 
 ```
-Review src/components/Form.tsx for bugs
-```
-
-또는:
-
-```
-Why is this API call failing? Check src/services/api.js
-```
-
-Claude Code가:
-- 코드 분석
-- 잠재 문제 지적
-- 해결책 제안
-
-### 성능 개선
-
-```
-Optimize src/utils/database.js - it's running slow
+로그인이 안 되는데 버그를 찾아줄 수 있어? src/auth/login.js
 ```
 
 또는:
 
 ```
-This function is doing N+1 queries. Fix it: src/models/User.js
-```
-
-## 터미널 명령어
-
-프로젝트 루트에서 실행할 명령어를 물어봅니다.
-
-```
-How do I run tests?
-```
-
-```
-Run npm test and show me the results
-```
-
-```
-What does this git command do? git rebase -i HEAD~3
-```
-
-Claude Code가:
-- 명령어 실행
-- 결과 표시
-- 필요시 설명
-
-## 검색 기능
-
-### Glob 패턴으로 파일 찾기
-
-```
-Find all test files in src/ (*.test.js, *.spec.ts)
-```
-
-Claude Code는 glob 패턴을 사용하여:
-- 매칭되는 모든 파일 나열
-- 찾은 파일 개수 표시
-
-### Grep으로 코드 검색
-
-```
-Where is the API_KEY constant defined? Search in src/
+이 에러가 뭔 의미야? "TypeError: Cannot read properties of undefined"
 ```
 
 또는:
 
 ```
-Find all TODO comments in the project
+프로필 이미지가 안 뜨는데 src/components/Profile.tsx 검토해줄래?
 ```
 
-Claude Code가:
-- 정규표현식으로 검색
-- 파일 위치와 줄 번호 표시
-- 관련 코드 스니펫 보여줌
+### 📝 Claude Code가 할 일
 
-## 웹 검색 및 문서 참조
+1. 코드 분석
+2. **문제가 뭔지** 정확하게 설명
+3. 어디서 잘못됐는지 가리키기
+4. **고쳐진 코드** 제시
+5. 승인 물어보기 (default 모드일 때)
+   - `y` 입력 → 적용
+   - `n` 입력 → 거절
 
-### 웹 검색
+---
 
-```
-How do I implement OAuth 2.0 in Node.js?
-```
+## 상황 3: 새로운 기능을 만들고 싶을 때
 
-```
-What's the latest version of React and what changed?
-```
-
-Claude Code가:
-- 인터넷 검색 수행
-- 신뢰할 만한 출처 참조
-- 최신 정보 제공
-
-### 라이브러리 문서
+### 💬 AI한테 이렇게 말하세요
 
 ```
-Show me the latest Express.js routing documentation
+회원가입 페이지에 "비밀번호 확인" 입력창을 추가해줄 수 있을까?
 ```
 
+또는:
+
 ```
-How do I use Prisma's transactions?
+사용자 목록을 이름으로 검색하는 기능을 만들어줄래? 백엔드는 src/models/User.js
 ```
 
-Claude Code가:
-- 공식 문서 조회
-- 최신 API 참조
-- 코드 예시 제시
+또는:
 
-## 컨텍스트 관리
+```
+다크 모드 기능 추가해줄래? 지금 있는 테마 설정을 참고해서
+```
 
-긴 세션에서는 대화 히스토리가 쌓입니다. 컨텍스트를 관리하세요.
+### 📝 Claude Code가 할 일
 
-### 컨텍스트 초기화
+1. 기존 코드 분석 (패턴 파악)
+2. **새로운 코드 작성**
+3. 기존 코드와 어떻게 연결되는지 설명
+4. 수정사항 제시
+5. 승인 요청
+
+---
+
+## 상황 4: 파일을 찾고 싶을 때
+
+### 💬 AI한테 이렇게 말하세요
+
+```
+로그인 관련 파일이 어디에 있어? 전체 프로젝트에서 찾아줄래?
+```
+
+또는:
+
+```
+"API_KEY"라는 상수가 어디서 정의되어 있어?
+```
+
+또는:
+
+```
+모든 테스트 파일을 찾아줄래. (*.test.js 또는 *.spec.ts)
+```
+
+또는:
+
+```
+"TODO" 주석을 모두 찾아줄래?
+```
+
+### 📝 Claude Code가 할 일
+
+1. 전체 프로젝트 검색
+2. 매칭되는 모든 파일 나열
+3. 각 파일이 뭐 하는 건지 설명
+4. 몇 개 찾았는지 표시
+
+---
+
+## 상황 5: 웹에서 뭔가 찾고 싶을 때
+
+### 💬 AI한테 이렇게 말하세요
+
+```
+React의 최신 버전이 뭐야? 어떤 새로운 기능이 추가됐어?
+```
+
+또는:
+
+```
+"CORS 에러" 해결 방법을 찾아줄 수 있어?
+```
+
+또는:
+
+```
+Node.js에서 파일 업로드하는 가장 좋은 라이브러리가 뭐야?
+```
+
+또는:
+
+```
+이 에러가 뭔 의미인지 웹에서 찾아줄래? "socket hang up"
+```
+
+### 📝 Claude Code가 할 일
+
+1. **인터넷 검색**
+2. 신뢰할 수 있는 출처에서 정보 모으기
+3. **가장 최신의 정보** 제공
+4. 코드 예시 보여주기
+5. 출처 링크 제시
+
+---
+
+## 상황 6: 코드를 정리하고 싶을 때
+
+### 💬 AI한테 이렇게 말하세요
+
+```
+이 코드가 좀 복잡해 보이는데 깔끔하게 정리해줄 수 있을까? src/utils/processing.js
+```
+
+또는:
+
+```
+중복된 코드를 정리해줄래? src/components/ 폴더를 보면 알 거야
+```
+
+또는:
+
+```
+주석을 달아줄 수 있어? 각 함수가 뭐 하는지 설명하는 주석
+```
+
+또는:
+
+```
+TypeScript를 추가해줄 수 있을까? src/api.js
+```
+
+### 📝 Claude Code가 할 일
+
+1. 코드 분석
+2. 정리해야 할 부분 찾기
+3. **개선된 코드** 제시
+4. 왜 이렇게 변경했는지 설명
+5. 적용할지 묻기
+
+---
+
+## 상황 7: 테스트하고 싶을 때
+
+### 💬 AI한테 이렇게 말하세요
+
+```
+테스트 한 번 돌려줄 수 있어? npm test
+```
+
+또는:
+
+```
+이 함수가 잘 작동하는지 확인해봐. src/utils/math.js
+```
+
+또는:
+
+```
+프로젝트를 빌드해서 에러가 있는지 확인해줄 수 있어?
+```
+
+또는:
+
+```
+변경사항이 완벽하게 적용됐는지 확인해줄래?
+```
+
+### 📝 Claude Code가 할 일
+
+1. **실제로 명령어 실행**
+2. 결과 보여주기
+3. 에러가 있으면 설명
+4. 문제 해결 방법 제시
+
+---
+
+## 자주 쓰는 명령어 정리
+
+세션 중에 아래 명령어들을 쓸 수 있습니다.
+
+| 명령어 | 뜻 | 언제 쓰나 |
+|--------|------|----------|
+| `/help` | 사용 가능한 모든 명령어 목록 보기 | 뭘 할 수 있는지 모를 때 |
+| `/clear` | 지금까지의 대화 모두 지우고 새로 시작 | 새로운 주제로 넘어갈 때, 헷갈릴 때 |
+| `/compact` | 대화를 요약해서 메모리 정리 | 한 기능을 다 끝낸 후 |
+| `/status` | 지금 어떤 상태인지 확인 | 뭐가 현재 설정된 건지 알고 싶을 때 |
+| `/exit` | Claude Code 끝내기 | 일 끝낼 때 |
+
+### 명령어 사용 예시
+
+**대화 초기화할 때:**
 
 ```
 /clear
 ```
 
-- 모든 대화 히스토리 삭제
-- 새로운 세션으로 시작
-- 메모리 절약
+엔터 → 모든 이전 대화 사라짐 → 새로 시작
 
-언제 사용:
-- 다른 주제로 전환할 때
-- 매우 긴 대화 후
-- 이전 파일들이 더 이상 필요 없을 때
-
-### 컨텍스트 압축
+**메모리가 부족하다고 느낄 때:**
 
 ```
 /compact
 ```
 
-- 대화를 요약하여 메모리 절약
-- 히스토리 유지
-- 성능 개선
+엔터 → 대화가 요약됨 → 성능 향상
 
-언제 사용:
-- 한 기능 구현을 마친 후
-- 다른 기능으로 넘어가기 전
-
-## 슬래시 명령어 목록
-
-세션 중 사용 가능한 모든 명령어:
-
-| 명령어 | 설명 |
-|--------|------|
-| `/help` | 사용 가능한 모든 명령어 보기 |
-| `/status` | 현재 프로젝트, 모드, AI 모델 확인 |
-| `/config` | 설정 값 보기 |
-| `/model` | 사용할 AI 모델 변경 |
-| `/clear` | 대화 히스토리 완전 삭제 |
-| `/compact` | 대화 요약 (히스토리 유지) |
-| `/exit` 또는 `Ctrl+D` | Claude Code 종료 |
-| `/login` | 인증 정보 갱신 |
-
-더 자세한 내용:
+**상태 확인할 때:**
 
 ```
-/help
+/status
 ```
 
-## 실용 예시
+엔터 → 지금 설정, 프로젝트 경로, 모드 등 표시
 
-### 예시 1: 버그 수정
+---
 
-상황: 로그인이 작동하지 않음
+## 💡 꿀팁 3가지
 
-```
-로그인이 안 돼. src/auth/login.js 확인해줄래?
-```
+### 팁 1: 정확한 파일 경로 쓰기
 
-→ Claude Code가 파일 읽음 → 문제 발견 (예: 잘못된 에러 처리) → 수정안 제시 → 승인 후 적용
-
-### 예시 2: 기능 추가
-
-상황: 사용자 검색 기능 추가 필요
+❌ 안 좋은 예:
 
 ```
-src/models/User.js에서 username으로 검색하는 메서드 추가해줄래?
+이 파일 확인해줄래? utils에서 뭔가
 ```
 
-→ Claude Code가 기존 코드 패턴 분석 → 새 메서드 작성 → 테스트 제안 → 적용
-
-### 예시 3: 리팩토링
-
-상황: 중복 코드 정리 필요
+✅ 좋은 예:
 
 ```
-src/utils/ 폴더에 중복된 함수들이 있어. 리팩토링해줄래?
+이 파일 확인해줄래? src/utils/auth.js
 ```
 
-→ Claude Code가 모든 util 파일 검사 → 중복 함수 식별 → 공통 모듈로 통합 → 변경사항 적용
+→ AI가 정확한 파일을 찾아서 더 빠르게 도움
+
+---
+
+### 팁 2: 못 이해한 척 물어보기
+
+❌ 안 좋은 예:
+
+```
+이걸 최적화해줄래?
+```
+
+✅ 좋은 예:
+
+```
+이 코드가 뭐 하는 건지 이해가 안 가. 쉽게 설명해줄 수 있을까?
+```
+
+→ AI가 더 이해하기 쉽게 설명함
+
+---
+
+### 팁 3: 한 번에 한 가지만
+
+❌ 안 좋은 예:
+
+```
+로그인 버그도 고쳐주고, 회원가입도 추가하고, 비밀번호 초기화도 만들어줄래?
+```
+
+✅ 좋은 예:
+
+```
+먼저 로그인 버그를 찾아줄 수 있을까?
+```
+
+(끝나면) → "다음으로 회원가입 추가해줄 수 있어?"
+
+→ AI가 더 집중력 있게 일함, 실수도 줄어듦
+
+---
 
 ## 다음 단계
 
-- [00-quickstart.md](00-quickstart.md)로 돌아가서 기본 설정 확인
-- [02-keyboard-shortcuts.md](02-keyboard-shortcuts.md)에서 생산성 향상 팁 학습
+- [00-quickstart.md](00-quickstart.md) — 기본 설정 다시 확인
+- [02-keyboard-shortcuts.md](02-keyboard-shortcuts.md) — 더 빠르게 쓰는 법 배우기

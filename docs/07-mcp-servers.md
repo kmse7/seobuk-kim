@@ -1,416 +1,373 @@
-# MCP 서버 연결
+# AI에게 회사 시스템 접근 권한 주기 — 외부 도구 연결
 
-## MCP란?
+## MCP가 뭔가요?
 
-**MCP** (Model Context Protocol)는 Claude가 외부 서비스와 통신하는 표준 프로토콜입니다. Claude가 GitHub, 데이터베이스, 웹 검색, 라이브러리 문서 등에 직접 접근할 수 있게 해줍니다.
+MCP는 **AI가 외부 서비스에 직접 접근하는 통로. USB 포트처럼**입니다.
 
-| 기능 | MCP 없이 | MCP 있이 |
+### 비유
+
+```
+AI가 할 수 있는 것 (MCP 없이):
+- "GitHub PR을 만들려면 이런 명령어를 써요" (설명만)
+- "데이터베이스에 쿼리를 실행해주세요" (직접 못 함)
+
+AI가 할 수 있는 것 (MCP 있이):
+- "PR을 자동으로 만들어드릴게요" (직접 실행)
+- "지난달 매출을 조회해드릴게요" (쿼리 실행)
+```
+
+### 예시 비교
+
+| 작업 | MCP 없이 | MCP 있이 |
 |------|----------|---------|
-| GitHub 접근 | 수동 복사/붙여넣기 | `gh` CLI 자동 실행 |
-| DB 쿼리 | 직접 SQL 작성 | MCP로 실행 및 결과 확인 |
-| 웹 검색 | 링크만 제시 | 실시간 검색 결과 조회 |
-| 라이브러리 문서 | 메모리에 의존 | 최신 공식 문서 조회 |
+| GitHub PR 만들기 | "이런 명령어 써요" | "자동으로 PR 생성 완료" |
+| 데이터베이스 조회 | "직접 SQL 쓰세요" | "지난달 매출: 5000만원" |
+| 웹 검색 | 링크만 제시 | 최신 검색 결과 표시 |
+| 라이브러리 문서 | 예전 기억 사용 | 최신 공식 문서 로드 |
 
-## ~/.claude.json에 서버 추가
+---
 
-Claude의 홈 디렉토리에 설정 파일을 생성합니다.
+## 연결하면 뭘 할 수 있나요?
 
-```bash
-cat > ~/.claude.json << 'EOF'
-{
-  "mcpServers": {
-    "github": {
-      "command": "gh",
-      "args": ["api"]
-    },
-    "brave-search": {
-      "command": "npx",
-      "args": ["@brave/brave-search-mcp"]
-    },
-    "playwright": {
-      "command": "npx",
-      "args": ["@anthropic-ai/mcp-server-playwright"]
-    }
-  }
-}
-EOF
+### 1️⃣ GitHub 연결 → "PR 만들어줘", "이슈 목록 보여줘"
+
+### 이런 상황일 때
+
+```
+GitHub의 PR, Issue를 AI가 자동으로 관리했으면 좋을 때
 ```
 
-## 주요 MCP 서버 및 용도
+### AI한테 이렇게 말하세요
 
-### GitHub MCP
-
-PR, Issue, 코드 검색 등을 직접 처리합니다.
-
-**설정**:
-```json
-{
-  "github": {
-    "command": "gh",
-    "args": ["api"]
-  }
-}
+```
+GitHub PR 만들어줄래?
+제목: 로그인 기능 추가
 ```
 
-**사용 예**:
+AI가 자동으로:
+1. 변경사항 정리
+2. PR 생성
+3. 제목/설명 작성
+4. GitHub에 업로드
+
+### 다른 예시
+
 ```
-내 저장소에서 "auth" 이슈 모두 찾아줄래?
-```
-
-Claude가 자동으로 실행:
-```bash
-gh issue list --label auth
-```
-
-**주요 기능**:
-- PR 생성/리뷰
-- Issue 생성/관리
-- 코드 검색
-- 커밋 히스토리 조회
-
-### Context7 MCP
-
-라이브러리 공식 문서를 실시간 조회합니다.
-
-**설정**:
-```json
-{
-  "context7": {
-    "command": "npx",
-    "args": ["@anthropic-ai/mcp-server-context7"]
-  }
-}
+우리 저장소의 "버그" 레이블 이슈 모두 보여줄래?
 ```
 
-**사용 예**:
+AI가 보여주는 것:
 ```
-React 18의 useEffect 클린업 함수 문서 보여줄래?
-```
-
-Claude가 자동으로 Context7 조회 후 최신 문서 제시.
-
-**지원 라이브러리**:
-- React, Vue, Angular
-- Next.js, Remix, Svelte
-- TypeScript, Node.js
-- Django, Flask, FastAPI
-- 수백 개 라이브러리 지원
-
-### Brave Search MCP
-
-웹 검색, 뉴스, 이미지, 비디오 검색을 수행합니다.
-
-**설정**:
-```json
-{
-  "brave-search": {
-    "command": "npx",
-    "args": ["@brave/brave-search-mcp"]
-  }
-}
+버그 이슈 3개:
+1. 로그인 버튼이 모바일에서 안 보임
+2. 결제 에러 메시지가 영어로 출력됨
+3. 사진 업로드가 느림
 ```
 
-**환경 변수** (API 키 필요):
-```bash
-export BRAVE_SEARCH_API_KEY="your-api-key"
+### ✅ 좋은 예
+
+```
+이 PR의 코드 충돌을 자동으로 해결해줄래?
 ```
 
-**사용 예**:
+### ❌ 안 좋은 예
+
 ```
-Claude 4 출시 뉴스 찾아줄래?
-```
-
-**지원 검색**:
-- `brave_web_search`: 웹 페이지
-- `brave_news_search`: 뉴스
-- `brave_image_search`: 이미지
-- `brave_video_search`: 비디오
-- `brave_local_search`: 지역 비즈니스
-
-### DBHub MCP
-
-MySQL, PostgreSQL 등 데이터베이스 쿼리를 직접 실행합니다.
-
-**설정**:
-```json
-{
-  "dbhub": {
-    "command": "npx",
-    "args": ["@anthropic-ai/mcp-server-dbhub"]
-  }
-}
+GitHub 관리해줄래?
 ```
 
-**환경 변수**:
-```bash
-export DBHUB_API_KEY="your-api-key"
-export DATABASE_URL="postgresql://user:pass@localhost/dbname"
+---
+
+### 2️⃣ 데이터베이스 연결 → "지난달 매출 조회해줘", "회원 수 몇 명이야?"
+
+### 이런 상황일 때
+
+```
+데이터베이스에서 통계를 뽑아야 할 때
 ```
 
-**사용 예**:
+### AI한테 이렇게 말하세요
+
 ```
-지난 달 판매액이 가장 높은 상품 top 5 찾아줄래?
-```
-
-Claude가 자동으로 SQL 작성 → 실행 → 결과 분석.
-
-**주의: 좀비 프로세스 해결**
-
-DBHub 사용 후 좀비 npx 프로세스가 남을 수 있습니다.
-
-해결법:
-
-```bash
-# 좀비 프로세스 확인
-ps aux | grep npx
-
-# 강제 종료
-killall -9 npx
+지난달 매출 top 5 상품 보여줄래?
 ```
 
-또는 글로벌 설치로 회피:
+AI가 자동으로:
+1. SQL 쿼리 작성
+2. 데이터베이스 실행
+3. 결과 분석
+4. 보기 좋게 정리
 
-```bash
-npm install -g @anthropic-ai/mcp-server-dbhub
+### 다른 예시
+
+```
+4월 신규 가입자는 몇 명이야?
 ```
 
-```json
-{
-  "dbhub": {
-    "command": "dbhub-server"
-  }
-}
+결과:
+```
+4월 신규 가입자: 247명
+지난달 대비: +12%
 ```
 
-### Linear MCP
+### ✅ 좋은 예
 
-Linear 이슈 트래커와 통합합니다.
-
-**설정**:
-```json
-{
-  "linear": {
-    "command": "npx",
-    "args": ["@anthropic-ai/mcp-server-linear"]
-  }
-}
+```
+최근 7일간 일일 활성 사용자 추이 보여줄래?
 ```
 
-**환경 변수**:
-```bash
-export LINEAR_API_KEY="your-linear-api-key"
+### ❌ 안 좋은 예
+
+```
+데이터 조회해줄래?
 ```
 
-**사용 예**:
+---
+
+### 3️⃣ 웹 검색 연결 → "이 기술 최신 정보 찾아줘"
+
+### 이런 상황일 때
+
 ```
-이번 스프린트 오픈된 이슈 모두 보여줄래?
-```
-
-**주요 기능**:
-- Issue 생성/조회/업데이트
-- 팀별 이슈 필터링
-- 스프린트 관리
-
-### Confluence MCP
-
-사내 Confluence 문서에 접근합니다.
-
-**설정**:
-```json
-{
-  "confluence": {
-    "command": "npx",
-    "args": ["@anthropic-ai/mcp-server-confluence"]
-  }
-}
+특정 기술이나 뉴스를 최신으로 알고 싶을 때
 ```
 
-**환경 변수**:
-```bash
-export CONFLUENCE_URL="https://company.atlassian.net/wiki"
-export CONFLUENCE_EMAIL="user@company.com"
-export CONFLUENCE_API_TOKEN="your-api-token"
+### AI한테 이렇게 말하세요
+
+```
+React 19의 새로운 기능이 뭐야?
 ```
 
-**사용 예**:
+AI가 자동으로:
+1. 웹 검색 실행
+2. 최신 소식 모음
+3. 신뢰할 만한 출처 제시
+
+### 다른 예시
+
 ```
-온보딩 문서에서 개발 환경 셋업 부분 찾아줄래?
-```
-
-### Playwright MCP
-
-브라우저 자동화를 수행합니다. (별도 섹션 참고)
-
-**설정**:
-```json
-{
-  "playwright": {
-    "command": "npx",
-    "args": ["@anthropic-ai/mcp-server-playwright"]
-  }
-}
+Claude 최신 뉴스 찾아줄래?
 ```
 
-## ToolSearch로 자동 탐색
+결과:
+```
+1. Claude 4o 출시 (2024-11-20)
+   - 성능 개선 30%
+   - 가격 인하
 
-MCP 도구를 동적으로 탐색하고 로드합니다.
-
-**.claude/settings.json**:
-```json
-{
-  "env": {
-    "ENABLE_TOOL_SEARCH": "auto"
-  }
-}
+2. 새 기능: Vision 강화
+   ...
 ```
 
-| 값 | 동작 |
-|-----|------|
-| **auto** | 필요할 때 지연 로드, 메모리 효율적 |
-| **true** | 세션 시작 시 모든 도구 로드 |
-| **false** | 자동 탐색 비활성화 |
+### ✅ 좋은 예
 
-`auto` 권장: 성능 + 유연성 최적화.
-
-## npx vs 글로벌 설치
-
-| 방식 | 장점 | 단점 |
-|------|------|------|
-| **npx** (기본) | 프로젝트 버전 관리, 격리 | 느림, 좀비 프로세스 가능 |
-| **글로벌** | 빠름, 안정적 | 버전 관리 어려움 |
-
-### npx (기본)
-
-```json
-{
-  "github": {
-    "command": "npx",
-    "args": ["@octokit/cli", "api"]
-  }
-}
+```
+AI 관련 최신 보안 위협 찾아줄래?
 ```
 
-### 글로벌 설치
+---
 
-```bash
-npm install -g @octokit/cli
+### 4️⃣ Confluence 연결 → "이 문서 내용 읽어줄래"
+
+### 이런 상황일 때
+
+```
+회사 위키 문서를 AI가 찾아서 읽어줬으면 좋을 때
 ```
 
-```json
-{
-  "github": {
-    "command": "github-api"
-  }
-}
+### AI한테 이렇게 말하세요
+
+```
+온보딩 문서에서 개발 환경 설정 부분 찾아줄래?
 ```
 
-### DBHub 좀비 문제 해결
+AI가 자동으로:
+1. Confluence 검색
+2. 해당 문서 찾기
+3. 내용 읽고 정리
+4. 필요한 부분만 요약
 
-DBHub은 반드시 글로벌 설치 권장:
+### ✅ 좋은 예
 
-```bash
-npm install -g @anthropic-ai/mcp-server-dbhub
+```
+우리 API 가이드 문서를 읽고, 인증 부분을 설명해줄래?
 ```
 
-```json
-{
-  "dbhub": {
-    "command": "dbhub-server"
-  }
-}
+---
+
+## 설정은 누가 하나요?
+
+### 처음 한 번만 개발자가 설정
+
+```
+개발자: 데이터베이스 연결해주겠습니다
+(한 번 설정)
+
+이후:
+비개발자: "지난달 매출 보여줄래?"
+AI: "자동으로 조회해드릴게요"
+(자연어로 사용)
 ```
 
-## 트러블슈팅: MCP 서버 안 뜰 때
+### 설정 후에는?
 
-### 1단계: 설정 파일 확인
-
-```bash
-cat ~/.claude.json
+```
+설정 완료 후에는
+당신이 할 일: 자연어로 요청만 하기
+AI가 할 일: 자동으로 처리
 ```
 
-JSON 문법 검증:
+---
 
-```bash
-jq . ~/.claude.json
+## 현재 연결된 서비스 목록
+
+지금 우리 회사에서 사용 가능한 MCP:
+
+- ✅ **GitHub** — PR, Issue 자동 관리
+- ✅ **웹 검색 (Brave)** — 최신 정보 검색
+- ✅ **Playwright** — 브라우저 자동화
+- ❌ **데이터베이스** — 아직 미연결 (개발팀에 요청)
+- ❌ **Confluence** — 아직 미연결 (개발팀에 요청)
+
+### 더 연결하고 싶으면?
+
+```
+개발팀에 말하기:
+"DBHub으로 데이터베이스 접근 권한 줄 수 있나요?"
+"Confluence 문서를 AI가 읽을 수 있게 해줄 수 있나요?"
 ```
 
-### 2단계: 서버 직접 실행 테스트
+---
 
-```bash
-# npx 기반
-npx @anthropic-ai/mcp-server-github help
+## ⚠️ 보안 주의사항
 
-# 글로벌 설치 기반
-github-server --version
+### 1️⃣ 로그인 정보 관리
+
+```
+✅ 좋은 방법:
+- 환경 변수에 저장
+- API 토큰 사용 (비밀번호 아님)
+- 토큰마다 권한 제한
+
+❌ 위험한 방법:
+- 실제 비밀번호 저장
+- 평문으로 설정 파일에 쓰기
+- 권한 없는 사람에게 공유
 ```
 
-### 3단계: 권한 확인
+### 2️⃣ 데이터베이스 접근 제한
 
-```bash
-# 실행 가능한지 확인
-which npx
-which github-server
+```
+AI가 할 수 있는 것:
+- 데이터 조회 (SELECT)
 
-# 권한 부여 (필요 시)
-chmod +x ~/.node_modules/bin/github-server
+AI가 절대 하면 안 되는 것:
+- 데이터 삭제 (DELETE)
+- 구조 변경 (DROP)
+- 모든 데이터 전체 조회
+
+→ 개발팀이 권한을 "읽기만 가능"으로 제한해야 함
 ```
 
-### 4단계: Claude 로그 확인
+### 3️⃣ 민감한 정보 주의
 
-Claude의 오류 로그를 확인합니다.
+```
+절대 쿼리하면 안 됨:
+- 사용자의 비밀번호
+- 신용카드 번호
+- 개인 주소
 
-```bash
-tail -50 ~/.claude/logs/mcp.log
+대신:
+- 통계 데이터만 조회
+- 익명화된 정보만 사용
 ```
 
-### 5단계: MCP 서버 재시작
+### 4️⃣ 토큰 정기 갱신
 
-```bash
-# Claude 재시작
-killall Claude
+```
+매 분기마다:
+1. API 토큰 재발급
+2. 기존 토큰 삭제
+3. 새 토큰으로 설정 업데이트
 
-# 서비스 프로세스 정리
-ps aux | grep mcp
-killall -9 npx  # 필요 시
+→ 토큰 유출에 대비
 ```
 
-## 전체 설정 예시
+---
 
-```json
-{
-  "mcpServers": {
-    "github": {
-      "command": "gh",
-      "args": ["api"]
-    },
-    "context7": {
-      "command": "npx",
-      "args": ["@anthropic-ai/mcp-server-context7"]
-    },
-    "brave-search": {
-      "command": "npx",
-      "args": ["@brave/brave-search-mcp"]
-    },
-    "dbhub": {
-      "command": "dbhub-server"
-    },
-    "linear": {
-      "command": "npx",
-      "args": ["@anthropic-ai/mcp-server-linear"]
-    },
-    "playwright": {
-      "command": "npx",
-      "args": ["@anthropic-ai/mcp-server-playwright"]
-    }
-  }
-}
+## 💡 실전 예시
+
+### 상황 1: "이번 달 가입자가 몇 명이야?"
+
+```
+당신: "4월 신규 가입자 수 알고 싶어"
+AI: 자동으로 DB 쿼리
+AI: "4월 신규 가입자: 247명"
 ```
 
-## 정리
+### 상황 2: "GitHub PR 자동으로 만들어줄래?"
 
-- **MCP**: Claude가 외부 서비스에 접근하는 표준 프로토콜
-- **주요 서버**: GitHub, Context7, Brave Search, DBHub, Linear, Confluence, Playwright
-- **ToolSearch**: `ENABLE_TOOL_SEARCH=auto`로 지연 로드
-- **npx vs 글로벌**: DBHub, Playwright 같은 복잡한 도구는 글로벌 설치 추천
-- **좀비 프로세스**: `killall -9 npx`로 정리
-- **트러블슈팅**: 설정 파일 검증 → 직접 실행 테스트 → 로그 확인
+```
+당신: "새 기능 완성했어. PR 만들어줄래?"
+AI: 자동으로 변경사항 정리
+AI: "PR #456 생성 완료"
+```
+
+### 상황 3: "최신 AI 뉴스 찾아줄래?"
+
+```
+당신: "이번 주 AI 관련 뉴스 정리해줄래?"
+AI: 웹 검색 실행
+AI: "주요 뉴스 3개 찾았습니다..."
+```
+
+---
+
+## 자주 묻는 질문
+
+### Q: MCP 연결이 안 됐으면 뭐 하지?
+
+**A: 개발팀에 말하세요.**
+
+```
+"GitHub이 연결 안 된 것 같아요. 확인해주세요"
+개발팀이 설정 확인 후 수정
+```
+
+### Q: 새 서비스를 연결하고 싶어. 뭐 해야 하지?
+
+**A: 개발팀에 요청하세요.**
+
+```
+"Slack 연결해줄 수 있나요?"
+개발팀이 MCP 설정 추가
+```
+
+### Q: 내가 토큰을 따로 설정할 수 있어?
+
+**A: 아니요. 보안상 개발팀만 가능합니다.**
+
+```
+개발팀이 토큰 관리
+당신은 자연어로 요청만 하기
+```
+
+---
+
+## 💡 실천 팁
+
+- ✅ 필요한 데이터는 자연어로 요청
+- ✅ GitHub PR은 AI에게 자동 생성 맡기기
+- ✅ 최신 정보는 웹 검색 활용
+- ✅ 회사 규칙이 있으면 개발팀에 먼저 물어보기
+- ❌ 토큰이나 비밀번호를 직접 만지지 말 것
+- ❌ 민감한 데이터 조회는 자제
+
+---
+
+## 다음 단계
+
+모든 기본 도구를 배웠습니다!
+이제 실제 업무에서 Claude Code를 활용해보세요.
+
+궁금한 점이 있으면 [troubleshooting.md](troubleshooting.md)를 확인하거나 개발팀에 물어보세요.

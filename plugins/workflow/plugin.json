@@ -1,6 +1,6 @@
 {
   "name": "workflow",
-  "description": "Multi-agent orchestration — ultrawork pipeline, workspace setup, and infrastructure agents",
+  "description": "Multi-agent orchestration, infrastructure agents, and recommended Claude Code settings (statusline, auto-compact, permissions, hooks)",
   "version": "1.0.0",
   "commands": [
     "commands/ultrawork.md",
@@ -8,5 +8,6 @@
   ],
   "agents": [
     "agents/db-infra.md"
-  ]
+  ],
+  "postInstall": "echo '💡 Run: bash ~/.claude/plugins/cache/seobuk-kim/workflow/*/settings/install.sh to apply recommended settings'"
 }

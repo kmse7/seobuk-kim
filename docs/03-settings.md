@@ -1,150 +1,82 @@
-# Settings.json 최적화
+# 내 취향대로 설정하기 — Claude Code 환경 설정
 
-## 설정 파일 우선순위
+Claude Code를 더 편하게 쓰려면, AI 비서에게 "너 이렇게 해"라는 규칙을 정해줄 수 있습니다.
 
-Claude Code는 3단계 설정 체계를 사용합니다. 아래 순서대로 로드되며, 나중 파일이 이전 파일을 덮어씁니다.
+## 1️⃣ 설정 파일이 뭔가요?
 
-1. **~/.claude/settings.json** (글로벌, 모든 프로젝트)
-2. **.claude/settings.json** (프로젝트 수준)
-3. **.claude/settings.local.json** (로컬, git 무시)
+설정 파일은 **AI 비서의 업무 매뉴얼 같은 것**입니다.
 
-로컬 환경만의 설정(API 키, 개인 환경 변수)은 `.claude/settings.local.json`에 보관합니다.
+생각해보세요:
+- 새 직원이 입사하면 회사 규칙을 알려줘야 합니다
+- "이건 이렇게 해", "저건 저렇게 해" 같은 가이드를 줍니다
+- Claude Code의 설정도 똑같습니다
 
-## 권한 모드 (defaultMode)
+### 설정 파일은 어디에 있나요?
 
-권한 모드는 Claude가 위험한 작업(파일 쓰기, 셸 실행, 파일 삭제)을 어떻게 처리할지 결정합니다.
+프로젝트 폴더에 `.claude/CLAUDE.md` 파일이 있으면, Claude Code가 그걸 읽고 규칙을 따릅니다.
 
-```json
-{
-  "defaultMode": "bypassPermissions"
-}
+또는 JSON 형식으로 `settings.json`에 저장할 수도 있습니다.
+
+---
+
+## 2️⃣ 매번 허락 받는 게 귀찮을 때
+
+### 이런 상황일 때
+
+```
+AI가 파일을 수정할 때마다
+"이거 할까요?" (승인 요청)
+이 뜨는 게 자꾸 방해됨
 ```
 
-| 모드 | 동작 | 사용 시점 |
+### 해결법: 권한 모드 설정
+
+**3가지 모드**가 있습니다:
+
+| 모드 | 의미 | 언제 쓰나 |
 |------|------|----------|
-| **bypassPermissions** | 권한 요청 없이 작업 실행 | 신뢰하는 프로젝트, 자동화 스크립트 |
-| **dontAsk** | 한 번 승인 후 세션 내 반복 |자주 같은 작업 반복 |
-| **default** (기본값) | 매번 권한 요청 | 신규 프로젝트, 민감한 작업 |
-| **plan** | 계획만 제시, 실행 안 함 | 검토 및 학습용 |
+| **default** | 파일 수정할 때마다 "이거 할까요?" 묻기 | 처음 배울 때, 중요한 작업 |
+| **bypassPermissions** | AI가 자동으로 파일 수정 (묻지 않음) | 빠르게 진행하고 싶을 때, 신뢰할 작업 |
 
-프로젝트 초기에는 `default`로 시작해 작업 패턴을 파악한 후 `bypassPermissions`으로 전환하는 것이 안전합니다.
+### AI한테 이렇게 말하세요
 
-## 환경 변수 (env)
-
-```json
-{
-  "env": {
-    "CLAUDE_MODEL": "claude-opus-4-1",
-    "ENABLE_TOOL_SEARCH": "auto",
-    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "75"
-  }
-}
+```
+모드를 bypassPermissions으로 바꿔줄래
 ```
 
-### 주요 환경 변수
-
-| 변수 | 설명 | 예시 |
-|------|------|------|
-| CLAUDE_MODEL | 사용할 모델 | claude-opus-4-1, claude-3-5-sonnet |
-| ENABLE_TOOL_SEARCH | MCP 도구 자동 로드 | auto (지연 로드), true, false |
-| CLAUDE_AUTOCOMPACT_PCT_OVERRIDE | 자동 컴팩트 시점 (%) | 75 (75% 도달 시 컴팩트) |
-
-## Hooks 설정
-
-Hooks는 특정 이벤트에 자동 실행되는 스크립트입니다.
-
-```json
-{
-  "hooks": {
-    "PreCompact": [
-      {
-        "type": "shell",
-        "command": "git status --short | head -20"
-      }
-    ],
-    "PostToolUse": [
-      {
-        "type": "shell",
-        "command": "echo 'Tool executed at $(date)'"
-      }
-    ]
-  }
-}
-```
-
-### 사용 가능한 Hooks
-
-| Hook | 시점 | 용도 |
-|------|------|------|
-| **PreCompact** | 컨텍스트 컴팩트 전 | 작업 저장, 상태 확인, 파일 백업 |
-| **PostToolUse** | 도구 실행 후 | 로깅, 캐시 정리, 알림 |
-| **PreRun** | 세션 시작 | 환경 초기화, 의존성 확인 |
-| **PostRun** | 세션 종료 | 정리, 리포트 생성 |
-
-### 컨텍스트 보존 예시 (PreCompact)
-
-세션 종료 전 중요 정보를 저장하도록 설정:
-
-```json
-{
-  "hooks": {
-    "PreCompact": [
-      {
-        "type": "shell",
-        "command": "git diff --stat > /tmp/work-in-progress.txt && echo 'Changes saved to /tmp/work-in-progress.txt'"
-      }
-    ]
-  }
-}
-```
-
-## Statusline 커스텀
-
-Claude Code 하단 상태 표시줄을 커스텀합니다.
-
-```json
-{
-  "statusline": {
-    "left": ["context-percent", "cost", "model"],
-    "right": ["timer", "token-count"]
-  }
-}
-```
-
-| 항목 | 설명 |
-|------|------|
-| context-percent | 사용 중인 컨텍스트 비율 |
-| cost | 누적 API 비용 |
-| model | 현재 모델명 |
-| timer | 세션 경과시간 |
-| token-count | 현재 토큰 수 |
-
-## Worktree Symlink 설정
-
-git worktree를 사용할 때 각 워크트리마다 용량을 낭비하지 않도록 공유 디렉토리로 symlink 생성:
-
-```json
-{
-  "worktreeSymlinks": {
-    "node_modules": "../node_modules",
-    ".venv": "../.venv",
-    ".next": "../.next"
-  }
-}
-```
-
-프로젝트 루트에서:
+또는 터미널에서:
 
 ```bash
-ln -s ../node_modules node_modules
-ln -s ../.venv .venv
+claude --mode bypassPermissions
 ```
 
-이 설정으로 각 워크트리는 같은 `node_modules`을 참조하여 디스크 용량 절약.
+### 💡 팁
+- 처음 쓰는 사람은 default 모드로 시작하세요
+- 익숙해지면 bypassPermissions로 바꿔서 시간 절약
 
-## 자동 컴팩트 설정
+### ⚠️ 주의
+- bypassPermissions는 **AI가 마음대로 파일을 수정**합니다
+- 중요한 파일이 있으면 꼭 백업해두세요
+- Git을 사용하면 언제든 예전 버전으로 돌릴 수 있으니 더 안전합니다
 
-컨텍스트 사용률이 지정 값에 도달하면 자동으로 컴팩트 실행:
+---
+
+## 3️⃣ AI가 자꾸 느려질 때
+
+### 이런 상황일 때
+
+```
+AI가 예전 대화들을 다 기억하고 있어서
+자꾸 응답이 느려짐
+```
+
+이유: AI는 우리가 한 모든 대화를 "메모리"에 쌓고 있습니다. 메모리가 가득 차면 느려집니다.
+
+### 해결법: 자동 메모리 정리 설정
+
+기능: `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` (자동 메모리 정리 시점)
+
+`.claude/settings.json` 파일에 이렇게 추가하세요:
 
 ```json
 {
@@ -154,37 +86,84 @@ ln -s ../.venv .venv
 }
 ```
 
-- `75`: 75% 도달 시 컴팩트
-- `80`: 80% 도달 시 컴팩트 (기본값)
-- `90`: 90% 도달 시 컴팩트 (더 극단적)
+또는 매번 수동으로:
 
-컨텍스트를 많이 사용하는 대형 프로젝트는 70-75%, 중소 프로젝트는 80-85%로 설정하는 것이 권장됩니다.
+```
+/compact
+```
 
-## 정리 주기 설정
+이렇게 하면:
+- 지금까지 한 대화를 요약함
+- 중요한 내용은 남기고 세부 내용은 정리
+- 메모리 절약 → 응답 속도 향상
 
-오래된 임시 파일을 정기적으로 삭제합니다.
+### 💡 팁
+- 한 기능 완성한 후에 `/compact` 하세요
+- 긴 대화를 하다 느려지면 `/clear` (완전 초기화) 해보세요
+
+---
+
+## 4️⃣ 작업 현황을 한눈에 보고 싶을 때
+
+### 이런 상황일 때
+
+```
+지금 AI가 뭘 하고 있는지 알고 싶음
+메모리는 얼마나 쓰고 있는지 궁금함
+비용이 얼마나 드는지 확인하고 싶음
+```
+
+### 해결법: statusline 설정
+
+`.claude/settings.json`에 추가:
 
 ```json
 {
-  "cleanupPeriodDays": 7
+  "statusline": {
+    "left": ["context-percent", "cost", "model"]
+  }
 }
 ```
 
-`.claude/` 디렉토리 내 7일 이상 된 캐시 파일 자동 삭제.
+또는 AI에게:
 
-## 최소 설정 예시 (권장)
+```
+지금 상태 보여줄래
+```
+
+### AI가 보여주는 정보
+
+```
+프로젝트: /Users/you/my-project
+모드: bypassPermissions
+메모리 사용: 45% (15KB / 32KB)
+토큰 비용: $0.12 (이번 세션)
+마지막 작업: 파일 수정 (5분 전)
+```
+
+### 💡 팁
+- 세션 시작할 때 한 번 확인하면 비용이 예상대로 드는지 알 수 있습니다
+- 비용이 생각보다 많으면 대화를 정리하고 `/clear` 하세요
+
+---
+
+## 5️⃣ 파일 수정 후 자동으로 뭔가 하고 싶을 때
+
+### 이런 상황일 때
+
+```
+파일을 저장할 때마다 자동으로 "코드 정리" (prettier) 하고 싶음
+커밋할 때마다 자동으로 테스트 실행하고 싶음
+```
+
+이런 **자동 실행 규칙**을 "훅(Hook)"이라고 부릅니다. USB 포트 같은 개념입니다.
+
+### 해결법: Hooks 설정
+
+`.claude/settings.json`에:
 
 ```json
 {
-  "defaultMode": "bypassPermissions",
-  "env": {
-    "ENABLE_TOOL_SEARCH": "auto",
-    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "75"
-  },
-  "statusline": {
-    "left": ["context-percent", "cost"]
-  },
-  "cleanupPeriodDays": 7,
   "hooks": {
     "PreCompact": [
       {
@@ -196,11 +175,128 @@ ln -s ../.venv .venv
 }
 ```
 
-## 정리
+### 예시
 
-- 글로벌 설정은 `~/.claude/settings.json`
-- 프로젝트별 설정은 `.claude/settings.json`
-- 로컬 비밀은 `.claude/settings.local.json`
-- `defaultMode`는 프로젝트 신뢰도에 맞게 설정
-- `ENABLE_TOOL_SEARCH: auto`로 MCP 도구 효율화
-- PreCompact hook으로 컴팩트 전 상태 저장
+파일을 수정하면 → AI가 자동으로 정렬 → 저장
+
+```
+[AI가 파일 수정]
+↓
+[자동으로 코드 정리]
+↓
+[정리된 파일 저장]
+```
+
+### 💡 팁
+- 처음에는 hooks 없이 단순하게 시작하세요
+- 나중에 "매번 이 작업 반복하는데..." 싶으면 그때 hooks 설정하세요
+
+---
+
+## 6️⃣ 설정 파일 우선순위
+
+### 규칙이 겹치면 어느 것을 따르나요?
+
+생각해보세요:
+- 회사 규칙 (모두 따라야 함)
+- 프로젝트 규칙 (이 프로젝트만 따름)
+- 내 개인 규칙 (내가 편할 때만)
+
+Claude Code도 같은 우선순위를 따릅니다:
+
+```
+1순위: 회사 규칙 (~/.claude/settings.json)
+2순위: 프로젝트 규칙 (.claude/settings.json)
+3순위: 로컬 규칙 (.claude/settings.local.json)
+```
+
+### 실제 예시
+
+회사 규칙: "파일 수정할 때마다 승인 받아야 함 (default 모드)"
+
+프로젝트 규칙: "이 프로젝트는 빠르게 (bypassPermissions 모드)"
+
+→ **프로젝트 규칙이 이기기 때문에**, 이 프로젝트에서는 자동 승인됩니다.
+
+### 💡 팁
+- 회사 규칙이 있으면 반드시 따르세요
+- 프로젝트별로 다른 규칙을 정하고 싶으면, 팀장에게 먼저 물어보세요
+
+---
+
+## 실전 예시
+
+### 상황: "매일 아침 AI가 느려서 답답함"
+
+**AS-IS (지금)**
+```
+1. Claude Code 실행
+2. 대화 시작
+3. 점점 느려짐
+4. 답답해함
+```
+
+**TO-BE (설정 후)**
+```
+1. Claude Code 실행
+2. 대화 시작
+3. 기능 완성
+4. /compact로 메모리 정리 ✅
+5. 빠른 속도 유지 ✅
+```
+
+### 상황: "매번 "승인할까요?" 묻는 게 방해됨"
+
+**AS-IS**
+```
+AI: 이렇게 수정할까요?
+> y
+AI: 이건 어때?
+> y
+AI: 그리고 이것도?
+> y
+(너무 많음)
+```
+
+**TO-BE (bypassPermissions 설정)**
+```
+AI가 자동으로 수정하고 보여줌
+(승인 요청 없음) ✅
+```
+
+---
+
+## 자주 묻는 질문
+
+### Q: 설정을 바꾸면 프로젝트가 망가지나요?
+**A: 아니요!** 설정은 AI의 행동만 바꿀 뿐, 코드 자체는 안 건드립니다.
+실수해도 Git으로 언제든 되돌릴 수 있어요.
+
+### Q: 회사와 개인 설정이 충돌하면?
+**A: 회사 규칙이 우선합니다.**
+프로젝트마다 다르게 설정하고 싶으면 팀장과 상의하세요.
+
+### Q: 메모리 정리하면 지난 대화를 못 본다고?
+**A: 지난 대화는 요약돼서 남습니다.**
+중요한 내용은 "나중에 이 작업했음"으로 기억하고, 세부 내용은 정리돼요.
+
+---
+
+## 💡 실천 팁
+
+- ✅ 처음 쓰면 기본값(default)으로 시작
+- ✅ 익숙해지면 권한 모드 변경
+- ✅ 느려지면 `/compact`
+- ✅ 백업은 Git으로 자동 관리
+- ❌ 중요한 파일은 백업 없이 수정하지 말 것
+
+---
+
+## 다음 단계
+
+[04-skills-and-commands.md](04-skills-and-commands.md)를 읽으면:
+- AI에게 특정 업무 매뉴얼을 가르치는 법 (스킬)
+- 복잡한 작업을 자동화하는 법
+- 우리 회사에서 쓸 수 있는 전문 스킬들
+
+을 배울 수 있습니다.
