@@ -196,6 +196,31 @@ AI가 코드를 작성하고 "이거 할까요?"라고 물어봅니다.
 
 ---
 
+## 회사 프레임워크 설치하기
+
+Claude Code 설치가 끝나면, 우리 회사 전용 스킬을 추가로 설치하세요.
+
+💬 AI한테 이렇게 말하세요:
+> "seobuk-kim 프레임워크 설치해줘"
+
+또는 직접 입력:
+```
+/plugin marketplace add kmse7/seobuk-kim
+/plugin install design-toolkit@seobuk-kim
+/plugin install multi-ai-review@seobuk-kim
+/plugin install devops@seobuk-kim
+/plugin install workflow@seobuk-kim
+```
+
+설치 후 추천 설정(자동 정리, 상태바 등)도 한 번에 적용:
+```
+bash ~/.claude/plugins/cache/seobuk-kim/workflow/*/settings/install.sh
+```
+
+💡 이 과정이 어렵다면 AI한테 "설치 도와줘"라고 하세요. AI가 알아서 해줍니다.
+
+---
+
 ## 다음 단계
 
 [01장 — 상황별 AI 활용법](01-basic-usage.md)에서 더 다양한 활용법을 배울 수 있습니다.
